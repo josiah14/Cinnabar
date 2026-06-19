@@ -10,5 +10,12 @@ Both require the `.par` grade.
 |---|---|
 | `01-parallel-conjunction/` | `&` operator, `det`/`cc_multi` requirement, timing comparison |
 | `02-threads/` | `thread.spawn`, `thread.channel`, producer-consumer |
+| `03-concurrent-io/` | IO across threads; child thread's independent IO token |
+| `04-granularity/` | Parallel conjunction overhead; when not to parallelize |
+| `05-deadlock/` | Waiting-for graph; semaphore mutexes; resource ordering |
+| `06-parallel-map-fold/` | Order-preserving parallel map using channels |
+| `07-uniqueness-and-threads/` | Unique modes across thread boundaries; `version_array` |
+| `08-deterministic-parallelism/` | `&` for deterministic parallelism; when `&` is safe |
+| `09-stm/` | Software transactional memory: `stm_var`, `atomic_transaction`, `retry`, `or_else` |
 
 **Not in the Mercury tutorial.**

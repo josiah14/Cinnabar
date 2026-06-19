@@ -81,6 +81,8 @@ uniqueness_koan
 buggy_index
 prop_test
 prop_gen_koan
+stm_kata
+stm_context_koan
 counter
 counter_client
 fib_profile

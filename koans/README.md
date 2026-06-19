@@ -27,5 +27,5 @@ looking until you have read the error and formed a hypothesis.
 | `determinism/` | 01-det-mismatch, 02-nondet-in-det, 03-committed-choice, 04-determinism-errors (set), 05-promise-equivalent-solutions, 06-cc-nondet-solutions |
 | `parsing/` | 01-dcg-goals, 02-dcg-mixed, 03-dcg-mode, 04-dcg-nondet, 05-phrase-string, 06-phrase-det, 07-stateful-branch |
 | `tooling/` | 01-grade (text only), 02-module-name, 03-pure-predicate-optimization (text only), 04-require-complete-switch, 05-memo-io, 06-tail-rec-pragma, 07-test-det, 08-property-generator |
-| `concurrency/` | 01-parallel, 02-shared-state, 03-spawn-det, 05-spawn-propagate, 06-channel-sentinel |
+| `concurrency/` | 01-parallel, 02-shared-state, 03-spawn-det, 05-spawn-propagate, 06-channel-sentinel, 07-stm-context |
 | `advanced/` | 01-ffi, 02-existential-escape, 03-impure-foreign-proc, 04-univ-det, 05-export-arity, 06-foreign-enum |

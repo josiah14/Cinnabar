@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+mmc --make stm_kata
+./stm_kata

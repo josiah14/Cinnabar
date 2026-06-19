@@ -116,8 +116,11 @@ but would lift the curriculum from "solid" to "comprehensive."
   through all disjunction branches; also teaches why disjunction → if-then-else for
   semidet DCG. COMPILER-LESSONS.md updated.
 
-- [ ] **STM coverage** — `stm` module / `atomic/2` completely absent. Concurrency kata
-  or koan.
+- [x] **STM coverage** — `katas/concurrency/09-stm`: bank transfer kata covering
+  `new_stm_var`, `read_stm_var`, `write_stm_var`, `atomic_transaction`, `retry`,
+  and `or_else` for non-blocking fallback; `koans/concurrency/07-stm-context`:
+  `read_stm_var` called with `!IO` — type error `io.state` vs `stm_builtin.stm`.
+  COMPILER-LESSONS.md updated (section 6e).
 
 - [ ] **Solver types** — `advanced/02-solver-types` is a broken reference kata. Near-term
   plan in `CLP-PLAN.md`: update kata with honest CLP situation + working `solver type`

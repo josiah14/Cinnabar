@@ -1079,6 +1079,58 @@ is undefined and a separate "undefined predicate `error'/1`" error fires.
 
 ---
 
+## 6e. Software transactional memory
+
+### `read_stm_var` with `!IO` — type error: `io.state` vs `stm_builtin.stm`
+
+**Symptom:**
+```
+in argument 3 of call to predicate `stm_builtin.read_stm_var'/4:
+  type error: variable `STATE_VARIABLE_IO_N' has type `io.state',
+  expected type was `stm_builtin.stm'.
+```
+
+**Cause:** `read_stm_var` (and `write_stm_var`, `retry`) require a `stm::di, stm::uo`
+state variable pair — the transaction context. Passing `!IO` (`io.state`) is a type
+error. There is no implicit coercion between the two state types.
+
+The error often cascades: the `stm` output of `read_stm_var` then gets fed to the
+next call that expected `io.state`, generating a second error.
+
+**Fix:** Wrap the call inside `atomic_transaction`:
+
+```mercury
+atomic_transaction(
+    (pred(Val::out, S0::di, S::uo) is det :-
+        read_stm_var(Var, Val, S0, S)
+    ), Result, !IO).
+```
+
+`atomic_transaction` is the gate from IO context into transaction context. The
+lambda receives `S0::di, S::uo` — those are the `stm` state variables.
+
+---
+
+### `unit` type requires `import_module unit`
+
+**Symptom:**
+```
+error: undefined symbol `unit'/0.
+```
+
+**Cause:** The `unit` type (used as a "void" return from transactions that don't
+produce a value) is in `import_module unit`, not in any default imports.
+
+**Fix:** Add `import_module unit.` and use `unit::out` + `_` to discard:
+```mercury
+atomic_transaction(
+    (pred(unit::out, S0::di, S::uo) is det :-
+        write_stm_var(Var, NewVal, S0, S)
+    ), _, !IO).
+```
+
+---
+
 ## 7c. Property-based testing
 
 ### `int.between/3` does not exist in Mercury 22 — use `int.nondet_int_in_range/3`
