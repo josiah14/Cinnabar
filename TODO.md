@@ -139,6 +139,120 @@ but would lift the curriculum from "solid" to "comprehensive."
   `import_module` in interface sections, and swapping the implementation from `list(T)`
   to `assoc_list(T, int)` without touching the client. Compiles clean against stubs.
 
+- [ ] **`promise_equivalent_solutions` kata** (determinism track) — dedicated kata for both
+  `promise_equivalent_solutions [Vars]` (variables form, semidet result) and
+  `promise_equivalent_solutions [!:IO]` (IO-threading form, lets `cc_multi` sit in a `det`
+  predicate without propagating upward). Show when each form applies and what goes wrong when
+  the wrong one is used. Cross-reference with COMPILER-LESSONS sections 6 and 6b.
+
+- [ ] **FFI pragma attributes kata** (advanced track) — kata covering the pragma combination
+  space for `foreign_proc`: `will_not_call_mercury` (omitting causes per-call engine mutex
+  acquisition), `promise_pure` (omitting makes the proc impure — error at declaration),
+  `thread_safe` (needed in parallel grade). Show the error each omission produces. Cross-
+  reference with COMPILER-LESSONS sections 6d and advanced/03-impure-foreign-proc koan.
+
+- [ ] **Array threading vs `version_array` kata** (foundations or mode-system track) — kata
+  that makes the uniqueness cost of `array` concrete: show chaining with `!` state threading
+  vs the copy-on-write semantics of `version_array`. Explain when each is appropriate.
+  Cross-reference with COMPILER-LESSONS section on array uniqueness and foundations/09.
+
+### Koans from COMPILER-LESSONS entries (no existing koan coverage)
+
+Audit of all COMPILER-LESSONS.md entries found the following gaps. Each entry below
+has at least one COMPILER-LESSONS section with no existing koan.
+
+**Foundations track**
+
+- [ ] **`koans/foundations/13-missing-module-imports`** — five missing-import errors in one
+  koan set: `char` (`undefined type 'char'/0`), `bool` (`undefined type 'bool'/0`),
+  `math` (`undefined symbol 'float.log'/1` — math funcs are in `math`, not `float`),
+  `unit` (`unit type requires import_module unit`), and `string`
+  (`undefined symbol 'i'/1` in `io.format` — `s()`, `i()` format constructors come from
+  `import_module string`).
+
+- [ ] **`koans/foundations/14-use-module-interface`** — `use_module` in the interface section
+  makes imported names opaque to callers (types visible, qualified names not re-exported).
+  Koan: module A does `use_module b` in interface; module C imports A and calls `b.pred` —
+  error: `module 'b' not visible`. Fix: `import_module` in interface. Cross-reference
+  advanced/06-abstract-module kata which uses this distinction intentionally.
+
+- [ ] **`koans/foundations/15-int-operators`** — two arithmetic/comparison surprises in one
+  koan: (1) `/` is not defined for `int` — use `//`; error: "no matching mode for `//'/2`"
+  using `/`; (2) `=\=` does not exist in Mercury — use `\=`; error: "undefined symbol
+  `=\\=/2`". Fix both.
+
+- [ ] **`koans/foundations/16-goal-expression`** — `=` is a goal in Mercury, not an
+  expression. Koan: `bool_val(VA = VB)` inside a functor application — error: "language
+  construct `='/2` should be used as a goal, not as an expression." Fix: if-then-else.
+
+- [ ] **`koans/foundations/17-error-message-ambiguity`** — `io.error_message` has both a
+  function form and a predicate form; using it inline in an `io.format` call triggers type
+  ambiguity. Koan: `io.format("Error: %s\n", [s(io.error_message(E))], !IO)` — error:
+  "ambiguous overloading". Fix: bind result first with predicate form.
+
+- [ ] **`koans/foundations/18-foldl-func`** — `list.foldl` takes `pred(L, A, A)`, not
+  `func(L, A) = A`. Koan: `list.foldl(func(X, Acc) = Acc + X, List, 0, Sum)` — type or
+  mode error. Fix: rewrite as a pred lambda with explicit accumulator pair. (Distinct from
+  foundations/10-foldl-accumulator which teaches `!X` in lambda head, not pred-vs-func.)
+
+- [ ] **`koans/foundations/19-char-digit`** — two `char` module surprises: (1)
+  `char.digit_to_int` does not exist — use `char.decimal_digit_to_int`; (2)
+  `char.decimal_digit_to_int` is `semidet` and cannot bind a variable in an if-then-else
+  condition — must call it as a goal in the condition, not as a function. Two-part koan or
+  two errors in sequence.
+
+**Type-system track**
+
+- [ ] **`koans/type-system/09-instance-method-body`** — comma inside `where [...]` is an item
+  separator, not a conjunction. Koan: instance method body with two goals separated by `,`
+  inside the `where` block — parse error or wrong interpretation. Fix: delegate to a
+  module-level predicate.
+
+- [ ] **`koans/type-system/10-phantom-constructor`** — `:- type metres.` looks like a phantom
+  type declaration but actually declares an *abstract* type (no definition). Error: "abstract
+  declaration has no corresponding definition." Fix: `---> metres_unit` constructor (never
+  called, satisfies Mercury's requirement).
+
+**Mode-system track**
+
+- [ ] **`koans/mode-system/07-function-semidet`** — multi-clause function with pattern
+  matching inside the clause body is inferred `semidet`, not `det`. Koan: function declared
+  `det`, body matches on result of a call and unifies — Mercury infers `semidet`. Fix:
+  restructure or declare appropriately.
+
+**Determinism track**
+
+- [ ] **`koans/determinism/07-nondet-condition-multi`** — `nondet` predicate used in the
+  condition of an if-then-else from a `det` context → caller inferred `multi`. Distinct from
+  determinism/02 (which covers `nondet` called *directly* in a `det` body, not via
+  if-then-else condition). Fix: wrap generator in `solutions/2` first, or use a `semidet`
+  condition.
+
+**Concurrency track**
+
+- [ ] **`koans/concurrency/08-promise-equiv-io`** — `cc_multi` from `thread.spawn` inside a
+  `det` `main` without propagating upward. Koan: `main` is `det`, spawn call makes it
+  `cc_multi`, error fires. Fix: wrap the spawn block in
+  `promise_equivalent_solutions [!:IO]`. Teaches the IO-threading form specifically
+  (concurrency/03 and 05 cover the spawn-callback and propagation patterns).
+
+**Tooling track**
+
+- [ ] **`koans/tooling/09-prop-operators`** — two property-testing surprises: (1)
+  `int.between(Low, High, N)` doesn't exist in Mercury 22 — use
+  `int.nondet_int_in_range(Low, High, N)`; (2) `list.length(Xs) = list.length(Ys)` in a
+  property expression causes "ambiguous overloading" (length has int and pred(int) forms) —
+  fix: predicate form with explicit variable. Two-part koan or two errors in sequence.
+
+**Advanced track**
+
+- [ ] **`koans/advanced/08-ffi-mutex`** — omitting `will_not_call_mercury` from a
+  `foreign_proc` pragma causes Mercury to acquire the engine mutex on every FFI call.
+  Koan: foreign proc without the attribute, showing the pragma form and explaining the
+  performance consequence (not a compile error — a runtime/correctness contract koan).
+  May work better as text-only with an explanation of the four common attribute combinations
+  and what each omission costs.
+
 ---
 
 ## Tier 4 — Infrastructure
