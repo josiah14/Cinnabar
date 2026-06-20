@@ -15,17 +15,21 @@
 
 :- type token ---> int_tok(int) ; plus ; minus ; star ; slash ; lparen ; rparen.
 
-% FIX: tokenize is now det — tokens/3 is det, so no failure possible
-:- pred tokenize(string::in, list(token)::out) is det.
+% Strict lexer: fails if any input is left untokenised. token_list stops at the
+% first unrecognised character, so a non-empty remainder means the input contained
+% something the lexer does not accept (e.g. "1 @ 2"). Failing here keeps such input
+% from silently parsing as a prefix and returning a wrong answer.
+:- pred tokenize(string::in, list(token)::out) is semidet.
 tokenize(Input, Tokens) :-
     Chars = string.to_char_list(Input),
-    tokens(Tokens, Chars, _).
+    tokens(Tokens, Chars, Rest),
+    Rest = [].
 
 :- pred tokens(list(token), list(char), list(char)).
 :- mode tokens(out, in, out) is det.
 tokens(Ts) --> whitespace, token_list(Ts).
 
-% FIX: multiple clauses → if-then-else
+% Deterministic chain: consume one token or terminate with []; no backtracking.
 :- pred token_list(list(token), list(char), list(char)).
 :- mode token_list(out, in, out) is det.
 token_list(Ts) -->
@@ -37,7 +41,7 @@ token_list(Ts) -->
         { Ts = [] }
     ).
 
-% FIX: multiple clauses → if-then-else chain
+% Maximal-munch tokenisation as a deterministic conditional chain.
 :- pred one_token(token, list(char), list(char)).
 :- mode one_token(out, in, out) is semidet.
 one_token(T) -->
@@ -61,7 +65,7 @@ one_token(T) -->
         { fail }
     ).
 
-% FIX: multiple clauses → if-then-else
+% Greedy: consume digit characters while available, succeed with [] otherwise.
 :- pred digits(list(char), list(char), list(char)).
 :- mode digits(out, in, out) is det.
 digits(Ds) -->
@@ -71,7 +75,7 @@ digits(Ds) -->
         { Ds = [] }
     ).
 
-% FIX: multiple clauses → if-then-else
+% Skip any run of whitespace; always succeeds (zero or more).
 :- pred whitespace(list(char), list(char)).
 :- mode whitespace(in, out) is det.
 whitespace -->
@@ -88,7 +92,7 @@ whitespace -->
 :- mode expr(out, in, out) is semidet.
 expr(V) --> term(T), expr_rest(T, V).
 
-% FIX: multiple clauses → if-then-else
+% Left-associative +/- via a tail-recursive accumulator.
 :- pred expr_rest(int, int, list(token), list(token)).
 :- mode expr_rest(in, out, in, out) is semidet.
 expr_rest(Acc, V) -->
@@ -104,7 +108,8 @@ expr_rest(Acc, V) -->
 :- mode term(out, in, out) is semidet.
 term(V) --> factor(F), term_rest(F, V).
 
-% FIX: multiple clauses → if-then-else; F \= 0 not F =\= 0 (=\= doesn't exist)
+% Left-associative */÷ via accumulator. Division guard: F \= 0 uses structural
+% unification — Mercury's arithmetic has no =\=/2.
 :- pred term_rest(int, int, list(token), list(token)).
 :- mode term_rest(in, out, in, out) is semidet.
 term_rest(Acc, V) -->
@@ -116,7 +121,7 @@ term_rest(Acc, V) -->
         { V = Acc }
     ).
 
-% FIX: multiple clauses → if-then-else
+% Parenthesised subexpressions, integer literals, and unary minus.
 :- pred factor(int, list(token), list(token)).
 :- mode factor(out, in, out) is semidet.
 factor(V) -->
@@ -135,8 +140,7 @@ factor(V) -->
 
 :- func calculate(string) = maybe(int).
 calculate(Input) = Result :-
-    tokenize(Input, Tokens),
-    ( expr(V, Tokens, []) ->
+    ( tokenize(Input, Tokens), expr(V, Tokens, []) ->
         Result = yes(V)
     ;
         Result = no
@@ -150,6 +154,7 @@ main(!IO) :-
         "100 / 10 / 2",       % 5 (left-assoc)
         "10 / 0",             % no
         "1 + ",               % no (parse error)
+        "1 @ 2",              % no (invalid character — not yes(1))
         "-5 + 3"              % -2
     ],
     list.foldl(

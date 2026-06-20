@@ -41,8 +41,8 @@ Katas and koans are organized into tracks. Puzzles draw on multiple tracks and l
 |---|---|---|---|
 | Foundations | 12 | 20 | `katas/foundations/00-reactivation/01-hello-world` |
 | Type system | 10 | 10 | `katas/type-system/01-discriminated-unions` |
-| Mode system | 8 | 7 | `katas/mode-system/01-insts-and-modes` |
-| Determinism | 7 | 7 | `katas/determinism/01-six-categories` |
+| Mode system | 8 | 8 | `katas/mode-system/01-insts-and-modes` |
+| Determinism | 7 | 8 | `katas/determinism/01-six-categories` |
 | Parsing | 9 | 7 | `katas/parsing/01-dcg-basics` |
 | Tooling | 6 | 9 | `katas/tooling/01-grades` |
 | Concurrency | 9 | 7 | `katas/concurrency/01-parallel-conjunction` |
@@ -55,7 +55,7 @@ Eleven bridges in `bridge/`, each handing you a working file and asking you to e
 | Bridge | Concept |
 |---|---|
 | `01-maybe-extend` | Maybe chaining, option handling |
-| `02-pipeline-extend` | Channel-based concurrent pipelines |
+| `02-pipeline-extend` | Higher-order filter/map/fold pipeline grouping |
 | `03-dcg-extend` | DCG grammars and token parsers |
 | `04-determinism-ratchet` | Committed choice, parallel conjunctions |
 | `05-mode-reversal` | Multi-mode predicates, `promise_equivalent_clauses` |

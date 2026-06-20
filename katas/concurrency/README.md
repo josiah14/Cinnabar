@@ -4,6 +4,8 @@ Mercury supports two concurrency models: **parallel conjunction** (`&`) for
 fork-join parallelism over `det` computations, and **threads** (`thread.spawn`,
 `thread.channel`) for independent concurrent tasks communicating through channels.
 
+The track begins with the safest form (`&` over det goals), then moves to manual thread/channel programming, resource hazards (deadlock, granularity, uniqueness at thread boundaries), and ends at software transactional memory (STM) for coordinated multi-variable access. The payoff is understanding *which tool to reach for*: `&` when you need parallel speedup with no coordination; channels when tasks need to communicate; STM when multiple shared variables need to change atomically.
+
 Both require the `.par` grade.
 
 | Kata | Topic |

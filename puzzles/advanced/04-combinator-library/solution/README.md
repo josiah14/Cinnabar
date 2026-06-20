@@ -41,9 +41,7 @@ Mode declarations then read like contracts:
 
 ## many — the determinism argument
 
-`many` wraps `call(P, ...)` in an if-then-else condition. The semidet branch is
-the condition (try P once, commit or stop). The overall predicate is `det`
-because it always terminates with a list:
+`many` runs P in an if-then-else condition and recurses on the residual input:
 
 ```mercury
 many(P, Results, Input, Rest) :-
@@ -56,9 +54,51 @@ many(P, Results, Input, Rest) :-
     ).
 ```
 
-If `call(P, ...)` were `nondet`, the if-then-else would still commit to one
-solution — but you declared the combinator accepts a `parser_semidet`, so the
-mode checker knows to expect at most one.
+The combinator is `det` because every call has exactly one outcome: P either
+succeeds (extend the list, recurse) or fails (stop with what we have). The
+`parser_semidet` inst is what makes this hold — P has at most one solution, and that
+single binding `V` flows into the then-branch (`Results = [V | Vs]`) without
+multiplying. If P were `nondet`, exporting `V` into the then-branch would carry P's
+multiplicity out with it and `many` would no longer be `det` — an if-then-else only
+commits the condition's nondeterminism for variables that *stay* in the condition (see
+the bidirectional-search solution notes for the full account).
+
+## many — the progress invariant (must consume on success)
+
+`det` counts *solutions*, not *steps*: it does not promise termination. `many` is
+`det` and can still loop forever. The inst `parser_semidet` declares **cardinality**
+(P yields at most one solution); it says nothing about **progress** (whether a
+successful P shortens the input).
+
+`many` recurses on `Mid`, the input P hands back. If P can succeed *without consuming
+a token* — returning `Mid = Input` — the next call sees the identical input, succeeds
+again, and the recursion never bottoms out. `many(pure(V))` type-checks and diverges;
+so does `many` of any parser with a zero-width success. No inst rules this out:
+cardinality is statically checkable, progress is not. (Verified — the unguarded
+`many` over a non-consuming parser runs until killed.)
+
+The invariant the caller must uphold: **a parser passed to `many` consumes at least
+one token whenever it succeeds.** Every consuming primitive here goes through `item`,
+which strips one character, so `satisfy(...)`, `digit`, and `literal` are safe; `pure`
+is not.
+
+To enforce the invariant rather than assume it, make `many` require the residual to
+shrink before recursing:
+
+```mercury
+many(P, Results, Input, Rest) :-
+    ( call(P, V, Input, Mid), list.length(Mid) < list.length(Input) ->
+        many(P, Vs, Mid, Rest),
+        Results = [V | Vs]
+    ;
+        Results = [],
+        Rest = Input
+    ).
+```
+
+A zero-width success now falls through to the base case instead of looping, at the
+cost of a length comparison per step. (Compile-checked: `det`, and it terminates on
+both consuming and non-consuming parsers.)
 
 ## choice_det vs choice_semidet
 

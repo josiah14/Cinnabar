@@ -42,7 +42,7 @@ fill_cells(Grid, Solved) :-
         Solved = Grid
     ).
 
-% FIX: use recursive descent instead of nth_member (nondet) so this is semidet
+% Recursive descent so first_empty is semidet: nth_member would be nondet.
 :- pred first_empty(grid::in, int::out, int::out) is semidet.
 first_empty(Grid, R, C) :-
     first_empty_row(Grid, 1, R, C).
@@ -63,7 +63,8 @@ first_zero([V | Rest], N, C) :-
         first_zero(Rest, N + 1, C)
     ).
 
-% FIX: if-then-else avoids nondet multiple-clause determinism issue
+% Returns unchanged grid on out-of-bounds (dead branch in practice — the solver
+% only calls this with valid (R, C) coordinates within a 9×9 grid).
 :- pred set_cell(grid::in, int::in, int::in, int::in, grid::out) is det.
 set_cell(Grid, R, C, D, Result) :-
     ( Grid = [] ->
@@ -78,6 +79,8 @@ set_cell(Grid, R, C, D, Result) :-
         Result = []
     ).
 
+% Returns [] on out-of-bounds; safe because set_cell only calls this with a
+% valid column index C within a 9-element row.
 :- pred set_nth(list(int)::in, int::in, int::in, list(int)::out) is det.
 set_nth(List, N, V, Result) :-
     ( List = [_ | T], N = 1 ->
@@ -104,6 +107,8 @@ no_dups(Vs) :-
     list.length(D, LenD),
     LenNz = LenD.
 
+% Returns [] on out-of-bounds; safe because valid_so_far only calls this with
+% row indices produced by first_empty, which are always within 1–9.
 :- pred get_row(grid::in, int::in, list(int)::out) is det.
 get_row(Grid, N, Row) :-
     ( Grid = [R | _], N = 1 ->

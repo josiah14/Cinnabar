@@ -1,6 +1,6 @@
 # Bridge: error-handling patterns
 
-**After:** `katas/foundations/02-maybe`, `katas/foundations/07-io-error-handling`
+**After:** `katas/foundations/02-maybe`, `katas/foundations/07-exceptions`
 
 **Why Mercury:** the type system makes the error contract part of the signature.
 A `maybe(T)` return is `det` — it never fails, it just carries absence. An `io.res(T)`
@@ -117,10 +117,13 @@ Use `io.open_input(Filename, OpenResult, !IO)`. Its result is `io.res(io.text_in
 )
 ```
 
-Write a helper `read_lines(Stream, Lines, !IO)` that calls
-`io.read_line_as_string(Stream, LineResult, !IO)` in a loop.
-`io.result(string)` is `ok(Line) | eof | error(io.error)` — stop on `eof`, propagate
-errors up. For this exercise, stop on IO error and discard any partial lines.
+Write a helper that reads the lines and reports failure honestly. Give it the signature
+`read_lines(Stream, io.res(list(string)), !IO)` and call
+`io.read_line_as_string(Stream, LineResult, !IO)` in a loop. `io.result(string)` is
+`ok(Line) | eof | error(io.error)` — stop with `ok(Lines)` on `eof`, and on an IO error
+return `error(Err)` so the failure **propagates** to `load_users` instead of vanishing.
+Returning a plain `list(string)` and mapping `error(_)` to `[]` would hand back a
+truncated `ok` — the exact silent-failure `io.res` exists to prevent.
 
 File format: one record per line, `key=value` pairs separated by commas. Parse each line
 into an assoc_list and pass it to the existing `parse_user`. Hint:

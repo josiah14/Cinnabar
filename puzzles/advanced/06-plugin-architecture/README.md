@@ -37,6 +37,11 @@ concrete types.
 
 `plugin_name` returns a display name. `apply` transforms an input string.
 
+> **Heads-up:** Mercury reserves the *unqualified* name `apply` for higher-order
+> application. After you deconstruct a boxed plugin, calling `apply(X, S)` will be
+> read as "call closure `X` on `S`" and fail to mode-check. Module-qualify the call
+> (`yourmodule.apply(X, S)`) or name the method something else (e.g. `format_with`).
+
 ---
 
 ## The existential wrapper
@@ -46,8 +51,11 @@ concrete types.
 ```
 
 This lets you store any `formatter(T)` instance in the same `plugin` box.
-Construct with `plugin(Value)` where Mercury infers T from Value and checks that
-`formatter(T)` has an instance. Deconstruct in a clause head or with `=` — Mercury
+Construct with `'new plugin'(Value)` — the `'new'` syntax is required for
+existentially quantified constructors; bare `plugin(Value)` is a type error, because
+the argument slot has the existential type `(some [T] T)`, which will not unify with a
+concrete value. Mercury infers `T` from `Value` and checks that `formatter(T)` has an
+instance. Deconstruct in a clause head or with `=` (no `'new'` needed) — Mercury
 brings the constraint `formatter(T)` back into scope for the existential body.
 
 ---

@@ -6,6 +6,7 @@
 :- implementation.
 :- import_module char.
 :- import_module list.
+:- import_module maybe.
 :- import_module string.
 
 %---------------------------------------------------------------------------%
@@ -84,16 +85,39 @@ unquoted_chars(Cs) -->
     ).
 
 %---------------------------------------------------------------------------%
-% Top-level — parse_csv is det so call directly
+% Top-level — strict. parse_csv stops at the first row it cannot parse and
+% returns the rows so far, leaving the unparsed remainder in Rest. Requiring
+% Rest = [] turns a malformed row into `no` instead of silently truncating the
+% file at that point (treating a parse failure as end-of-input).
 
-:- func parse(string) = csv.
-parse(Input) = Rows :-
+:- func parse(string) = maybe(csv).
+parse(Input) = Result :-
     Chars = string.to_char_list(Input),
-    parse_csv(Rows, Chars, _).
+    parse_csv(Rows, Chars, Rest),
+    ( Rest = [] ->
+        Result = yes(Rows)
+    ;
+        Result = no
+    ).
+
+:- pred show(string::in, io::di, io::uo) is det.
+show(Input, !IO) :-
+    Result = parse(Input),
+    (
+        Result = yes(Rows),
+        io.write_string("ok:\n", !IO),
+        list.foldl(
+            (pred(Row::in, !.IO::di, !:IO::uo) is det :-
+                io.write_string("  ", !IO), io.write_line(Row, !IO)),
+            Rows, !IO)
+    ;
+        Result = no,
+        io.write_string("parse error (malformed input)\n", !IO)
+    ).
 
 main(!IO) :-
-    Sample = "name,age,city\nAlice,30,\"New York\"\nBob,25,\"San Francisco, CA\"\n",
-    Rows = parse(Sample),
-    list.foldl(
-        (pred(Row::in, !.IO::di, !:IO::uo) is det :- io.write_line(Row, !IO)),
-        Rows, !IO).
+    Good = "name,age,city\nAlice,30,\"New York\"\nBob,25,\"San Francisco, CA\"\n",
+    Bad  = "name,age\nAlice,\"unterminated",
+    show(Good, !IO),
+    io.nl(!IO),
+    show(Bad, !IO).

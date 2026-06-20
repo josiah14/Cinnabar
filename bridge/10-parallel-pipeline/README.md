@@ -36,7 +36,10 @@ Both workers must be `cc_multi` (they call `channel.put`, which threads `!IO`).
 Spawn each with `thread.spawn`.
 
 The output channel receives results from two senders in interleaved order —
-document this in a comment. The writer does not need to change.
+document this in a comment. **The writer does need to change**: with two workers the
+output now carries two sentinels (one per worker), so a writer that stops at the first
+`no` drops the other worker's tail. Make the writer count one sentinel per producer
+(or add a merger stage). See the solution notes for the fan-in fix.
 
 ### 2. Bounded-buffer channel
 

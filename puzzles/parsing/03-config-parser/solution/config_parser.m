@@ -22,7 +22,6 @@
 %---------------------------------------------------------------------------%
 % Parser
 
-:- func parse_config(string) = config.
 parse_config(Input) = config(SectionMap) :-
     Lines = string.split_at_char('\n', Input),
     parse_lines(Lines, "", map.init, SectionMap).
@@ -48,6 +47,12 @@ parse_lines([Line | Lines], Section0, M0, M) :-
         map.set(Section0, SM1, M0, M1),
         parse_lines(Lines, Section0, M1, M)
     ;
+        % Lenient policy (deliberate): a line that is none of the above — not
+        % blank, comment, section header, or key=value — is skipped. This keeps
+        % the parser robust to stray input, but it also means a malformed setting
+        % such as "port 8080" (missing '=') is dropped silently. To surface such
+        % lines instead, thread a list(string) of skipped lines through this fold
+        % and return it alongside the config so the caller can report them.
         parse_lines(Lines, Section0, M0, M)
     ).
 
@@ -71,7 +76,6 @@ is_key_value(Line, Key, Value) :-
 %---------------------------------------------------------------------------%
 % Accessor
 
-:- func get(config, string, string) = maybe(string).
 get(config(M), Section, Key) = Result :-
     ( map.search(M, Section, SM), map.search(SM, Key, V) ->
         Result = yes(V)

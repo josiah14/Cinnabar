@@ -1,5 +1,11 @@
 # Solution notes
 
+> **Imports:** the starter (`error_patterns.m`) does not import `int`, but the extension
+> tasks do integer arithmetic and comparison (`string.length(E) - Pos - 1` in Task 1,
+> `A =< 0` in Task 2). Add `:- import_module int.` or those lines fail — `-` resolves to
+> the `pair` constructor and `=<` is undefined without it. (Verified: the full Task 1–3
+> solution compiles and runs with `int` imported.)
+
 ## Task 1: `maybe` chaining
 
 ```mercury
@@ -97,43 +103,78 @@ load_users(Filename, Result, !IO) :-
     io.open_input(Filename, OpenResult, !IO),
     (
         OpenResult = ok(Stream),
-        read_lines(Stream, RevLines, !IO),
+        read_lines(Stream, LinesResult, !IO),
         io.close_input(Stream, !IO),
-        Lines = list.reverse(RevLines),
-        NonEmpty = list.filter(pred(L::in) is semidet :- L \= "", Lines),
-        Users = list.map(parse_line, NonEmpty),
-        Result = ok(Users)
+        (
+            LinesResult = ok(Lines),
+            NonEmpty = list.filter((pred(L::in) is semidet :- L \= ""), Lines),
+            Users = list.map(parse_line, NonEmpty),
+            Result = ok(Users)
+        ;
+            LinesResult = error(Err),
+            Result = error(Err)
+        )
     ;
         OpenResult = error(Err),
         Result = error(Err)
     ).
 
-:- pred read_lines(io.text_input_stream::in, list(string)::out,
+% read_lines returns io.res(list(string)). An IO error part-way through is
+% propagated as error(Err); it is NOT swallowed into a truncated ok. The lines
+% come back in file order, so load_users needs no reverse.
+:- pred read_lines(io.text_input_stream::in, io.res(list(string))::out,
     io::di, io::uo) is det.
-read_lines(Stream, Lines, !IO) :-
+read_lines(Stream, Result, !IO) :-
     io.read_line_as_string(Stream, LineResult, !IO),
     (
         LineResult = ok(Line),
-        read_lines(Stream, Rest, !IO),
-        Lines = [string.rstrip(Line) | Rest]
+        read_lines(Stream, RestResult, !IO),
+        (
+            RestResult = ok(Rest),
+            Result = ok([string.rstrip(Line) | Rest])
+        ;
+            RestResult = error(Err),
+            Result = error(Err)
+        )
     ;
         LineResult = eof,
-        Lines = []
+        Result = ok([])
     ;
-        LineResult = error(_),
-        Lines = []
+        LineResult = error(Err),
+        Result = error(Err)
     ).
 
 :- func parse_line(string) = user.
 parse_line(Line) = U :-
     Parts = string.split_at_char(',', Line),
-    Pairs = list.filter_map(
-        (pred(S::in, K - V::out) is semidet :-
-            string.split_at_char('=', S) = [K, V]
-        ),
-        Parts),
+    list.filter_map(parse_pair, Parts, Pairs),
     parse_user(Pairs, U).
+
+:- pred parse_pair(string::in, pair(string, string)::out) is semidet.
+parse_pair(S, K - V) :-
+    string.split_at_char('=', S) = [K, V].
 ```
+
+**Why the `io.res` return matters.** The obvious first version makes `read_lines`
+return a plain `list(string)` and turns an IO error into `[]`:
+
+```mercury
+LineResult = error(_),
+Lines = []          % WRONG — error vanishes, load_users still returns ok
+```
+
+That contradicts the whole point of this bridge: `io.res` exists so OS-level errors
+travel as *values* the caller must handle. Swallowing the error into a truncated `ok`
+hands back a silently-incomplete user list — exactly the bug `io.res` is meant to
+prevent. Returning `io.res(list(string))` and propagating `error(Err)` up the recursion
+(and out through `load_users`) keeps the contract honest: a partial read becomes
+`error(Err)`, not a short `ok`.
+
+Two further fixes the original snippet needed: `parse_line` must use the **predicate**
+form of `list.filter_map/3` (the `= list` function form expects a `func` lambda, not a
+`pred`), so the pair-splitter is pulled out into `parse_pair`; and `string.right`'s
+`length - Pos - 1` and `validate_user`'s `A =< 0` are integer operations, so the module
+needs `:- import_module int.` (see the note at the top).
 
 Usage in `main`:
 

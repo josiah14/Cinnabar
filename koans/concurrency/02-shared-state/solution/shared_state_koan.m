@@ -10,9 +10,9 @@
 :- func sum_to(int) = int.
 sum_to(N) = ( N =< 0 -> 0 ; N + sum_to(N - 1) ).
 
-% FIX: separate pure computation from IO.
-% Pure goals share no unique state, so & is safe.
-% IO is sequential after the parallel computation completes.
+% The parallel conjunction touches only pure values: A and B share no unique
+% state, so & is safe here. The unique IO state is threaded sequentially after
+% both computations finish — it is never handed to more than one branch.
 main(!IO) :-
     ( A = sum_to(100) & B = sum_to(200) ),
     io.format("task A: %d\n", [i(A)], !IO),

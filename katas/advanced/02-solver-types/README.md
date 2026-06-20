@@ -1,5 +1,8 @@
 # 02 — Solver types
 
+**After:** `katas/advanced/01-ffi-depth` — `foreign_proc` is required for Tasks 2 and 3;
+`katas/advanced/07-ffi-pragma-attrs` — purity attributes used in FFI stubs
+
 Solver types are Mercury's hook for constraint logic programming (CLP). The
 language machinery — the `solver type` declaration, the `any` inst, the
 trailing grade — is all specified and enforced by the compiler. A working

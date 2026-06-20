@@ -57,14 +57,20 @@ Attempt to add a third mode:
 str_to_int(out, out) is nondet
 ```
 
-This mode would generate all valid `(string, int)` pairs nondeterministically. Think
-through what `promise_equivalent_clauses` would be asserting if you added this mode.
+This mode would generate `(string, int)` pairs nondeterministically. Think through
+what `promise_equivalent_clauses` would be asserting if you added it — the pragma
+requires *every* clause to compute the same relation, and the compiler takes your
+word for it.
 
-Is the assertion valid? Can you write a clause body for `(out, out) is nondet` that
-computes the same relation as the forward and reverse modes?
+The mode itself is legal and will compile. The harder questions are: can you write a
+generator clause that produces exactly the same `(S, N)` pairs as the forward and
+reverse modes? (Look carefully at what `string.to_int` accepts versus what
+`string.int_to_string` produces.) And what enumeration order keeps the generator
+productive over an unbounded domain?
 
-Do not add this mode to `str_to_int`. Instead, write a separate predicate with a
-different name and explain in a comment why the pragma is not applicable.
+Keep the third mode out of `str_to_int` — generation is a different job from
+conversion. Write a separate predicate with a different name, and document precisely
+what `promise_equivalent_clauses` would and would not be able to promise about it.
 
 ### 3. Build a `version_array` using both modes
 

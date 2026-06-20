@@ -1,5 +1,7 @@
 # Kata: software transactional memory
 
+**After:** `katas/concurrency/02-threads`, `katas/concurrency/05-deadlock`
+
 STM gives you composable, lock-free shared state. Instead of managing mutexes,
 you describe a transaction: a block of reads and writes that the runtime either
 commits atomically or retries from scratch on conflict.

@@ -72,6 +72,12 @@ format argument list `[s(X), i(N)]` requires `list`.
 
 **Cause:** The `char` type is not automatically available. Import it explicitly.
 
+**Caution:** an automated "remove unused imports" pass can wrongly flag `char` as unused
+when only char *literals* (`'a'`) appear in clause bodies but the `char` *type* shows up
+solely in `:- pred`/`:- func` declarations (e.g. `list(char)` arguments). Removing it
+then breaks compilation. This regressed `csv_reader.m` once — always recompile after an
+import cull.
+
 ---
 
 ### `undefined type 'bool'/0` — missing `import_module bool`
@@ -319,6 +325,86 @@ which is more actionable (points directly at the switch).
 
 ---
 
+### If-then-else does not commit nondeterminism it exports to the then-branch
+
+**Symptom:** A nondet generator used inside an if-then-else condition — written as if
+`->` will commit to the first solution — is inferred `nondet`/`multi` instead of
+`semidet`/`det`:
+
+```mercury
+:- pred first_with(property::in, int::out) is semidet.
+first_with(P, N) :-
+    ( gen(1, 50, N0), has_property(N0, P) ->   % gen is nondet
+        N = N0
+    ; fail ).
+```
+
+```
+determinism declaration not satisfied.
+  Declared `semidet', inferred `nondet'.
+  Call to `gen'(in, in, out) can succeed more than once.
+```
+
+Note the reason points at the `gen` call, not at the `->`.
+
+**Cause:** Mercury's if-then-else commits the condition's nondeterminism **only for
+variables local to the condition** — existentially quantified, i.e. bound inside it
+and not used afterwards. Here `N0` is bound in the condition and *exported* to the
+then-branch (`N = N0`), so every solution of `gen` produces a solution of the whole
+predicate; the multiplicity is not pruned. The commit applies to *existence*, not to a
+value you carry out of the condition.
+
+**Confirming test:** discard the binding and the same if-then-else becomes
+deterministic:
+
+```mercury
+( gen(1, 50, _) -> X = 1 ; X = 0 )   % inferred det — commits on existence
+```
+
+**Fix:** To return the first match, do not rely on the if-then-else to commit a value.
+Use a semidet recursive scan (each step's condition then has at most one solution), or
+`solutions(generate_and_filter, [First | _])` to collect all matches and take the head.
+
+**Where discovered:** `puzzles/advanced/03-bidirectional-search/solution/`
+
+---
+
+### `det` does not imply termination — cardinality is not progress
+
+**Symptom:** A predicate declared `det` (and accepted as such) loops forever at runtime.
+Classic case: a `many`-style combinator over a parser that can succeed without consuming
+input.
+
+```mercury
+:- mode many(in(parser_semidet), out, in, out) is det.
+many(P, Results, Input, Rest) :-
+    ( call(P, V, Input, Mid) ->
+        many(P, Vs, Mid, Rest), Results = [V | Vs]   % recurses on Mid
+    ;
+        Results = [], Rest = Input ).
+```
+
+`many(pure(V), ...)` type-checks and never returns.
+
+**Cause:** Determinism describes the *number of solutions* a goal has (here: exactly one),
+not whether it *terminates*. The `parser_semidet` inst guarantees at most one solution
+(cardinality) but says nothing about whether a successful `P` shortens the input
+(progress). If `P` succeeds with `Mid = Input`, `many` recurses on identical input and
+diverges — still perfectly `det`. No inst can express "must consume": cardinality is
+statically checkable, progress is not.
+
+**Fix:** Make the invariant a documented precondition ("a parser passed to `many` consumes
+≥1 token on success"), or enforce it by requiring the residual to shrink before recursing
+(`call(P, V, Input, Mid), list.length(Mid) < list.length(Input)` in the condition). For an
+abstract stream with no generic length, enforcement needs a class method reporting
+remaining size.
+
+**Where discovered:** `puzzles/advanced/04-combinator-library/`,
+`puzzles/advanced/05-generic-parser/` (verified: unguarded version runs until killed;
+length-guarded version is `det` and terminates).
+
+---
+
 ## 4. Mode system
 
 ### Scope error: binding a variable inside `\+`
@@ -491,9 +577,10 @@ the variable `free`, violating the `uo` mode.
 
 ---
 
-### Existential type construction fails from clause heads in Mercury 22
+### Existential construction needs the `'new <ctor>'` syntax — bare constructor is a type error
 
-**Symptom:** Attempting to construct a value of an existential type at a call site:
+**Symptom:** Constructing a value of an existential type with the ordinary
+constructor:
 
 ```mercury
 :- type plugin ---> some [T] plugin(T) => formatter(T).
@@ -509,33 +596,94 @@ argument has type `(some [T] T)',
 constant `upper' has type `plugins.upper'.
 ```
 
-**Cause:** Mercury 22.01 represents the inner argument of an existentially
-quantified constructor as `(some [T] T)` internally. From regular clause heads
-(both function result positions and predicate head positions), the type checker
-refuses to unify a concrete type with this existential type. The "packing" step —
-wrapping a concrete value into an existential — is not available from normal
-clause positions in this version.
+**Cause:** Inside an existentially quantified constructor the argument slot has type
+`(some [T] T)`. The bare `plugin(upper)` is read as applying an ordinary functor, and
+Mercury will not unify a concrete `upper` with the existential argument type. This is
+*not* a sign that existential construction is impossible — only that the ordinary
+syntax does not express it.
 
-Deconstruction (`plugin(X)` in a clause head for pattern matching) works fine
-and brings T back into scope with its constraint. Only construction is affected.
-
-**Workaround:** Replace the existential type with a record storing behavior as
-first-class function closures. This achieves the same open-world extensibility:
+**Fix:** Use the `'new <ctor>'` syntax, which tells the compiler to introduce a fresh
+existential binding for `T` (inferred from the argument):
 
 ```mercury
-:- type plugin ---> plugin(
-    pname  :: string,
-    papply :: func(string) = string
-).
-mk_upper = plugin("upper", string.to_upper).
-mk_repeat(N) = plugin("repeat", func(S) = repeat_str(N, S)).
+mk_upper     = 'new plugin'(upper).
+mk_repeat(N) = 'new plugin'(repeat(N)).
 ```
 
-New plugins are added without touching the core system — the closure captures the
-plugin-specific data. The runtime cost (one closure allocation per plugin, one
-indirect call) is equivalent to the existential+dictionary approach.
+This works **even with the `=> formatter(T)` typeclass constraint** — a
+typeclass-constrained existential constructs exactly like an unconstrained one.
+(Verified: `puzzles/advanced/06-plugin-architecture/solution/plugins.m` compiles and
+runs with `'new plugin'(...)`.) Deconstruction (`plugin(X)` in a clause head) needs no
+`'new'` and brings `T` plus its constraint back into scope. This is the same rule
+drilled in `koans/advanced/02-existential-escape`.
+
+**Alternative design (not a workaround):** storing behaviour as a first-class closure
+record (`plugin(pname::string, papply::func(string)=string)`) also gives open-world
+extension, without the `'new'` ceremony or a typeclass dictionary. The trade-off:
+adding a *method* to the interface later is free with the existential's typeclass but
+forces a record-type change with closures. Pick by whether the interface is fixed.
 
 **Where discovered:** `puzzles/advanced/06-plugin-architecture/solution/plugins.m`
+
+---
+
+### Typeclass method named `apply` collides with builtin higher-order application
+
+**Symptom:** A typeclass with a method `func apply(T, string) = string`, called on a
+ground value (e.g. after deconstructing an existential box):
+
+```mercury
+run(plugin(X), In, Out) :- Out = apply(X, In).
+```
+
+```
+mode error: variable `X' has instantiatedness `ground',
+expecting higher-order func inst of arity 1.
+```
+
+**Cause:** Mercury treats the *unqualified* name `apply` as builtin higher-order
+application, so `apply(X, In)` is parsed as "call closure `X` on `In`". `X` is a ground
+value, not a closure, so the mode check fails. The typeclass method is shadowed.
+
+**Fix:** Module-qualify the call (`mymodule.apply(X, In)`), or — cleaner — name the
+method something other than `apply` (e.g. `format_with`, `transform`) and drop the
+qualifier. Any unqualified call to a method named `apply` hits this.
+
+**Where discovered:** `puzzles/advanced/06-plugin-architecture/solution/plugins.m`
+
+---
+
+### A nondet generating mode can join a multimoded predicate, and `promise_equivalent_clauses` is not checked
+
+**Symptom:** Uncertainty about whether a predicate with `(in,out) is semidet` and
+`(out,in) is det` modes can also carry an `(out,out) is nondet` "generate everything"
+mode under one `promise_equivalent_clauses`. It can — this compiles:
+
+```mercury
+:- mode str_to_int(in, out)  is semidet.
+:- mode str_to_int(out, in)  is det.
+:- mode str_to_int(out, out) is nondet.   % generate all (S, N) pairs
+:- pragma promise_equivalent_clauses(str_to_int/2).
+str_to_int(S::out, N::out) :- gen_int(N), S = string.int_to_string(N).
+```
+
+**What is actually true:**
+- Modes of different determinism happily coexist on one predicate; a nondet mode is fine.
+- An *infinite* relation is no obstacle — a nondet mode enumerates lazily, one solution
+  per backtrack. The real risk is enumeration **order**: a non-productive generator
+  (e.g. `gen_int(N) :- gen_int(M), N = M + 1`) type-checks but diverges at runtime before
+  yielding anything. Make the generator yield before it recurses.
+- `promise_equivalent_clauses` is a **promise the compiler does not verify**. It asserts
+  every clause computes the same relation; getting that wrong is silent. Here it is subtly
+  wrong even for two modes: `string.to_int` is lenient (accepts `"042"`, `"+42"`) while
+  `string.int_to_string` only ever produces canonical strings (see §7), so the forward
+  clause's relation is strictly larger than the reverse clause's.
+
+**Guidance:** keep generation in a separate predicate; reserve
+`promise_equivalent_clauses` for clauses whose relation you can actually prove identical.
+
+**Where discovered:** `bridge/05-mode-reversal/` (verified: three-mode version compiles and
+the `(out,out)` mode produces correct pairs with a productive generator).
 
 ---
 
@@ -849,6 +997,44 @@ There is no out-of-band "closed" signal. To signal end-of-stream, the sentinel
 must be part of the element type: use `channel(maybe(int))`, send `yes(X)` for
 data and `no` as the terminal signal. The type system makes the communication
 protocol explicit.
+
+---
+
+### `( ... !IO & ... !IO )` compiles — `!IO` auto-threads, so it is not really parallel
+
+**Symptom:** A koan meant to show that two parallel branches cannot share unique IO
+state stopped failing — this compiles in Mercury 22:
+
+```mercury
+main(!IO) :-
+    ( io.write_string("A\n", !IO) & io.write_string("B\n", !IO) ).
+```
+
+**Cause:** `!IO` is shorthand that the parser *threads* — it rewrites the conjunction so
+the first branch's output state becomes the second branch's input state. The result is a
+dependent parallel conjunction with a data dependency on the IO state, which serializes the
+branches. Nothing is shared, so nothing is rejected (and no real parallelism is gained).
+
+To actually share one unique state between both branches you must name it explicitly, and
+*then* the uniqueness checker rejects it:
+
+```mercury
+main(IO0, IO) :-
+    ( io.write_string("A\n", IO0, IO) & io.write_string("B\n", IO0, _) ).
+```
+
+```
+unique-mode error: the called procedure would clobber its argument,
+but variable `IO0' is still live.
+```
+
+**Lesson:** uniqueness still forbids sharing a unique value across parallel branches — but
+`!IO` quietly threads instead of sharing, so demonstrating the violation requires writing
+the state by hand. The fix for real code is to run *pure* goals in parallel and keep the
+unique IO on one sequential thread.
+
+**Where discovered:** `koans/concurrency/02-shared-state/` (verified via the AGENTS.md dev
+shell: explicit-share koan fails, pure-parallel solution compiles and runs).
 
 ---
 
@@ -1202,16 +1388,100 @@ list.foldl(pred(X::in, Acc::in, Next::out) is det :- Next = Acc + X,
 
 ---
 
-### `char.decimal_digit_to_int` cannot bind in an if-then-else condition
+### If-then-else variable scope: condition bindings reach the then-branch, not the else
 
-**Symptom:** Writing `( char.decimal_digit_to_int(C, Digit) -> ... ; ... )` and then
-using `Digit` in the then-branch gives a scope error.
+**Symptom:** A variable bound in an if-then-else condition behaves differently depending
+on where it is used:
 
-**Cause:** In Mercury, variables bound inside the condition of an if-then-else are
-not in scope in the then-branch (they are scoped to the condition only).
+```mercury
+( char.decimal_digit_to_int(C, Digit) ->
+    Result = Digit      % OK — Digit is in scope, holds the parsed value
+;
+    Result = Digit      % WRONG — this Digit is a fresh, unbound variable
+).
+```
 
-**Fix:** Restructure so the binding happens inside each branch separately, not in
-the condition.
+**Cause:** Variables bound in the condition of `( Cond -> Then ; Else )` are in scope in
+**Then** — the condition succeeded, so the bindings exist, and using them there is normal
+(`( find(K, V) -> use(V) ; ... )`). They are **not** in scope in **Else**: the else-branch
+runs precisely when the condition failed, so there is nothing to bind. Reusing the name in
+the else-branch does not reach the condition — it introduces a new, unbound variable. That
+surfaces not as a clean "undefined variable" message but as a `variable ... occurs only
+once` warning plus a downstream mode error (e.g. `Result is ground in some branches but
+not others`).
+
+**Fix:** Reference condition-bound variables only in the then-branch. If a value must be
+available in the else-branch or after the if-then-else, bind it before the condition, or
+give the else-branch its own independent binding.
+
+**Verified:** `char.decimal_digit_to_int(C, Digit)` in a condition with `Digit` used in the
+then-branch compiles and runs (`'7'` → 7); the previous version of this entry, which
+claimed the *then*-branch use itself fails, was wrong. See also §3, "If-then-else does not
+commit nondeterminism it exports to the then-branch," which relies on this then-branch
+visibility.
+
+---
+
+### `string.to_int` is lenient; `string.int_to_string` is canonical — they are not inverses
+
+**Symptom:** Assuming `to_int` and `int_to_string` define one clean bijection between
+strings and integers (e.g. when promising two modes of a converter compute the same
+relation). They do not.
+
+**Behaviour (verified in Mercury 22.01.8):**
+
+```
+to_int("42")  = 42      to_int("042") = 42      to_int("+42") = 42
+to_int("00")  = 0       to_int("-0")  = 0
+to_int(" 42") = FAIL    to_int("42 ") = FAIL    (surrounding whitespace rejected)
+int_to_string(42) = "42"   (always canonical: no leading zeros, no '+')
+```
+
+**Cause:** `to_int` accepts several textual forms for the same integer (leading zeros, a
+leading `+`, `-0`), so it is many-to-one. `int_to_string` emits exactly one canonical
+string per integer. The relation `{(S,N) | to_int(S)=N}` therefore strictly *contains*
+`{(S,N) | int_to_string(N)=S}` — the two directions are not inverse relations.
+
+**Implication:** any `promise_equivalent_clauses` over a `str_to_int`-style predicate is
+promising about the *canonical* relation, and the `to_int` direction quietly overshoots it.
+Do not rely on round-tripping arbitrary input strings unchanged; only canonical strings
+survive `to_int` then `int_to_string`. (Whitespace must be stripped before `to_int`.)
+
+**Where discovered:** `bridge/05-mode-reversal/`.
+
+---
+
+### `list.filter_map` has a function form (takes a `func`) and a predicate form (takes a `pred`)
+
+**Symptom:** Calling `filter_map` with the `= list` function syntax but passing a `pred`
+lambda:
+
+```mercury
+Pairs = list.filter_map(
+    (pred(S::in, K - V::out) is semidet :- ...),
+    Parts),
+```
+
+gives a confusing type error — the result variable is "inferred" to be a `pred(...)`:
+
+```
+variable `Pairs' has overloaded actual/expected types {
+  (expected) `list.list(pair(string, string))',
+  (inferred) `pred(list(pair(...)), list(string))' ... }
+```
+
+**Cause:** `list.filter_map` comes in two shapes. The **function** form is
+`filter_map(func(X) = Y is semidet, list(X)) = list(Y)` — it takes a partial *function*.
+The **predicate** form is `filter_map(pred(X, Y) is semidet, list(X), list(Y))` — a
+3-argument predicate taking a *pred*. Writing `Pairs = filter_map(PredLambda, Parts)`
+mixes them: the function-call syntax expects a `func` lambda, so the `pred` lambda fails
+to match and the call is misread as a partial application.
+
+**Fix:** match the lambda kind to the call form. With a `pred` lambda, use the predicate
+form as a goal: `list.filter_map(PredOrLambda, In, Out)` (often cleanest with a named
+helper predicate). With a `func` lambda, the `= list` form works.
+
+**Where discovered:** `bridge/11-error-handling/` (`parse_line`).
 
 ---
 
@@ -1429,3 +1699,82 @@ defined first in the source file must be called first in `main`.
 ```
 Functions in `&` conjuncts reliably crash the 22.01.8 backend. Use predicates
 exclusively in parallel conjunctions.
+
+---
+
+### Uniqueness mismatch: nondet condition with IO branches
+
+**Symptom:**
+```
+error: uniqueness mismatch
+  In if-then-else: condition is nondet, but branches bind unique variables
+```
+
+**Trigger:** Using an if-then-else where the condition is `nondet` and one or more
+branches thread through a unique state (e.g., `io`):
+```mercury
+( solve(Puzzle, Solution) ->
+    io.write_line(Solution, !IO)    % IO in branch — FAILS
+;
+    io.write_string("No solution\n", !IO)
+)
+```
+
+Mercury's uniqueness checker rejects this because a nondet condition might succeed
+multiple times; each success would consume the unique `!IO` state, violating the
+single-use invariant.
+
+**Fix:** Use `solutions/2` to collect results outside IO, then pattern-match:
+```mercury
+( solutions(solve(Puzzle), [Solution | _]) ->
+    io.write_line(Solution, !IO)
+;
+    io.write_string("No solution\n", !IO)
+)
+```
+
+The `solutions/2` call is det/semidet (it builds a list), so the condition is no
+longer nondet, and the uniqueness checker is satisfied. This is the idiomatic Mercury
+pattern for "find first solution, do something with it in IO."
+
+---
+
+### `det` declaration unsatisfied when else-branch calls `semidet` predicate
+
+**Symptom:**
+```
+error: determinism declaration not satisfied.
+  Declared `det', inferred `semidet'.
+  Call to `stack.pop'(in, out, out) can fail.
+```
+
+**Trigger:** An if-then-else where the else branch calls a `semidet` predicate, even
+though logically (given the condition) it cannot fail:
+```mercury
+drain_stack(S, !IO) :-
+    ( stack.is_empty(S) ->
+        io.write_string("(empty)\n", !IO)
+    ;
+        stack.pop(S, Top, Rest),    % semidet — compiler infers semidet here
+        ...
+    ).
+```
+
+The compiler considers `stack.pop` independently of the fact that `is_empty` failing
+implies the stack is non-empty. It sees a `semidet` call in a `det` context.
+
+**Fix:** Use a 3-way if-then-else, moving the semidet call into a condition:
+```mercury
+drain_stack(S, !IO) :-
+    ( stack.is_empty(S) ->
+        io.write_string("(empty)\n", !IO)
+    ; stack.pop(S, Top, Rest) ->
+        io.format("%d\n", [i(Top)], !IO),
+        drain_stack(Rest, !IO)
+    ;
+        true  % unreachable — is_empty and pop cover all constructors
+    ).
+```
+
+The third branch is dead but required so Mercury can infer `det`. Add a comment
+naming why it is unreachable so readers don't try to remove it.

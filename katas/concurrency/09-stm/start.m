@@ -1,4 +1,4 @@
-:- module stm_kata.
+:- module start.
 :- interface.
 :- import_module io.
 :- pred main(io::di, io::uo) is det.
@@ -14,16 +14,16 @@
 
 % Add Amount to Account's balance.
 :- pred deposit(int::in, stm_var(int)::in, stm::di, stm::uo) is det.
-deposit(_Amount, _Account, !STM) :- true.  % TODO
+deposit(_Amount, _Account, S, S).  % TODO: read_stm_var, write_stm_var
 
 % Subtract Amount from Account's balance.
 :- pred withdraw(int::in, stm_var(int)::in, stm::di, stm::uo) is det.
-withdraw(_Amount, _Account, !STM) :- true.  % TODO
+withdraw(_Amount, _Account, S, S).  % TODO
 
 % Move Amount from From to To atomically.
 :- pred transfer(int::in, stm_var(int)::in, stm_var(int)::in,
     stm::di, stm::uo) is det.
-transfer(_Amount, _From, _To, !STM) :- true.  % TODO: call withdraw then deposit
+transfer(_Amount, _From, _To, S, S).  % TODO: call withdraw then deposit
 
 % ---- main (TODO: fill in the atomic_transaction calls) ---------------
 

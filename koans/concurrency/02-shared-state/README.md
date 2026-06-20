@@ -4,7 +4,9 @@
 - `katas/concurrency/01-parallel-conjunction`
 - `koans/mode-system/04-uniqueness-violation`
 
-The `&` operator runs goals in parallel. Each branch receives the same input state — but `!IO` is **unique**: it can only be consumed once, by one branch.
+The `&` operator runs goals in parallel. For that to be sound, no branch may *consume* a value another branch also needs — and `io.state` is **unique**, so it can be consumed only once, by one branch.
+
+The koan writes the IO state explicitly — `IO0` handed to *both* branches — instead of with the usual `!IO` shorthand. That is deliberate. `!IO` auto-threads the state through the conjuncts one after another, so `( ... !IO & ... !IO )` *compiles* — but only by serializing the two branches into a chain, which is no longer parallel. Naming the state shows what genuinely sharing it would mean, and the uniqueness checker rejects it.
 
 Compile this:
 
@@ -40,3 +42,8 @@ Notice the error fires even if the branches would never actually run concurrentl
 Separate the pure computation from the IO in the broken code. Run the pure parts in
 parallel with `&`, then sequence the IO afterward. If the original code has no pure part
 to extract, restructure it so the parallel conjunction only touches non-unique values.
+
+Note: simply rewriting the two writes back into `!IO` form is *not* the fix. It compiles,
+but only because Mercury serializes the branches — you get no parallelism. The point is to
+parallelize the work that actually *can* run independently (the pure goals), and keep the
+unique IO state on a single sequential thread.

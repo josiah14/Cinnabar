@@ -41,7 +41,7 @@
 :- pred c_abs(int::in, int::out) is det.
 :- pragma foreign_proc("C",
     c_abs(N::in, Abs::out),
-    [/* TODO: add attributes here */],
+    [promise_pure],  % TODO: add will_not_call_mercury and thread_safe
     "Abs = (N < 0) ? -N : N;").
 
 % Task 2: c_clamp — clamp N to the range [Lo, Hi].
@@ -53,7 +53,7 @@
 :- pred c_clamp(int::in, int::in, int::in, int::out) is det.
 :- pragma foreign_proc("C",
     c_clamp(N::in, Lo::in, Hi::in, Clamped::out),
-    [/* TODO: add attributes */],
+    [promise_pure],  % TODO: add will_not_call_mercury and thread_safe
     "/* TODO: Clamped = N < Lo ? Lo : N > Hi ? Hi : N; */
      Clamped = 0;").
 

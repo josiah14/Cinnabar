@@ -1,4 +1,4 @@
-:- module utils.
+:- module fixed_utils.
 :- interface.
 
 % FIX: use_module in interface — types available in signatures, names not re-exported

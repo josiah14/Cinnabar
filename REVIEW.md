@@ -1,3 +1,12 @@
+> **HISTORICAL — superseded 2026-06-19.**
+> This review pre-dates the three-reviewer synthesis in `REVIEWS-SYNTHESIS/SYNTHESIS.md`.
+> Its "~7 of ~41 compile" headline is no longer accurate — the curriculum was substantially
+> rebuilt and all koans/solutions/bridges/puzzles verified against `mmc` after this was
+> written. See `REVIEWS-SYNTHESIS/SYNTHESIS.md` for current status and `ci.sh` for the
+> authoritative gate.
+
+---
+
 # Cinnabar — Compiler-Verified Review
 
 *Reviewed 2026-06-16 against Mercury 22.01.8 (`mmc --grade asm_fast.par.gc.debug.stseg --errorcheck-only`)*

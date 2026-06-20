@@ -47,6 +47,15 @@ key = value
 Lines starting with `[` are section headers. Lines containing `=` are key-value pairs
 in the current section. Blank lines and lines starting with `#` are ignored.
 
+**Failure policy (deliberate, lenient):** any line that is none of the above — not a
+section header, key-value pair, blank, or comment — is *silently skipped*. This makes
+the parser tolerant of stray input, but it also means a malformed setting like
+`port 8080` (missing `=`) is dropped without warning. That is a trade-off, not an
+accident: if you would rather catch such mistakes, thread a `list(string)` of skipped
+lines through the fold and return it alongside the `config` so the caller can report
+them. The point is to *choose* a policy and make it visible, rather than let invalid
+input vanish by default.
+
 ---
 
 ## Representation

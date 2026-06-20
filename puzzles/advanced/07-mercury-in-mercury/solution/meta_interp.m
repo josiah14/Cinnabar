@@ -14,13 +14,13 @@
 % Term representation for the interpreted language
 
 :- type term_t
-    --->    a(string)               % atom: a("tom")
-    ;       n(int)                  % integer: n(42)
-    ;       f(string, list(term_t)) % compound: f("parent", [a("tom"), a("bob")])
-    ;       v(string).              % logical variable: v("X")
+    --->    atom(string)                    % atom("tom")
+    ;       int_lit(int)                    % int_lit(42)
+    ;       compound(string, list(term_t))  % compound("parent", [atom("tom"), atom("bob")])
+    ;       logic_var(string).              % logic_var("X")
 
 :- type env_t    == list(pair(string, term_t)).
-:- type clause_t ---> c(term_t, list(term_t)).  % head :- [body goals]
+:- type clause_t ---> rule(term_t, list(term_t)).  % head :- [body goals]
 :- type prog_t   ---> prog(list(clause_t)).
 
 %---------------------------------------------------------------------------%
@@ -28,19 +28,16 @@
 % Prevents capture when the same clause is used at multiple depths.
 
 :- pred rename(term_t::in, string::in, term_t::out) is det.
-rename(a(S), _, a(S)).
-rename(n(I), _, n(I)).
-rename(v(X), Sfx, v(X ++ "_" ++ Sfx)).
-rename(f(F, Args), Sfx, f(F, RArgs)) :-
-    list.map(rename_2(Sfx), Args, RArgs).
-
-:- pred rename_2(string::in, term_t::in, term_t::out) is det.
-rename_2(Sfx, T, R) :- rename(T, Sfx, R).
+rename(atom(S), _, atom(S)).
+rename(int_lit(I), _, int_lit(I)).
+rename(logic_var(X), Sfx, logic_var(X ++ "_" ++ Sfx)).
+rename(compound(F, Args), Sfx, compound(F, RArgs)) :-
+    list.map((pred(Arg::in, R::out) is det :- rename(Arg, Sfx, R)), Args, RArgs).
 
 :- pred rename_clause(clause_t::in, string::in, clause_t::out) is det.
-rename_clause(c(Head, Body), Sfx, c(RHead, RBody)) :-
+rename_clause(rule(Head, Body), Sfx, rule(RHead, RBody)) :-
     rename(Head, Sfx, RHead),
-    list.map(rename_2(Sfx), Body, RBody).
+    list.map((pred(Arg::in, R::out) is det :- rename(Arg, Sfx, R)), Body, RBody).
 
 %---------------------------------------------------------------------------%
 % Environment lookup and dereferencing.
@@ -51,11 +48,11 @@ lookup_v(X, [Key - Val | Rest], T) :-
 
 % Follow variable chains; stop at non-variable or unbound variable.
 :- pred deref(term_t::in, env_t::in, term_t::out) is det.
-deref(v(X), Env, Out) :-
-    ( lookup_v(X, Env, T) -> deref(T, Env, Out) ; Out = v(X) ).
-deref(a(S), _, a(S)).
-deref(n(I), _, n(I)).
-deref(f(F, Args), _, f(F, Args)).
+deref(logic_var(X), Env, Out) :-
+    ( lookup_v(X, Env, T) -> deref(T, Env, Out) ; Out = logic_var(X) ).
+deref(atom(S), _, atom(S)).
+deref(int_lit(I), _, int_lit(I)).
+deref(compound(F, Args), _, compound(F, Args)).
 
 %---------------------------------------------------------------------------%
 % Unification.
@@ -70,15 +67,15 @@ unify(T1, T2, Env0, Env) :-
 
 :- pred unify_d(term_t::in, term_t::in, env_t::in, env_t::out) is semidet.
 unify_d(D1, D2, Env0, Env) :-
-    ( D1 = v(X) ->
+    ( D1 = logic_var(X) ->
         Env = [X - D2 | Env0]
-    ; D2 = v(X) ->
+    ; D2 = logic_var(X) ->
         Env = [X - D1 | Env0]
-    ; D1 = a(S), D2 = a(S) ->
+    ; D1 = atom(S), D2 = atom(S) ->
         Env = Env0
-    ; D1 = n(I), D2 = n(I) ->
+    ; D1 = int_lit(I), D2 = int_lit(I) ->
         Env = Env0
-    ; D1 = f(Fn, As1), D2 = f(Fn, As2) ->
+    ; D1 = compound(Fn, As1), D2 = compound(Fn, As2) ->
         unify_list(As1, As2, Env0, Env)
     ;
         fail
@@ -110,7 +107,7 @@ solve(Prog, [Goal | Rest], Depth, Env0, Env) :-
 resolve(prog(Clauses), Goal0, Depth, Env0, Env) :-
     deref(Goal0, Env0, Goal),
     list.member(Raw, Clauses),
-    rename_clause(Raw, string.int_to_string(Depth), c(Head, Body)),
+    rename_clause(Raw, string.int_to_string(Depth), rule(Head, Body)),
     unify(Goal, Head, Env0, Env1),
     solve(prog(Clauses), Body, Depth + 1, Env1, Env).
 
@@ -118,23 +115,20 @@ resolve(prog(Clauses), Goal0, Depth, Env0, Env) :-
 % Apply environment substitution — walk the term, replacing bound variables.
 
 :- func apply_env(term_t, env_t) = term_t.
-apply_env(a(S), _)       = a(S).
-apply_env(n(I), _)       = n(I).
-apply_env(f(F, Args), E) = f(F, list.map(apply_env_f(E), Args)).
-apply_env(v(X), Env)     = T :-
-    ( lookup_v(X, Env, T0) -> T = apply_env(T0, Env) ; T = v(X) ).
-
-:- func apply_env_f(env_t, term_t) = term_t.
-apply_env_f(Env, T) = apply_env(T, Env).
+apply_env(atom(S), _)            = atom(S).
+apply_env(int_lit(I), _)         = int_lit(I).
+apply_env(compound(F, Args), E)  = compound(F, list.map((func(T) = apply_env(T, E)), Args)).
+apply_env(logic_var(X), Env)     = T :-
+    ( lookup_v(X, Env, T0) -> T = apply_env(T0, Env) ; T = logic_var(X) ).
 
 %---------------------------------------------------------------------------%
 % Pretty-printing terms.
 
 :- func term_str(term_t) = string.
-term_str(a(S)) = S.
-term_str(n(I)) = string.int_to_string(I).
-term_str(v(X)) = "_" ++ X.
-term_str(f(F, Args)) = Result :-
+term_str(atom(S))           = S.
+term_str(int_lit(I))        = string.int_to_string(I).
+term_str(logic_var(X))      = "_" ++ X.
+term_str(compound(F, Args)) = Result :-
     ( F = "[]", Args = [] ->
         Result = "[]"
     ; F = "[|]", Args = [H, T] ->
@@ -145,11 +139,11 @@ term_str(f(F, Args)) = Result :-
 
 :- func list_tail_str(term_t) = string.
 list_tail_str(T) = Result :-
-    ( T = f("[]", []) ->
+    ( T = compound("[]", []) ->
         Result = "]"
-    ; T = f("[|]", [H, TT]) ->
+    ; T = compound("[|]", [H, TT]) ->
         Result = ", " ++ term_str(H) ++ list_tail_str(TT)
-    ; T = v(X) ->
+    ; T = logic_var(X) ->
         Result = "|_" ++ X ++ "]"
     ;
         Result = "|" ++ term_str(T) ++ "]"
@@ -164,13 +158,14 @@ list_tail_str(T) = Result :-
 
 :- func ancestor_prog = prog_t.
 ancestor_prog = prog([
-    c(f("parent", [a("tom"), a("bob")]), []),
-    c(f("parent", [a("bob"), a("ann")]), []),
-    c(f("parent", [a("bob"), a("pat")]), []),
-    c(f("ancestor", [v("X"), v("Y")]),
-        [f("parent", [v("X"), v("Y")])]),
-    c(f("ancestor", [v("X"), v("Y")]),
-        [f("parent", [v("X"), v("Z")]), f("ancestor", [v("Z"), v("Y")])])
+    rule(compound("parent", [atom("tom"), atom("bob")]), []),
+    rule(compound("parent", [atom("bob"), atom("ann")]), []),
+    rule(compound("parent", [atom("bob"), atom("pat")]), []),
+    rule(compound("ancestor", [logic_var("X"), logic_var("Y")]),
+        [compound("parent", [logic_var("X"), logic_var("Y")])]),
+    rule(compound("ancestor", [logic_var("X"), logic_var("Y")]),
+        [compound("parent", [logic_var("X"), logic_var("Z")]),
+         compound("ancestor", [logic_var("Z"), logic_var("Y")])])
 ]).
 
 % app([],Y,Y).
@@ -178,15 +173,16 @@ ancestor_prog = prog([
 
 :- func app_prog = prog_t.
 app_prog = prog([
-    c(f("app", [f("[]", []), v("Y"), v("Y")]), []),
-    c(f("app", [f("[|]", [v("H"), v("T")]), v("Y"),
-                 f("[|]", [v("H"), v("R")])]),
-        [f("app", [v("T"), v("Y"), v("R")])])
+    rule(compound("app", [compound("[]", []), logic_var("Y"), logic_var("Y")]), []),
+    rule(compound("app", [compound("[|]", [logic_var("H"), logic_var("T")]),
+                          logic_var("Y"),
+                          compound("[|]", [logic_var("H"), logic_var("R")])]),
+        [compound("app", [logic_var("T"), logic_var("Y"), logic_var("R")])])
 ]).
 
 :- func list_t(list(term_t)) = term_t.
-list_t([])       = f("[]", []).
-list_t([H | T])  = f("[|]", [H, list_t(T)]).
+list_t([])      = compound("[]", []).
+list_t([H | T]) = compound("[|]", [H, list_t(T)]).
 
 %---------------------------------------------------------------------------%
 
@@ -210,23 +206,26 @@ run_query(Prog, Goal, Label, !IO) :-
 main(!IO) :-
     io.write_string("=== ancestor/2 ===\n", !IO),
     run_query(ancestor_prog,
-        f("ancestor", [a("tom"), v("Who")]),
+        compound("ancestor", [atom("tom"), logic_var("Who")]),
         "ancestor(tom, Who)", !IO),
     io.nl(!IO),
     run_query(ancestor_prog,
-        f("ancestor", [a("bob"), v("Who")]),
+        compound("ancestor", [atom("bob"), logic_var("Who")]),
         "ancestor(bob, Who)", !IO),
     io.nl(!IO),
     run_query(ancestor_prog,
-        f("ancestor", [a("ann"), v("Who")]),
+        compound("ancestor", [atom("ann"), logic_var("Who")]),
         "ancestor(ann, Who)", !IO),
 
     io.nl(!IO),
     io.write_string("=== append/3 ===\n", !IO),
     run_query(app_prog,
-        f("app", [list_t([n(1), n(2)]), list_t([n(3)]), v("Result")]),
+        compound("app", [list_t([int_lit(1), int_lit(2)]),
+                         list_t([int_lit(3)]),
+                         logic_var("Result")]),
         "app([1,2], [3], Result)", !IO),
     io.nl(!IO),
     run_query(app_prog,
-        f("app", [v("A"), v("B"), list_t([n(1), n(2), n(3)])]),
+        compound("app", [logic_var("A"), logic_var("B"),
+                         list_t([int_lit(1), int_lit(2), int_lit(3)])]),
         "app(A, B, [1,2,3])", !IO).

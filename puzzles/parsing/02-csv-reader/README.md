@@ -25,6 +25,17 @@ Rules:
 
 ---
 
+## Malformed input
+
+Make the parser **strict**. The DCG stops at the first row it cannot parse (e.g. a field
+with an unterminated quote) and returns the rows collected so far, leaving the rest of
+the input unconsumed. If the top level ignores that remainder, a parse error silently
+becomes end-of-file and you get truncated data with no warning. Have `parse` return
+`maybe(csv)` and require the remaining character list to be empty — `no` when anything is
+left unconsumed. The failure then shows up in the type, not as missing rows.
+
+---
+
 ## Sample input
 
 ```

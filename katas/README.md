@@ -7,5 +7,10 @@ Each kata here has a specific Mercury or logic programming concept it is drillin
 ## Tracks
 
 - [**foundations/**](foundations/) — multi-module builds, `map`/`set` idioms, and logic programming fundamentals. Start here.
-
-More tracks will follow as the repository grows.
+- [**type-system/**](type-system/) — discriminated unions, parametric types, abstract types, typeclasses, existential types, GADTs.
+- [**mode-system/**](mode-system/) — insts and modes, uniqueness, higher-order insts, multi-mode predicates, clause selection.
+- [**determinism/**](determinism/) — all six determinism categories, committed choice, promise_equivalent_solutions.
+- [**parsing/**](parsing/) — DCG basics through desugaring, stateful DCGs, packrat via tabling, error recovery.
+- [**tooling/**](tooling/) — grades, mdb, profiling, tabling, testing, property-based testing.
+- [**concurrency/**](concurrency/) — parallel conjunction, threads, channels, deadlock, STM.
+- [**advanced/**](advanced/) — FFI, solver types, RTTI, memoization, abstract modules.

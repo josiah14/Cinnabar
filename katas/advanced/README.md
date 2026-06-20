@@ -1,8 +1,7 @@
 # Advanced
 
 Topics that are genuinely niche but matter in practice: FFI, solver types, RTTI,
-memoization, and association-list environments. Each is self-contained; work through
-them in order before tackling the advanced puzzles.
+memoization, and association-list environments. The arc runs from crossing the C boundary (FFI pragmas and foreign types), through Mercury's reflection mechanism (RTTI/`deconstruct`), explicit memoization strategies, the data structures that underlie the meta-interpreter, and finally the module-level tools for information hiding. Work through them in order before tackling the advanced puzzles — the meta-interpreter in particular draws on every preceding topic.
 
 | Kata | Topic |
 |---|---|

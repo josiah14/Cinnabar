@@ -81,6 +81,12 @@ Implement these with their exact declared determinisms:
 :- mode many(in(parser_semidet), out, in, out) is det.
 ```
 
+> **Termination caveat.** `many` is `det` but does *not* always terminate. The
+> `parser_semidet` inst guarantees P has at most one solution (cardinality) — it says
+> nothing about whether P *consumes* input (progress). If you pass `many` a parser
+> that can succeed without advancing (e.g. `pure`), it loops forever. The invariant
+> you must uphold: a parser given to `many` consumes at least one token on success.
+
 ## Define inst aliases
 
 ```mercury

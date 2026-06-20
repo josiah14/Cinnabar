@@ -44,6 +44,26 @@ The rule: add a typeclass constraint only when a predicate directly calls a
 method of that typeclass (or calls another predicate that requires the
 constraint).
 
+## many_p — progress is not in the type
+
+`many_p` has the same shape as puzzle 04's `many`, and the same hidden obligation.
+Its parser-argument mode `pred(out, in, out) is semidet` fixes **cardinality** — at
+most one solution per call — but not **progress**: nothing in the type or mode states
+that a successful parser advances the stream.
+
+`many_p` recurses on the stream P returns. If P can succeed without pulling a token
+(handing back the same `S`), `many_p` calls it again on the identical stream and loops
+forever. `det` does not rescue you — termination is not part of determinism.
+
+The caller's invariant: **a parser passed to `many_p` consumes at least one token on
+success.** `satisfy(...)` is safe because `next_token` is `semidet` and removes one
+token; a parser that can succeed at zero width is not. Enforcing it is harder here
+than for `many`: the stream `S` is abstract, so there is no generic `length` to
+compare against. Real enforcement would need the `token_stream` class to expose a
+remaining-size method (or a `measured_stream` subclass). Cardinality generalises
+across every instance; progress does not — which is the deeper reason the
+unconstrained `many_p` cannot police it.
+
 ## Instance resolution at higher-order call sites
 
 When you write `many_p(satisfy(is_digit_char), ..., cstream(...), _)`, Mercury

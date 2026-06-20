@@ -12,9 +12,9 @@
 :- import_module thread.channel.
 
 %---------------------------------------------------------------------------%
-% Stage 1: Reader — sends integers N down to 1, then sentinel
-% FIX: cc_multi so the closure has the right inst for thread.spawn;
-%      if-then-else replaces two clauses (multiple clauses with guards → nondet)
+% Stage 1: Reader — sends integers N down to 1, then sentinel.
+% cc_multi: thread.spawn requires a cc_multi closure; if-then-else makes the
+% mutually exclusive sentinel/value cases deterministic.
 
 :- pred reader(int::in, channel(maybe(int))::in, io::di, io::uo) is cc_multi.
 reader(N, Chan, !IO) :-
@@ -26,8 +26,8 @@ reader(N, Chan, !IO) :-
     ).
 
 %---------------------------------------------------------------------------%
-% Stage 2: Transformer — doubles each value, forwards sentinel
-% FIX: cc_multi for same reason
+% Stage 2: Transformer — doubles each value, forwards sentinel.
+% cc_multi for the same reason as reader.
 
 :- pred transformer(channel(maybe(int))::in, channel(maybe(int))::in,
                     io::di, io::uo) is cc_multi.
@@ -63,7 +63,8 @@ main(!IO) :-
     N = 100,
     channel.init(Chan1, !IO),
     channel.init(Chan2, !IO),
-    % FIX: promise_equivalent_solutions [!:IO] calls cc_multi from det context
+    % promise_equivalent_solutions [!:IO]: spawns a cc_multi closure from
+    % a det predicate by committing to one IO outcome.
     promise_equivalent_solutions [!:IO]
         thread.spawn(reader(N, Chan1), !IO),
     promise_equivalent_solutions [!:IO]

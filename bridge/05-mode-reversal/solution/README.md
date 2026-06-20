@@ -28,21 +28,45 @@ str_to_int(SOf42, 42),  % SOf42 = "42"
 io.format("Reverse: %d => \"%s\"\n", [i(42), s(SOf42)], !IO),
 ```
 
-## Task 2: why the third mode breaks the promise
+## Task 2: what the third mode actually demands
 
-A `(out, out) is nondet` mode would need to generate all pairs `(S, N)` where `S`
-is a valid decimal representation of `N`. The set of such pairs is infinite (one pair
-per integer). There is no finite way to enumerate it in Mercury.
+First, dispel a myth: a `(out, out) is nondet` mode is *not* rejected by the
+compiler. You can add the mode and a generating clause, and it compiles and runs:
 
-More importantly: `promise_equivalent_clauses` asserts that all mode-specific clauses
-compute the same logical relation. The third mode would not violate the relation — the
-same pairs are valid — but the determinism is wrong. The forward mode is `semidet`
-(at most one N for a given S). The reverse mode is `det` (exactly one S for a given N).
-A nondet mode is not the same logical object as these two.
+```mercury
+:- mode str_to_int(out, out) is nondet.
+str_to_int(S::out, N::out) :- gen_int(N), S = string.int_to_string(N).
+```
 
-In practice: write a separate predicate with a different name if you need generation.
-Do not try to coerce `promise_equivalent_clauses` into covering incompatible
-determinisms.
+The relation being infinite is no obstacle either. A nondet predicate enumerates its
+solutions lazily, one per backtrack — it never has to materialise the whole set. What
+*does* bite is **enumeration order**: the generator you pair with it must be
+productive (yield a value before recursing). A left-recursive generator like
+`gen_int(N) :- gen_int(M), N = M + 1.` type-checks but diverges at runtime before
+producing anything. That is a property of the generator, not a prohibition on the
+mode.
+
+The real obligation is `promise_equivalent_clauses`. It asserts that **every** clause
+computes the **same relation**, and the compiler does not check this — you must prove
+it. That proof is where this predicate gets subtle, because the forward and reverse
+clauses do not actually agree:
+
+- `string.to_int` (the `in, out` clause) is lenient: `to_int("042")`, `to_int("+42")`,
+  and `to_int("00")` all succeed. So the forward relation contains pairs like
+  `("042", 42)`.
+- `string.int_to_string` (the `out, in` clause, and any generator built on it) only
+  ever *produces* the canonical form `"42"`. It never yields `"042"`.
+
+So the forward clause's relation is strictly larger than the reverse clause's. The
+pragma is already a promise about the *canonical* relation — one the `in, out` clause
+slightly overshoots. A third clause built on `int_to_string` would match the reverse
+clause but still not match the lenient forward one. Coercing all three under a single
+`promise_equivalent_clauses` would assert an equivalence that does not hold.
+
+In practice: write a separate predicate with a different name for generation. Keep
+`promise_equivalent_clauses` for clauses whose relation you can actually prove
+identical — and notice that even the two-mode version here trades a little rigour for
+the convenience of accepting non-canonical input.
 
 ## Task 3: `version_array` round-trip
 

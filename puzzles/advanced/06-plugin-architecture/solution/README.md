@@ -1,10 +1,9 @@
 # Solution notes
 
-## Existential type construction in Mercury 22
+## Constructing an existential plugin: the `'new'` syntax
 
-The puzzle description mentions existential types (`some [T] plugin(T) => formatter(T)`),
-but Mercury 22.01 does not allow constructing existential types from arbitrary clause
-positions. Attempting:
+The puzzle is about existential types, and the reference solution uses them. The one
+thing you have to get right is *construction*. The bare constructor does **not** work:
 
 ```mercury
 :- type plugin ---> some [T] plugin(T) => formatter(T).
@@ -12,88 +11,118 @@ positions. Attempting:
 mk_upper = plugin(upper).  % compile error
 ```
 
-produces:
-
 ```
 type error in unification of argument and constant `upper'.
 argument has type `(some [T] T)',
 constant `upper' has type `plugins.upper'.
 ```
 
-Mercury's type checker represents the inner argument of an existentially quantified
-constructor as `(some [T] T)` — an existential type — and refuses to unify it with
-a concrete type like `upper`. The "packing" of existentials is not available from
-regular clause heads in this version. (Deconstruction — pattern matching on
-`plugin(X)` to bring T into scope — works fine.)
+Inside an existentially quantified constructor the argument slot has type
+`(some [T] T)`, which will not unify with a concrete `upper`. Mercury needs to be
+told you are *introducing* the existential binding for `T`, not applying an ordinary
+functor. That is what the `'new <ctor>'` syntax does:
 
-## The closure alternative
+```mercury
+mk_upper = 'new plugin'(upper).            % T inferred as upper
+mk_repeat(N) = 'new plugin'(repeat(N)).
+mk_prefix(P) = 'new plugin'(prefix(P)).
+```
 
-Storing behavior as a first-class function closure achieves the same open-world
-property without existential types:
+This is the same rule the `koans/advanced/02-existential-escape` koan drills:
+construction requires `'new'`; deconstruction (pattern-matching `plugin(X)` to bring
+`T` back into scope) does not. The `=> formatter(T)` constraint does not change any of
+this — a typeclass-constrained existential constructs exactly the same way. (Verified
+against `mmc` 22.01.8: the solution compiles and runs.)
+
+## The `apply` name collision
+
+The puzzle's typeclass has a method named `apply`. Mercury reserves the *unqualified*
+name `apply` for higher-order application, so once you deconstruct `plugin(X)` and try
+to call the method:
+
+```mercury
+Output = apply(X, Input).   % mode error: X is ground, not a closure
+```
+
+Mercury reads this as "apply the closure `X` to `Input`" and reports a mode error
+(`variable X has instantiatedness ground, expecting higher-order func inst`). Two
+fixes: module-qualify the call (`plugins.apply(X, Input)`, used in the solution), or
+name the method something other than `apply` (e.g. `format_with`) and drop the
+qualifier. This is worth knowing — it is an easy ten minutes of confusion otherwise.
+
+## Calling methods on a boxed plugin
+
+`run_pipeline` deconstructs `plugin(X)` in the clause head. That deconstruction is
+what makes the methods callable: it brings the hidden `T` *and* its `formatter(T)`
+dictionary back into scope, so `plugin_name(X)` and `plugins.apply(X, _)` resolve.
+
+```mercury
+run_pipeline([plugin(X) | Rest], Input, !IO) :-
+    Output = plugins.apply(X, Input),
+    ...
+```
+
+A `list(plugin)` is therefore a genuinely heterogeneous collection: `upper`,
+`repeat`, and `prefix` values sit in the same list, each carrying the dictionary that
+lets the core system dispatch to the right instance methods.
+
+## The closure alternative (a design choice, not a necessity)
+
+Existentials are not the only way to get the open-world property. You can store the
+behaviour as a first-class function instead of a dictionary:
 
 ```mercury
 :- type plugin
-    --->    plugin(
-                pname  :: string,
-                papply :: func(string) = string
-            ).
+    --->    plugin(pname :: string, papply :: func(string) = string).
+
+mk_upper      = plugin("upper", string.to_upper).
+mk_repeat(N)  = plugin("repeat(" ++ string.int_to_string(N) ++ ")",
+                       func(S) = repeat_str(N, S)).
+mk_prefix(P)  = plugin("prefix", func(S) = P ++ S).
 ```
 
-New plugins are defined by providing name and function — no changes to the core
-system:
+Each closure captures its own data (`N`, `P`) — the role the existential's hidden `T`
+plays — and you call it with `(P ^ papply)(Input)`. No `'new'` ceremony, no
+dictionary, no `apply` collision.
 
-```mercury
-mk_upper = plugin("upper", string.to_upper).
-mk_repeat(N) = plugin("repeat(" ++ N_str ++ ")", func(S) = repeat_str(N, S)).
-mk_prepend(P) = plugin("prepend(\"" ++ P ++ "\")", func(S) = P ++ S).
-```
-
-The `repeat` and `prepend` variants capture their data (N, P) in the closure — the
-same role existential types would play. The typeclass dictionary is replaced by the
-explicit function value. Runtime cost is equivalent: one extra pointer indirection.
-
-## Calling a stored function
-
-Named record field access returns the closure:
-
-```mercury
-Output = (P ^ papply)(Input)
-```
-
-`P ^ papply` extracts the function; applying it with `(F)(X)` syntax calls it.
-This is Mercury's functional application syntax for higher-order values.
-
-## Heterogeneous list without existentials
-
-`list(plugin)` holds values of different "logical types" (upper, repeat, prepend)
-behind a uniform interface. The union is *nominal* — the record type — rather than
-existential. The practical difference: you can't add new plugin methods later
-without changing the record type. A real existential would allow extending the
-API (add `name_of/1` to the typeclass) without touching existing plugins.
+The trade-off is what you can extend later. The existential carries a *typeclass*, so
+you can add a method (say `priority/1`) to `formatter` and every existing plugin
+gains it for free. The closure record carries exactly one function; growing the
+"interface" means changing the record type and every constructor. Existentials are
+the open-world choice for the *interface*; closures are simpler when the interface is
+fixed at one operation.
 
 ## Answering the design questions
 
-**Q1: Why can't you call `apply` directly from the outside?**
-With existential types, once T is hidden in `some [T] T`, the outer scope cannot
-call `apply(X, S)` because the type of X is unknown. You must go through a
-predicate that deconstructs the box and brings T (with its constraint) back into
-scope. In the closure version, there is no T to hide — the function is already
-specialized.
+**Q1: Why must you go through a deconstructing predicate to call `apply`?**
+Once a value is boxed as `some [T] plugin(T)`, `T` is hidden from the outside — the
+caller does not know whether it holds an `upper` or a `repeat`. You cannot name a
+method on an unknown type. Deconstructing `plugin(X)` (in a clause head or with `=`)
+is what re-introduces `T` and its `formatter(T)` constraint into a local scope, and
+only there are `plugin_name`/`apply` callable on `X`.
 
-**Q2: Can you compose two plugins?**
-With the closure approach, trivially:
+**Q2: Can you compose two plugins into a new formatter?**
+Yes — straightforwardly. Define a composite type holding two boxed plugins and make
+it a `formatter` instance that deconstructs both and chains them:
+
 ```mercury
-compose(P1, P2) = plugin(
-    P1 ^ pname ++ " | " ++ P2 ^ pname,
-    func(S) = (P2 ^ papply)((P1 ^ papply)(S))).
-```
-With existential types, `compose(plugin(X), plugin(Y))` would need a new
-existential type `some [A, B] compose_plugin(A, B) => (formatter(A), formatter(B))`,
-which adds complexity without much gain.
+:- type compose_plugin ---> compose_plugin(plugin, plugin).
+:- instance formatter(compose_plugin) where [
+    (plugin_name(compose_plugin(plugin(A), plugin(B))) =
+        plugin_name(A) ++ " | " ++ plugin_name(B)),
+    (apply(compose_plugin(plugin(A), plugin(B)), S) =
+        plugins.apply(B, plugins.apply(A, S)))
+].
 
-**Q3: Runtime cost vs Rust `Box<dyn Trait>`**
-Both models store a pointer to a vtable (Mercury) or trait object (Rust).
-Mercury's existential packs `(value, class_dictionary_pointer)`. Rust's
-`Box<dyn Trait>` stores `(data_pointer, vtable_pointer)`. The costs are the same
-order — one extra indirection per method call. The closure version avoids the
-dictionary but requires one closure allocation per plugin.
+mk_compose(P1, P2) = 'new plugin'(compose_plugin(P1, P2)).
+```
+
+`mk_compose(mk_prefix(">> "), mk_upper)` then behaves as a single plugin named
+`"prefix | upper"`. The composite is itself existentially boxed, so it drops into the
+same `list(plugin)` as any other plugin. (Compile-verified.)
+
+**Q3: Runtime cost vs Rust `Box<dyn Trait>`.**
+Both store a pointer pair. Mercury's existential packs `(value, class_dictionary)`;
+Rust's `Box<dyn Trait>` stores `(data_pointer, vtable_pointer)`. Same order of cost —
+one extra indirection per method call. The closure alternative trades the dictionary
+for one closure allocation per plugin and a direct call.

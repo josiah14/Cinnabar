@@ -64,6 +64,12 @@ Implement these; note which ones need the typeclass constraint and which do not:
 Think about why `many_p` does not need `<= token_stream(S, T)` even though it is
 always used with token streams in practice.
 
+> **Termination caveat.** Like `many` in puzzle 04, `many_p` is `det` but not
+> guaranteed to terminate. The `semidet` mode fixes cardinality (at most one solution
+> per call), not progress (whether the stream advances). A parser that succeeds
+> without pulling a token makes `many_p` loop forever. The invariant: a parser given
+> to `many_p` consumes at least one token on success.
+
 ## Build on top
 
 Using only the generic combinators:

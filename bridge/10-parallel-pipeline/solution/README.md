@@ -34,6 +34,56 @@ The output order is non-deterministic: items from worker A and worker B interlea
 based on scheduling. The total is still correct (addition is commutative) but the
 order of items in the output channel is not guaranteed.
 
+### The fan-in trap: the writer **must** change
+
+The task text says "the writer does not need to change." That is wrong, and it is the
+most important thing to get right here. `dispatch` shuts both workers down by sending
+`no` to each, and every worker forwards its own `no` to the shared output. So the
+output channel now carries **two** sentinels — one per worker. The original writer
+stops at the *first* `no`:
+
+```mercury
+writer(Chan, Acc0, Acc, !IO) :-
+    channel.take(Chan, Item, !IO),
+    ( Item = no,      Acc = Acc0                                   % stops too early!
+    ; Item = yes(V),  writer(Chan, Acc0 + V, Acc, !IO) ).
+```
+
+If worker A's `no` arrives while worker B still has results queued behind it, those
+results are silently dropped — the total comes out low and non-deterministically so.
+
+**Fix: count one sentinel per producer.** Carry the number of still-live workers and
+only stop when the last one has signalled:
+
+```mercury
+:- pred fanin_writer(channel(maybe(int))::in, int::in, int::in, int::out,
+                     io::di, io::uo) is det.
+fanin_writer(Chan, Pending, Acc0, Acc, !IO) :-
+    channel.take(Chan, Item, !IO),
+    (
+        Item = no,
+        ( Pending =< 1 ->
+            Acc = Acc0                              % last sentinel — done
+        ;
+            fanin_writer(Chan, Pending - 1, Acc0, Acc, !IO)
+        )
+    ;
+        Item = yes(V),
+        fanin_writer(Chan, Pending, Acc0 + V, Acc, !IO)
+    ).
+```
+
+Call it with `Pending = 2` (the number of workers). Because each worker emits all its
+`yes` items before its own `no`, waiting for both sentinels guarantees every result is
+read regardless of interleaving. (Verified: total is `N*(N+1)` on every run; the
+single-sentinel writer drops items.)
+
+The alternative is a **merger** stage: give each worker its own output channel, and a
+merger that reads both, emits a single `no` once both are drained, and feeds one clean
+stream to an unchanged writer. The sentinel-counting writer is simpler when the workers
+already share one output channel; a merger is worth it when downstream stages must not
+know how many producers there were.
+
 ## Task 2: bounded-buffer channel
 
 ```mercury
@@ -108,44 +158,98 @@ behaviour with printed progress messages.
 
 ## Task 4: supervisor thread
 
+The natural first attempt does not work, and the reason is instructive. If the
+transformer both `throw`s on failure **and** is the thing that reports to `Report`,
+then the moment it throws it stops — it never reaches the `channel.put(Report, ...)`
+line, the thread dies, and the supervisor's `channel.take(Report, ...)` blocks forever.
+A `throw` cannot also be its own crash report.
+
+The fix is to separate the three concerns into three predicates:
+
+**1. Business logic — throws, catches nothing.** It does not know the supervisor exists.
+
 ```mercury
-:- pred transformer_safe(channel(maybe(int))::in,
-                         channel(maybe(int))::in,
-                         channel(maybe(string))::in,
-                         io::di, io::uo) is cc_multi.
-transformer_safe(In, Out, Report, !IO) :-
+:- pred transform_loop(channel(maybe(int))::in, channel(maybe(int))::in,
+                       io::di, io::uo) is cc_multi.
+transform_loop(In, Out, !IO) :-
     channel.take(In, Item, !IO),
     (
         Item = no,
-        channel.put(Out, no, !IO),
-        channel.put(Report, no, !IO)    % clean exit
+        channel.put(Out, no, !IO)              % only a clean run reaches here
     ;
         Item = yes(V),
         ( V rem 7 = 0 ->
-            % Simulate failure on multiples of 7
             throw(software_error("bad item: " ++ string.int_to_string(V)))
         ;
             channel.put(Out, yes(V * 2), !IO),
-            transformer_safe(In, Out, Report, !IO)
+            transform_loop(In, Out, !IO)
         )
-    ).
-
-:- pred supervisor(channel(maybe(string))::in,
-                   io::di, io::uo) is det.
-supervisor(Report, !IO) :-
-    channel.take(Report, Status, !IO),
-    (
-        Status = no  % transformer exited cleanly
-    ;
-        Status = yes(Err),
-        io.format("supervisor: transformer crashed: %s\n", [s(Err)], !IO),
-        io.write_string("supervisor: would restart here\n", !IO)
     ).
 ```
 
-`exception.try_all` or `exception.catch_any` can be used to catch the throw inside
-the transformer's spawned thread and write the error message to `Report`. The
-supervisor reads `Report` and decides whether to restart.
+**2. Crash detection — a wrapper run in the spawned thread** that catches the exception
+with `exception.try_io` and turns it into a message on `Report`:
 
-Full restart logic requires re-spawning the transformer with the same input channel —
-straightforward but requires tracking the channel reference in the supervisor's loop.
+```mercury
+:- import_module exception.   % try_io/4, exception_result/1, software_error/1
+:- import_module univ.        % univ_to_type/2
+:- import_module unit.        % the result type carried by try_io here
+
+:- pred run_transformer(channel(maybe(int))::in, channel(maybe(int))::in,
+                        channel(maybe(string))::in, io::di, io::uo) is cc_multi.
+run_transformer(In, Out, Report, !IO) :-
+    try_io(
+        (pred(unit::out, !.IO::di, !:IO::uo) is cc_multi :-
+            transform_loop(In, Out, !IO)),
+        Result, !IO),
+    (
+        Result = succeeded(_),
+        channel.put(Report, no, !IO)                       % clean finish
+    ;
+        Result = exception(Univ),
+        ( univ_to_type(Univ, software_error(Msg)) ->
+            channel.put(Report, yes(Msg), !IO)
+        ;
+            channel.put(Report, yes("unknown error"), !IO)
+        )
+    ).
+```
+
+`try_io` needs a goal that produces a value, so the business logic is wrapped in a
+lambda returning `unit`. On exception it hands back `exception(Univ)`; `univ_to_type`
+recovers the original `software_error` and its message.
+
+**3. The supervisor — restart on crash, stop on clean finish:**
+
+```mercury
+:- pred supervise(channel(maybe(int))::in, channel(maybe(int))::in,
+                  channel(maybe(string))::in, int::in, io::di, io::uo) is cc_multi.
+supervise(In, Out, Report, Restarts, !IO) :-
+    channel.take(Report, Status, !IO),
+    (
+        Status = no,
+        io.format("supervisor: clean finish after %d restart(s)\n",
+            [i(Restarts)], !IO)
+    ;
+        Status = yes(Err),
+        io.format("supervisor: crash (%s) -- restarting\n", [s(Err)], !IO),
+        thread.spawn(run_transformer(In, Out, Report), !IO),
+        supervise(In, Out, Report, Restarts + 1, !IO)
+    ).
+```
+
+Restart works **because the bad item was already taken** from `In` before the `throw`
+fired, so the re-spawned `run_transformer` resumes on the next item and skips it. The
+partial output produced before each crash is already on `Out` and is not lost. Only a
+clean run reaches `channel.put(Out, no)`, so `Out` carries exactly one sentinel no
+matter how many restarts happen — the writer needs no special handling.
+
+**Orchestration.** Run `supervise` on the main thread (so all of its logging is one
+sequential stream) and run the writer on a spawned thread that returns its total
+through a result channel; or vice-versa. Either way, `run_transformer` and `supervise`
+must be `cc_multi`, because `thread.spawn` only accepts a `cc_multi` closure — a `det`
+one is a mode error, even when the body happens to be deterministic.
+
+Verified end to end (`mmc`, parallel grade): with `N = 20`, the transformer crashes on
+`14` and `7`, the supervisor restarts twice, and the final total is `378`
+(`2 × (sum 1..20 − 7 − 14)`) — the bad items skipped, everything else accounted for.

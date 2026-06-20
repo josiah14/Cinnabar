@@ -7,7 +7,6 @@
 :- import_module list.
 :- import_module map.
 :- import_module string.
-:- import_module char.
 
 % Two words are anagrams iff their sorted, lowercased character sequences are equal.
 :- func canonical(string) = string.

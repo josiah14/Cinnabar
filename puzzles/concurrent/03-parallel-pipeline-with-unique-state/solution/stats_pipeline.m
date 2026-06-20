@@ -1,7 +1,7 @@
 :- module stats_pipeline.
 :- interface.
 :- import_module io.
-:- pred main(io::di, io::uo) is cc_multi.
+:- pred main(io::di, io::uo) is det.
 
 :- implementation.
 :- import_module int.
@@ -32,10 +32,10 @@ producer(N, Chan, !IO) :-
 % Stage 2: Accumulator — threads count/sum/max as explicit state parameters.
 % No IO output here — all printing is Stage 3's job.
 %
-% The Count0/Sum0/Max0 triple is the "unique state" of this stage.
-% It is passed linearly: each recursive call receives new values, and the
-% old bindings are never used again. This is the same linearity that
-% array_di/array_uo enforces for mutable arrays.
+% The Count0/Sum0/Max0 triple is passed linearly: each recursive call
+% receives the updated values, and the old bindings are never used again.
+% The structural pattern resembles array_di/array_uo threading, but these
+% are ordinary immutable values — no di/uo mode enforcement applies here.
 
 :- pred acc_loop(channel(maybe(int))::in, channel(stats)::in,
                  int::in, int::in, int::in,
@@ -75,6 +75,8 @@ main(!IO) :-
     channel.init(DataChan, !IO),
     channel.init(StatsChan, !IO),
     io.format("=== stats pipeline: 1..%d ===\n", [i(N)], !IO),
-    thread.spawn(producer(N, DataChan), !IO),
-    thread.spawn(acc_loop(DataChan, StatsChan, 0, 0, 0), !IO),
+    promise_equivalent_solutions [!:IO]
+        thread.spawn(producer(N, DataChan), !IO),
+    promise_equivalent_solutions [!:IO]
+        thread.spawn(acc_loop(DataChan, StatsChan, 0, 0, 0), !IO),
     reporter(StatsChan, !IO).

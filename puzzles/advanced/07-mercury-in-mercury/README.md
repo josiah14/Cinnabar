@@ -26,12 +26,12 @@ Your interpreter operates on programs represented as Mercury data:
 
 ```mercury
 :- type term_t
-    --->    a(string)               % atom
-    ;       n(int)                  % integer
-    ;       f(string, list(term_t)) % compound: functor(args)
-    ;       v(string).              % logical variable
+    --->    atom(string)                    % atom("tom")
+    ;       int_lit(int)                    % int_lit(42)
+    ;       compound(string, list(term_t))  % compound("parent", [atom("tom"), atom("bob")])
+    ;       logic_var(string).              % logic_var("X")
 
-:- type clause_t ---> c(term_t, list(term_t)).  % head :- body
+:- type clause_t ---> rule(term_t, list(term_t)).  % head :- body
 :- type prog_t   ---> prog(list(clause_t)).
 ```
 
@@ -108,9 +108,9 @@ a minimal `main` you can compile and run to verify correctness in isolation.
 After implementing `rename/3`, `apply_env/2`, and `deref/3`, add to `main`:
 
 ```mercury
-Env0 = ["X_0" - a("alice"), "Y_0" - v("X_0")],
-Renamed = rename(v("X"), "0", _),   % expect v("X_0")
-Derefed = deref(v("Y_0"), Env0, _), % expect a("alice"), following Y_0 → X_0 → alice
+Env0 = ["X_0" - atom("alice"), "Y_0" - logic_var("X_0")],
+Renamed = rename(logic_var("X"), "0", _),   % expect logic_var("X_0")
+Derefed = deref(logic_var("Y_0"), Env0, _), % expect atom("alice"), following Y_0 → X_0 → alice
 io.print_line(Renamed, !IO),
 io.print_line(Derefed, !IO).
 ```
@@ -123,14 +123,14 @@ machinery exists.
 After implementing `unify/4`, test it in isolation:
 
 ```mercury
-% unify a("alice") with v("X") — should produce env [("X", a("alice"))]
-( unify(a("alice"), v("X"), [], Env1) ->
+% unify atom("alice") with logic_var("X") — should produce env [("X", atom("alice"))]
+( unify(atom("alice"), logic_var("X"), [], Env1) ->
     io.print_line(Env1, !IO)
 ;
     io.print_line("failed", !IO)
 ),
-% unify f("p", [v("X")]) with f("p", [a("bob")]) — should produce [("X", a("bob"))]
-( unify(f("p", [v("X")]), f("p", [a("bob")]), [], Env2) ->
+% unify compound("p", [logic_var("X")]) with compound("p", [atom("bob")]) — [("X", atom("bob"))]
+( unify(compound("p", [logic_var("X")]), compound("p", [atom("bob")]), [], Env2) ->
     io.print_line(Env2, !IO)
 ;
     io.print_line("failed", !IO)
@@ -146,16 +146,16 @@ Before trying ancestor queries, test with a trivial one-clause program:
 
 ```mercury
 % Program: fact(a).
-Prog = prog([c(f("fact", [a("a")]), [])]),
-Goal = f("fact", [v("X")]),
+Prog = prog([rule(compound("fact", [atom("a")]), [])]),
+Goal = compound("fact", [logic_var("X")]),
 Solns = solutions(
     (pred(E::out) is nondet :- solve(Prog, [Goal], 0, [], E)),
     _),
 list.foldl(
     (pred(E::in, !.IO::di, !:IO::uo) is det :-
-        io.print_line(apply_env(v("X"), E), !IO)),
+        io.print_line(apply_env(logic_var("X"), E), !IO)),
     Solns, !IO).
-% Expected: a("a") printed once.
+% Expected: atom("a") printed once.
 ```
 
 If this works, the rename → unify → recurse loop is correct for the base case.
@@ -195,6 +195,35 @@ Query: `app([1,2], [3], Result)` — should find `Result = [1,2,3]`.
    at the same depth could collide. Describe a condition where this causes a
    wrong answer. What would a correct solution require?
 
-3. This interpreter has no occurs check in `unify` — binding `v("X")` to
-   `f("list", [v("X")])` creates a circular term. When would this cause an
+3. This interpreter has no occurs check in `unify` — binding `logic_var("X")` to
+   `compound("list", [logic_var("X")])` creates a circular term. When would this cause an
    infinite loop, and where in the code would you add an occurs check?
+
+---
+
+## Expected output
+
+```
+=== ancestor/2 ===
+?- ancestor(tom, Who)
+  ancestor(tom, bob)
+  ancestor(tom, ann)
+  ancestor(tom, pat)
+
+?- ancestor(bob, Who)
+  ancestor(bob, ann)
+  ancestor(bob, pat)
+
+?- ancestor(ann, Who)
+  false
+
+=== append/3 ===
+?- app([1,2], [3], Result)
+  app([1, 2], [3], [1, 2, 3])
+
+?- app(A, B, [1,2,3])
+  app([], [1, 2, 3], [1, 2, 3])
+  app([1], [2, 3], [1, 2, 3])
+  app([1, 2], [3], [1, 2, 3])
+  app([1, 2, 3], [], [1, 2, 3])
+```

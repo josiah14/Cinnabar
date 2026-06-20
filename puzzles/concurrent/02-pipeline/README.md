@@ -38,50 +38,58 @@ Use a sentinel value (`no`) to signal end-of-stream.
 
 ```mercury
 main(!IO) :-
-    N = 1000,
+    N = 100,
     channel.init(Chan1, !IO),
     channel.init(Chan2, !IO),
     thread.spawn(reader(N, Chan1), !IO),
     thread.spawn(transformer(Chan1, Chan2), !IO),
     writer(Chan2, 0, Total, !IO),
-    io.format("Total: %d\n", [i(Total)], !IO).
+    io.format("Total: %d (expected: %d)\n", [i(Total), i(N * (N + 1))], !IO).
 ```
 
 The main thread blocks in `writer` until all data has been processed.
 
 ---
 
-## Stage implementations
+## Stage signatures
+
+Each stage is a `det` predicate that takes its input channel(s), output channel(s),
+and `!IO`. Think through what each stage loop body needs: take from input, transform
+or accumulate, put to output (or produce a final value), recurse until `no` arrives.
 
 ```mercury
 :- pred reader(int::in, channel(maybe(int))::in, io::di, io::uo) is det.
+:- pred transformer(channel(maybe(int))::in, channel(maybe(int))::in,
+                    io::di, io::uo) is det.
+:- pred writer(channel(maybe(int))::in, int::in, int::out,
+               io::di, io::uo) is det.
+```
+
+<details>
+<summary>Hint: stage bodies</summary>
+
+```mercury
 reader(0, Chan, !IO) :- channel.put(Chan, no, !IO).
 reader(N, Chan, !IO) :-
     N > 0,
     channel.put(Chan, yes(N), !IO),
     reader(N - 1, Chan, !IO).
 
-:- pred transformer(channel(maybe(int))::in, channel(maybe(int))::in,
-                    io::di, io::uo) is det.
 transformer(In, Out, !IO) :-
     channel.take(In, Item, !IO),
-    (
-        Item = no,   channel.put(Out, no, !IO)
-    ;
-        Item = yes(V), channel.put(Out, yes(V * 2), !IO),
-        transformer(In, Out, !IO)
+    ( Item = no,      channel.put(Out, no, !IO)
+    ; Item = yes(V),  channel.put(Out, yes(V * 2), !IO),
+                      transformer(In, Out, !IO)
     ).
 
-:- pred writer(channel(maybe(int))::in, int::in, int::out,
-               io::di, io::uo) is det.
 writer(Chan, Acc0, Acc, !IO) :-
     channel.take(Chan, Item, !IO),
-    (
-        Item = no,    Acc = Acc0
-    ;
-        Item = yes(V), writer(Chan, Acc0 + V, Acc, !IO)
+    ( Item = no,     Acc = Acc0
+    ; Item = yes(V), writer(Chan, Acc0 + V, Acc, !IO)
     ).
 ```
+
+</details>
 
 ---
 
@@ -110,3 +118,13 @@ writer(Chan, Acc0, Acc, !IO) :-
 
 3. `thread.spawn` takes a `cc_multi` closure. What does `cc_multi` mean here, and why
    can't a plain `det` predicate be spawned?
+
+---
+
+## Expected output
+
+```
+Total: 10100 (expected: 10100)
+```
+
+(N=100, transformer doubles each value: 2×(1+2+…+100) = 2×5050 = 10100)

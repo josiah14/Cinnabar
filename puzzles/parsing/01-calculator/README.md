@@ -64,7 +64,13 @@ factor(V) --> [minus], factor(F), { V = -F }.
 Write a simple tokenizer: `string → list(token)` where
 `token ---> int_tok(int) ; plus ; minus ; star ; slash ; lparen ; rparen`.
 
-Tokenize by scanning characters with a DCG over `list(char)`.
+Tokenize by scanning characters with a DCG over `list(char)`. Make it **strict**:
+if the scan stops before the end of the input (an unrecognised character), the
+tokenizer should *fail*, not return the tokens it managed to collect. Otherwise input
+like `"1 @ 2"` tokenizes to just `[int_tok(1)]`, the `@ 2` is silently dropped, and the
+expression parser happily returns `yes(1)` for invalid input. The fix is to require the
+remaining character list to be empty (`Rest = []`), which makes `tokenize` semidet — see
+the pipeline below, where it sits inside the if-then-else condition.
 
 ---
 
@@ -88,3 +94,5 @@ calculate(Input) = Result :-
 - Verify `"(3 + 4) * 2"` = 14
 - Verify `"10 / 0"` = `no` (division by zero)
 - Verify `"1 + "` = `no` (parse error)
+- Verify `"1 @ 2"` = `no` (invalid character — the strict tokenizer rejects input it
+  cannot fully consume, instead of silently parsing the `1` prefix as `yes(1)`)

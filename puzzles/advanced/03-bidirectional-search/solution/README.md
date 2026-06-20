@@ -29,20 +29,38 @@ the bijection between decimal strings and integers).
 
 ## Forward: recursive scan instead of nondet generator in condition
 
-A common mistake: trying to use a nondet generator inside an if-then-else condition
-to commit to the first solution:
+A tempting but wrong approach: drop a nondet generator into an if-then-else
+condition and expect `->` to commit to the first solution:
 
 ```mercury
 first_with(P, N) :-
-    ( gen(1, 50, N0), has_property(N0, P) ->  % ERROR: inferred nondet
+    ( gen(1, 50, N0), has_property(N0, P) ->  % inferred nondet — see below
         N = N0
     ; fail ).
 ```
 
-Mercury infers `first_with` as `nondet` because `gen` is declared `nondet` and the
-mode checker propagates this upward before applying the committed-choice reduction.
+The commit does not work the way the shape suggests. Mercury's if-then-else prunes
+the condition's nondeterminism **only for variables that are local to the condition**
+— existentially quantified, i.e. bound inside it and not used afterwards. Here `N0`
+is bound in the condition and then *exported* to the then-branch (`N = N0`), so its
+multiplicity is not pruned: every integer `gen` produces and `has_property` accepts
+flows out through `N`, and the predicate inherits `gen`'s nondeterminism. The
+compiler says exactly this, and the reason it gives points at the `gen` call, not at
+the `->`:
 
-The correct pattern: a semidet recursive scan that checks each integer explicitly:
+```
+first_with'(in, out): determinism declaration not satisfied.
+  Declared `semidet', inferred `nondet'.
+  Call to `gen'(in, in, out) can succeed more than once.
+```
+
+The commit is real — it just applies to *existence*, not to a value you carry out.
+`( gen(1, 50, _) -> ... ; ... )`, which discards the binding, collapses to a single
+"does a solution exist" test, and the if-then-else is deterministic. The moment you
+export the binding, the multiplicity comes with it.
+
+The correct pattern returns the first match with a semidet recursive scan, where
+each step's condition has at most one solution to begin with:
 
 ```mercury
 first_from(Lo, Hi, P, N) :-
@@ -54,9 +72,11 @@ first_from(Lo, Hi, P, N) :-
     ).
 ```
 
-Each `has_property` call is `semidet`. The if-then-else over a `semidet` condition
-is itself `semidet`. The recursion is `semidet`. Mercury infers the whole predicate
-as `semidet`. ✓
+Each `has_property(Lo, P)` call is `semidet` — at most one solution — so there is no
+multiplicity to export. The if-then-else is `semidet`, the recursion is `semidet`,
+and Mercury infers the whole predicate as `semidet`. ✓ (The other idiom is
+`solutions(generate_and_filter, [First | _])`: collect every match, then take the
+head — see `first_k_with` in the solution, which uses `gen` exactly that way.)
 
 ## Fibonacci check
 

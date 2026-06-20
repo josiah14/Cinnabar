@@ -1,5 +1,9 @@
 # 06 — Pure Randomness
 
+> **Advanced recall — defer.** This kata uses Mercury's impure/foreign sub-system
+> (`mutable`, `foreign_proc`, `:- initialize`) before those tools are introduced.
+> Skip it in a first reactivation pass and return after `katas/advanced/01-ffi-depth`.
+
 **Concept:** `mutable` global state, `impure`/`semipure` annotations, `pragma promise_pure`, `foreign_decl`/`foreign_proc`, `:- initialize`
 
 **Before you open `roll.m`:** this program generates random numbers using Mercury's impure corner — the part of the language that steps outside the pure declarative model. Write down what you remember about how Mercury handles code that has side effects outside of the `!IO` threading discipline.

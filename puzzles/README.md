@@ -15,5 +15,5 @@ solution*.
 | `logic/` | Sudoku, N-queens, crypto-arithmetic |
 | `data-structures/` | Anagram finder, expression evaluator, graph reachability, frequency histogram |
 | `parsing/` | Calculator, CSV reader, config parser |
-| `concurrent/` | Parallel sort, producer-consumer pipeline |
-| `advanced/` | Generic printer, memoized search |
+| `concurrent/` | Parallel sort, producer-consumer pipeline, parallel pipeline with unique state |
+| `advanced/` | Generic printer, memoized search, bidirectional search, combinator library, generic parser, plugin architecture, Mercury meta-interpreter |

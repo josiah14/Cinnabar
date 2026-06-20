@@ -1,6 +1,6 @@
 # Foundations
 
-This track builds the mechanical fluency you need before Mercury programs start feeling natural rather than fought-over.
+This track builds the mechanical fluency you need before Mercury programs start feeling natural rather than fought-over. It covers the language's structural layer — modules, types, higher-order predicates, state threading with `!`, and standard library containers — before the mode and determinism tracks make the type-level reasoning explicit. By the end, reading a Mercury mode error should feel like reading a type error: informative rather than opaque.
 
 Work them in order. The later katas assume the earlier ones.
 
@@ -18,6 +18,8 @@ Work them in order. The later katas assume the earlier ones.
 | `07-exceptions/` | `io.res`, `exception.catch_any`, file I/O error handling |
 | `08-built-in-types/` | Integer, float, char, string corners — `//`, `rem` vs `mod`, poly-type tagging |
 | `09-mode-inference/` | Goal reordering, multi-mode predicates, reading mode errors |
+| `10-record-update/` | `^` field access, `:=` functional update, chained updates, copy-on-modify pattern |
+| `11-stdlib-collections/` | `bag`, `bimap`, `array` vs `version_array` — less-visited stdlib collections |
 
 ## Build
 

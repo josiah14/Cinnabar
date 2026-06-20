@@ -7,7 +7,6 @@
 :- import_module int.
 :- import_module list.
 :- import_module map.
-:- import_module maybe.
 :- import_module pair.
 :- import_module solutions.
 :- import_module string.
@@ -39,11 +38,11 @@ shortest_path(Graph, Start, Goal, MinCost, BestPath) :-
     solutions(
         (pred(Cost - P :: out) is nondet :- path(Graph, Start, Goal, Cost, P)),
         AllPaths),
-    AllPaths \= [],
+    AllPaths = [First | Rest],
     list.foldl(
         (pred(Cost - P::in, MC0 - MP0::in, MC - MP::out) is det :-
             ( Cost < MC0 -> MC = Cost, MP = P ; MC = MC0, MP = MP0 )),
-        AllPaths, 999999 - [], MinCost - BestPath).
+        Rest, First, MinCost - BestPath).
 
 %---------------------------------------------------------------------------%
 
