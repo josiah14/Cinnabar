@@ -1,12 +1,14 @@
-:- module lambda_head.
+:- module lambda_head_koan.
 :- interface.
 :- import_module io.
 :- pred main(io::di, io::uo) is det.
 
 :- implementation.
 
-% !IO in a lambda head is not allowed.
-% Try to compile this and see the error.
+% BROKEN: `!IO` is used as a parameter in a lambda head, `pred(!IO) :- ...`.
+% `!IO` stands for two implied parameters, and there is no syntax to give them
+% their di/uo modes in a lambda head — so the compiler rejects it. Compile this
+% and read the error.
 main(!IO) :-
     greet(pred(!IO) :-
         io.write_string("Ahoy!\n", !IO)

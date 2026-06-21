@@ -1,0 +1,10 @@
+lambda_head_koan.m:013: Error: the clause head part of a lambda expression
+lambda_head_koan.m:013:   should have one of the following forms:
+lambda_head_koan.m:013:   `pred(<args>) is <determinism>'
+lambda_head_koan.m:013:   `any_pred(<args>) is <determinism>'
+lambda_head_koan.m:013:   `func(<args>) = <retarg> is <determinism>'
+lambda_head_koan.m:013:   `any_func(<args>) = <retarg> is <determinism>'
+lambda_head_koan.m:013:   `func(<args>) = <retarg>'
+lambda_head_koan.m:013:   `any_func(<args>) = <retarg>',
+lambda_head_koan.m:013:   or one of those forms preceded by either `semipure'
+lambda_head_koan.m:013:   or `impure'.

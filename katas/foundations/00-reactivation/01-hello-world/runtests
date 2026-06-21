@@ -3,4 +3,20 @@ set -euo pipefail
 echo "=== Compiling..."
 mmc --make --grade asm_fast.par.gc.stseg start 2>&1 || { echo "COMPILE FAILED"; exit 1; }
 echo "=== Running..."
-./start
+output=$(./start 2>&1)
+echo "$output"
+
+expected="Hello, World!
+Hello, Mercury!!
+IO token threaded: write_string 2
+IO token threaded: write_string 3"
+
+echo ""
+if [ "$output" = "$expected" ]; then
+    echo "All tests PASSED."
+else
+    echo "FAIL: output does not match the expected four lines."
+    echo "--- expected ---"
+    echo "$expected"
+    exit 1
+fi

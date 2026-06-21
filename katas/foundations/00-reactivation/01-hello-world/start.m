@@ -5,12 +5,15 @@
 
 :- implementation.
 
-% The !IO token is unique: each IO predicate consumes the incoming token (di)
-% and produces a fresh one (uo).  No two calls can share the same token.
+% TODO: make main print these four lines, in order:
+%
+%   Hello, World!
+%   Hello, Mercury!!
+%   IO token threaded: write_string 2
+%   IO token threaded: write_string 3
+%
+% Thread the IO state through each io.write_string call. There are two
+% idiomatic ways — explicit (IO0, IO1, IO2, ...) or the !IO sugar. Try both.
+% This starter prints only the first line.
 main(!IO) :-
-    io.write_string("Hello, Mercury!\n", !IO),
-    % Each call below receives the fresh token produced by the previous call.
-    io.write_string("IO token threaded: write_string 2\n", !IO),
-    io.write_string("IO token threaded: write_string 3\n", !IO).
-    % Reflection prompt: what would happen if you tried to use the IO token from
-    % the first write_string call in the third write_string call directly?
+    io.write_string("Hello, World!\n", !IO).

@@ -10,6 +10,9 @@ Mercury/
 
 # mmc error log (usually empty on success, never meaningful to track)
 *.err
+# Track koan diagnostic snapshots (needed by ci.sh compile_fail)
+!**/*_koan.err
+!**/solution/*.err
 
 # mmc-generated C source, init files, and object files (may land in source dir
 # depending on how mmc is invoked, not just inside Mercury/)
