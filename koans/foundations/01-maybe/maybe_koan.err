@@ -1,0 +1,21 @@
+maybe_koan.m:020: In clause for predicate `main'/2:
+maybe_koan.m:020:   type error in unification of variable `MaybeDoubled'
+maybe_koan.m:020:   and functor `yes'/1.
+maybe_koan.m:020:   variable `MaybeDoubled' has type `pred(
+maybe_koan.m:020:     maybe.maybe(int)
+maybe_koan.m:020:   )',
+maybe_koan.m:020:   functor `yes'/1 has type
+maybe_koan.m:020:   `yes(T): maybe.maybe(T)'.
+maybe_koan.m:021: In clause for predicate `main'/2:
+maybe_koan.m:021:   in argument 2 of call to predicate `io.format'/4:
+maybe_koan.m:021:   in list element #0:
+maybe_koan.m:021:   error: undefined symbol `i'/1.
+maybe_koan.m:021:   That symbol is defined in module `string', which does not
+maybe_koan.m:021:   have an `:- import_module' declaration.
+maybe_koan.m:023: In clause for predicate `main'/2:
+maybe_koan.m:023:   type error in unification of variable `MaybeDoubled'
+maybe_koan.m:023:   and constant `no'.
+maybe_koan.m:023:   variable `MaybeDoubled' has type `pred(
+maybe_koan.m:023:     maybe.maybe(int)
+maybe_koan.m:023:   )',
+maybe_koan.m:023:   constant `no' has type `maybe.maybe(T)'.

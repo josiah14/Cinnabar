@@ -64,6 +64,31 @@ solve(S, E, N, D, M, O, R, Y) :-
 
 ---
 
+---
+
+## Acceptance criteria
+
+The constraint `SEND + MORE = MONEY` has exactly one solution:
+
+| Variable | Value | Constraint |
+|---|---|---|
+| S | 9 | S ≠ 0 |
+| E | 5 | |
+| N | 6 | |
+| D | 7 | |
+| M | 1 | M ≠ 0 |
+| O | 0 | |
+| R | 8 | |
+| Y | 2 | |
+
+| Check | Expected |
+|---|---|
+| SEND | 9567 |
+| MORE | 1085 |
+| SEND + MORE | 10652 |
+| MONEY | 10652 |
+| Number of solutions | 1 (verified: `solutions/2` returns list of length 1) |
+
 ## `solutions/2` vs `aggregate/4`
 
 For SEND + MORE = MONEY, there is exactly one solution — `solutions` is fine.

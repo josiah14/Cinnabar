@@ -70,6 +70,26 @@ Diagonal conflict: `abs(Col - Q) = Dist`.
 
 ---
 
+---
+
+## Acceptance criteria
+
+| N | Number of solutions | Notes |
+|---|---|---|
+| 1 | 1 | `[1]` — trivial |
+| 2 | 0 | Impossible (two queens always attack) |
+| 3 | 0 | Impossible |
+| 4 | 2 | `[2,4,1,3]` and `[3,1,4,2]` |
+| 5 | 10 | |
+| 6 | 4 | |
+| 7 | 40 | |
+| 8 | 92 | Canonical case |
+| 9 | 352 | |
+| 12 | 14200 | |
+
+Each solution `Qs` must satisfy: `length(Qs) = N`, every integer in `1..N` appears at most
+once (no column conflict), and no two queens share a diagonal.
+
 ## What to observe
 
 Run `solutions(queens(8), Qs), list.length(Qs, N)` — there are 92 solutions for 8-queens.

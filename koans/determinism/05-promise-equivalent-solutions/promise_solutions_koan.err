@@ -1,0 +1,7 @@
+promise_solutions_koan.m:019: In `list_max'(in, out):
+promise_solutions_koan.m:019:   error: determinism declaration not satisfied.
+promise_solutions_koan.m:019:   Declared `det', inferred `semidet'.
+promise_solutions_koan.m:019:   The reasons for the difference are the
+promise_solutions_koan.m:019:   following.
+promise_solutions_koan.m:022:   Call to `list.member'(out, in) can fail.
+promise_solutions_koan.m:023:   Negated goal can succeed.

@@ -43,7 +43,7 @@ Katas and koans are organized into tracks. Puzzles draw on multiple tracks and l
 
 | Track | Katas | Koans | Start here |
 |---|---|---|---|
-| Foundations | 12 | 20 | `katas/foundations/00-reactivation/01-hello-world` |
+| Foundations | 12 | 23 | `katas/foundations/00-reactivation/01-hello-world` |
 | Type system | 10 | 10 | `katas/type-system/01-discriminated-unions` |
 | Mode system | 8 | 8 | `katas/mode-system/01-insts-and-modes` |
 | Determinism | 7 | 8 | `katas/determinism/01-six-categories` |
@@ -54,7 +54,7 @@ Katas and koans are organized into tracks. Puzzles draw on multiple tracks and l
 
 ### Bridges
 
-Eleven bridges in `bridge/`, each handing you a working file and asking you to extend it:
+Twelve bridges in `bridge/`, each handing you a working file and asking you to extend it:
 
 | Bridge | Concept |
 |---|---|
@@ -72,7 +72,7 @@ Eleven bridges in `bridge/`, each handing you a working file and asking you to e
 
 ### Puzzles
 
-Seventeen puzzles in `puzzles/`, organized by topic:
+Twenty-one puzzles in `puzzles/`, organized by topic:
 
 | Topic | Puzzles |
 |---|---|
@@ -80,7 +80,7 @@ Seventeen puzzles in `puzzles/`, organized by topic:
 | `data-structures/` | Anagram finder, expression evaluator, graph reachability, frequency histogram |
 | `parsing/` | Calculator, CSV reader, config parser |
 | `concurrent/` | Parallel sort, pipeline, pipeline with unique state |
-| `advanced/` | Generic printer, memoized search, bidirectional search, combinator library, generic parser, plugin architecture, Mercury meta-interpreter |
+| `advanced/` | Generic printer, memoized search, bidirectional search, combinator library, generic parser, plugin architecture, Mercury meta-interpreter, multi-module config library |
 
 ## Reference
 

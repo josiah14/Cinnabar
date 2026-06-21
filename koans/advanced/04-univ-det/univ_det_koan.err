@@ -1,0 +1,5 @@
+univ_det_koan.m:014: In `extract_int'(in, out):
+univ_det_koan.m:014:   error: determinism declaration not satisfied.
+univ_det_koan.m:014:   Declared `det', inferred `semidet'.
+univ_det_koan.m:014:   The reason for the difference is the following.
+univ_det_koan.m:016:   Call to `univ.univ_to_type'(in, out) can fail.

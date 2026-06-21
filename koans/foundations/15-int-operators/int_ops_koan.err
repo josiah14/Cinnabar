@@ -1,0 +1,2 @@
+int_ops_koan.m:016: In clause for predicate `show_if_different'/4:
+int_ops_koan.m:016:   error: undefined predicate `=\='/2.

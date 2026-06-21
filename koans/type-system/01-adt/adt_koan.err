@@ -1,0 +1,38 @@
+adt_koan.m:022: In clause for predicate `main'/2:
+adt_koan.m:022:   error: undefined symbol `[|]'/2.
+adt_koan.m:022:   (The module `list' has not been imported.)
+adt_koan.m:022: In clause for predicate `main'/2:
+adt_koan.m:022:   in argument 2 of functor `[|]/2':
+adt_koan.m:022:   error: undefined symbol `[|]'/2.
+adt_koan.m:022:   (The module `list' has not been imported.)
+adt_koan.m:022: In clause for predicate `main'/2:
+adt_koan.m:022:   in argument 2 of functor `[|]/2':
+adt_koan.m:022:   in argument 2 of functor `[|]/2':
+adt_koan.m:022:   error: undefined symbol `[|]'/2.
+adt_koan.m:022:   (The module `list' has not been imported.)
+adt_koan.m:022: In clause for predicate `main'/2:
+adt_koan.m:022:   in argument 2 of functor `[|]/2':
+adt_koan.m:022:   in argument 2 of functor `[|]/2':
+adt_koan.m:022:   in argument 2 of functor `[|]/2':
+adt_koan.m:022:   error: undefined symbol `[]'/0.
+adt_koan.m:022:   That symbol is defined in module `list', which does not have
+adt_koan.m:022:   an `:- import_module' declaration.
+adt_koan.m:023: In clause for predicate `main'/2:
+adt_koan.m:023:   error: undefined predicate `list.foldl'/4.
+adt_koan.m:023:   (The module `list' has not been imported.)
+adt_koan.m:027: In clause for predicate `print_shape'/3:
+adt_koan.m:027:   in argument 2 of call to predicate `io.format'/4:
+adt_koan.m:027:   error: undefined symbol `[|]'/2.
+adt_koan.m:027:   (The module `list' has not been imported.)
+adt_koan.m:027: In clause for predicate `print_shape'/3:
+adt_koan.m:027:   in argument 2 of call to predicate `io.format'/4:
+adt_koan.m:027:   in argument 2 of functor `[|]/2':
+adt_koan.m:027:   error: undefined symbol `[]'/0.
+adt_koan.m:027:   That symbol is defined in module `list', which does not have
+adt_koan.m:027:   an `:- import_module' declaration.
+adt_koan.m:027: In clause for predicate `print_shape'/3:
+adt_koan.m:027:   in argument 2 of call to predicate `io.format'/4:
+adt_koan.m:027:   in list element #0:
+adt_koan.m:027:   error: undefined symbol `f'/1.
+adt_koan.m:027:   That symbol is defined in module `string', which does not
+adt_koan.m:027:   have an `:- import_module' declaration.

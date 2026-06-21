@@ -1,0 +1,6 @@
+prop_gen_koan.m:057: In clause for `main(di, uo)':
+prop_gen_koan.m:057:   in argument 2 of call to predicate
+prop_gen_koan.m:057:   `prop_gen_koan.check_property'/5:
+prop_gen_koan.m:057:   mode error: variable `V_7' has instantiatedness
+prop_gen_koan.m:057:   `/* unique */ (pred(out) is det)',
+prop_gen_koan.m:057:   expected instantiatedness was `(pred(out) is nondet)'.

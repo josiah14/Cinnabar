@@ -93,6 +93,19 @@ io.format("Time: %d ms\n", [i((T2 - T1) // 1000)], !IO).
 
 ---
 
+## Acceptance criteria
+
+| Input list | Sequential result | Parallel result | Match? |
+|---|---|---|---|
+| `[]` | `[]` | `[]` | yes |
+| `[5]` | `[5]` | `[5]` | yes |
+| `[3,1,2]` | `[1,2,3]` | `[1,2,3]` | yes |
+| `make_descending(500)` | `1..500` | `1..500` | yes (below threshold → sequential) |
+| `make_descending(2000)` | `1..2000` | `1..2000` | yes (above threshold → parallel) |
+| `make_descending(10000)` | `1..10000` | `1..10000` | yes (the sample) |
+
+The program must print `"Results match."` to confirm correctness. Timing output may vary by hardware.
+
 ## What to observe
 
 - For N < 1000, sequential is almost always faster

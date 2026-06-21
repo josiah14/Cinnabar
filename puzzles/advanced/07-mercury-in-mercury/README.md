@@ -82,6 +82,11 @@ variable patterns would be inferred `nondet`.
 The `int` argument is a depth counter for variable renaming. At each resolution
 step, increment it and pass the string representation as the clause rename suffix.
 
+> Start with this simple depth counter — it is enough to get the demos running.
+> It has a subtle flaw, though: depth is not globally unique. Design question 2
+> (below) walks you to the fix, and the reference solution carries it out by
+> threading the counter as `int::in, int::out` instead.
+
 For each goal:
 1. Deref the goal under the current environment
 2. Find a clause in the program whose renamed head unifies with the goal
@@ -191,9 +196,15 @@ Query: `app([1,2], [3], Result)` — should find `Result = [1,2,3]`.
    program. What transformation would a compiler need to apply to turn a `det`
    predicate into code without backtracking?
 
-2. The depth-counter renaming suffix is not globally unique — two clause uses
-   at the same depth could collide. Describe a condition where this causes a
-   wrong answer. What would a correct solution require?
+2. The depth-counter renaming suffix is not globally unique. Find a program
+   where it produces a **wrong answer**, then fix it. (Hint: a conjunction
+   `g(A), h(B)` where a subgoal of `g` and the clause chosen for `h` are
+   resolved at the same depth and reuse a variable name — their renamed
+   variables become identical and capture each other.) The reference solution
+   works this through as `capture_prog`: under depth renaming `?- test(A, B)`
+   wrongly yields `false`; threading a monotonic counter (`int::in, int::out`)
+   through `solve`/`resolve` makes every instantiation globally fresh and
+   restores `test(7, 9)`. See `solution/README.md` for the full trace.
 
 3. This interpreter has no occurs check in `unify` — binding `logic_var("X")` to
    `compound("list", [logic_var("X")])` creates a circular term. When would this cause an
@@ -226,4 +237,8 @@ Query: `app([1,2], [3], Result)` — should find `Result = [1,2,3]`.
   app([1], [2, 3], [1, 2, 3])
   app([1, 2], [3], [1, 2, 3])
   app([1, 2, 3], [], [1, 2, 3])
+
+=== variable freshness ===
+?- test(A, B)  % depth-renaming would wrongly fail this
+  test(7, 9)
 ```

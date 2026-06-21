@@ -1,0 +1,3 @@
+instance_koan.m:024: In clause for predicate `print_color'/3:
+instance_koan.m:024:   unsatisfiable typeclass constraint:
+instance_koan.m:024:   `instance_koan.show(instance_koan.color)'.

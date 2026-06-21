@@ -1,0 +1,3 @@
+fixed.m:010: In `worker'(di, uo):
+fixed.m:010:   warning: determinism declaration could be tighter.
+fixed.m:010:   Declared `cc_multi', inferred `det'.

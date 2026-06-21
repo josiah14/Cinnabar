@@ -1,0 +1,14 @@
+committed_koan.m:012: In `generate_option'(out):
+committed_koan.m:012:   warning: determinism declaration could be tighter.
+committed_koan.m:012:   Declared `cc_nondet', inferred `cc_multi'.
+committed_koan.m:019: In `find_first'(out):
+committed_koan.m:019:   error: determinism declaration not satisfied.
+committed_koan.m:019:   Declared `semidet', inferred `nondet'.
+committed_koan.m:019:   The reason for the difference is the following.
+committed_koan.m:021:   Call to `committed_koan.generate_option'(out) can
+committed_koan.m:021:   succeed more than once.
+committed_koan.m:021: Error: call to predicate
+committed_koan.m:021:   `committed_koan.generate_option'/1 with determinism
+committed_koan.m:021:   `cc_nondet' occurs in a context which requires all
+committed_koan.m:021:   solutions.
+committed_koan.m:022:   Call to > can fail.

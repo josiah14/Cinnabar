@@ -1,0 +1,9 @@
+inst_koan.m:010: In clause for predicate `main'/2:
+inst_koan.m:010:   error: ambiguous overloading causes type ambiguity.
+inst_koan.m:010:   Possible type assignments include:
+inst_koan.m:010:   V_15:
+inst_koan.m:010:     `list.list(int)'
+inst_koan.m:010:   or
+inst_koan.m:010:     `pred(
+inst_koan.m:010:       list.list(int)
+inst_koan.m:010:     )'

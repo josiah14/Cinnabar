@@ -1,0 +1,5 @@
+goal_expr_koan.m:017: In clause for function `tag_equal'/2:
+goal_expr_koan.m:017:   in function result term of clause head:
+goal_expr_koan.m:017:   in argument 1 of functor `flagged/1':
+goal_expr_koan.m:017:   error: the language construct `='/2 should be used as a
+goal_expr_koan.m:017:   goal, not as an expression.

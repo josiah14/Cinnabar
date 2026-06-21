@@ -1,0 +1,5 @@
+dcg_nondet_koan.m:022: In `token'(out, in, out):
+dcg_nondet_koan.m:022:   error: determinism declaration not satisfied.
+dcg_nondet_koan.m:022:   Declared `semidet', inferred `nondet'.
+dcg_nondet_koan.m:022:   The reason for the difference is the following.
+dcg_nondet_koan.m:023:   Disjunction has multiple clauses with solutions.

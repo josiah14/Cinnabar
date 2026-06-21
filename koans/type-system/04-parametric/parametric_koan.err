@@ -1,0 +1,2 @@
+parametric_koan.m:020: In declaration of function `replicate_wrong'/3:
+parametric_koan.m:020:   error: undefined type `list'/1.

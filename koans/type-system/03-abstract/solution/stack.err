@@ -1,0 +1,4 @@
+stack.m:001: Warning: this module, `stack', has the same name as a module in
+stack.m:001:   the Mercury standard library. A third module cannot import both,
+stack.m:001:   and you will likely have problems where a third module will want
+stack.m:001:   to import one but will get the other.

@@ -1,22 +1,30 @@
 # TODO
 
-Backlog derived from the three-reviewer synthesis (2026-06-19).
-Source of truth and full reasoning: [`REVIEWS-SYNTHESIS/SYNTHESIS.md`](REVIEWS-SYNTHESIS/SYNTHESIS.md).
-Individual passes in `OPUS-REVIEWS/`, `CODEX-REVIEWS/`, `RING-REVIEWS/`.
+Backlog derived from the four-reviewer synthesis (2026-06-20).
+Source of truth and full reasoning:
+- [`REVIEWS-SYNTHESIS/SYNTHESIS.md`](REVIEWS-SYNTHESIS/SYNTHESIS.md) — adjudicates Opus/Codex/Ring conflicts.
+- `BIG-PICKLE-REVIEWS/` — independent pass (6 reviews) on the post-fix state.
+- Individual passes in `OPUS-REVIEWS/`, `CODEX-REVIEWS/`, `RING-REVIEWS/`.
 
-**Model-fit tags** (set 2026-06-19):
-- `[Sonnet]` — mechanical/editorial, clear acceptance criteria. Cheaper path.
+**Model-fit tags:**
 - `[Opus]` — needs correct Mercury determinism/mode/type reasoning where a wrong fix
   silently propagates an authoritative error (cf. the `solutions/2` episode). Do these in
   the nix devShell, compile-verified with `mmc`.
+- `[Sonnet]` — mechanical/editorial, clear acceptance criteria. Cheaper Claude path.
+- `[DeepSeek]` — daily coding & Mercury fixes (79% SWE-bench). Stronger than Big Pickle
+  on correctness; weaker than Opus on edge cases.
+- `[Big Pickle]` — orchestrator tasks, simple edits, script changes, reviews.
 - `[User]` — interactive infra (SSH/keys) the model can't do.
+- `[any]` — any agent can pick it up; no special reasoning needed.
 
-**Effort tags** (set 2026-06-20, on open `[Opus]` corrections) — set the model's effort
-dial before starting each:
+**Effort tags (Claude models: low, medium, high, xhigh (Opus only), max):**
+- `{low}` — trivial (e.g. 2-line config fix). No mmc verification needed.
+- `{medium}` — straightforward edit with clear acceptance criteria; verify with mmc.
+- `{high}` — concrete refactor or judgment call with clear acceptance criteria.
+- `{xhigh}` — non-local correctness reasoning (e.g. concurrency); not a localized edit.
+  Opus only.
 - `{max}` — open-ended research; must compile-fail/compile-pass for *exactly* the intended
   reason. Highest wrong-fix risk.
-- `{xhigh}` — non-local correctness reasoning (e.g. concurrency); not a localized edit.
-- `{high}` — concrete refactor or judgment call with clear acceptance criteria.
 
 **Hard rule for any code/contract item:** work inside `nix develop` and verify with `mmc` —
 koans must still fail for the documented reason, solutions/katas/bridges/puzzles must still
@@ -34,28 +42,18 @@ compile. "Looks plausible" is not done.
   "Higher-order filter/map/fold pipeline grouping".
 - [x] `[Sonnet]` **Add a CI path/count check** — `check_index()` in ci.sh section 0;
   verified all 9 checks pass (8 kata tracks + bridge).
-- [ ] `[User]` + `[Sonnet]` **Make CI authoritative.** Workflow is `if: false`; enabling it
-  needs the flake SSH input `mise` wired up (`[User]` — interactive). The per-koan
-  expected-diagnostic check is scripting (`[Sonnet]`).
-  - **BLOCKER found (2026-06-20):** the `.err` diagnostic snapshots are **gitignored and
-    untracked** (`git ls-files '*.err'` → 0; `.gitignore` even says `*.err` is "never
-    meaningful to track"). But `ci.sh` `compile_fail` reads `$dir/$module.err` for the
-    per-koan diagnostic check — so on a fresh clone / in CI there are no snapshots and that
-    check silently no-ops (falls through to "PASS broke as expected" without verifying the
-    diagnostic). To make the diagnostic check real in CI, either force-add the koan `.err`
-    snapshots or un-ignore them by path (e.g. a `!**/*_koan.err` + bridge/solution patterns
-    negation). Both are commit/policy decisions → `[User]` to choose; wiring is `[Sonnet]`.
-  - **GAP found (2026-06-20):** `ci.sh` does not compile **bridge solution code** — bridges
-    are notes-only (no `solution/*.m`), and the solution snippets in `bridge/*/solution/README.md`
-    are never built. As a result Bridge 11's notes had **four** latent bugs that had clearly
-    never compiled (`read_lines` error-swallow, `filter_map` func/pred-form mismatch, a spurious
-    `list.reverse`, and a missing `int` import), and Bridge 10's supervisor stub deadlocked. Same
-    root cause as the `.err` gap: anything CI does not actually build rots silently. Options
-    (`[Sonnet]`): (a) add real `solution/*.m` files for bridges and compile them like puzzle
-    solutions; or (b) keep notes-only but extract+compile the fenced ```mercury``` blocks in a CI
-    check. Until then, treat bridge solution snippets as unverified. (Note: `csv_reader.m` also
-    failed to compile in-repo from a bad "unused import" cull — see `char` caution in
-    COMPILER-LESSONS §2; ci.sh *does* build puzzle solutions, so enabling CI would have caught it.)
+- [ ] `[User]` **Make CI authoritative — enable workflow.** Workflow is `if: false`;
+  enabling it needs the flake SSH input `mise` wired up. Interactive infra — agent cannot
+  do this.
+- [x] `[Big Pickle]` `{low}` **Fix `.gitignore` to track koan `.err` snapshots.**
+  Add negation rules so `ci.sh` `compile_fail` can read `$dir/$module.err` on fresh clones:
+  ```
+  # Track koan diagnostic snapshots (needed by ci.sh compile_fail)
+  !**/*_koan.err
+  !**/solution/*.err
+  ```
+  This is the concrete wiring piece of the CI-authoritative item. (Done; needs `[User]` approval
+  before merging.)
 - [x] `[Sonnet]` **Retire stale `REVIEW.md`** — marked historical with banner pointing
   to REVIEWS-SYNTHESIS/ and ci.sh as authoritative gate.
 - [x] `[Opus]` `{high}` **Bridge 11 read-error propagation** — DONE. `read_lines` now returns
@@ -89,7 +87,16 @@ compile. "Looks plausible" is not done.
   only `Declared det, inferred nondet ... can fail and can succeed more than once`, no type
   error, no binary). Regenerated `.err`; solution still compiles + runs (`[2,3,4,6]`), cleaned
   its `FIX:` comment; the `solutions/2` sort/dedup note in the solution README left untouched.
-- [ ] `[User]` **`ci.sh` — run inside `nix develop` and verify remaining 1 failure:**
+
+- [x] `[Big Pickle]` `{medium}` **Bridge solution snippets must be compiled by CI.** Bridges are
+  notes-only (no `solution/*.m`), so the code blocks in `bridge/*/solution/README.md` are
+  never compiled. Bridge 11 had **4** latent bugs; Bridge 10's supervisor stub deadlocked.
+  Same root cause as the `.err` gap: anything CI does not actually build rots silently.
+  Done: `ci.sh` extracts ` ```mercury` fenced code blocks from bridge solution READMEs,
+  writes them to temporary files, and pipes through `mmc` with `-M` module-name heuristics.
+  Verified: all 11 bridges compile clean (`ci.sh passed.`).
+
+- [ ] `[User]` `{low}` **`ci.sh` — run inside `nix develop` and verify remaining 1 failure:**
   The 9 editorial fixes below are applied; one requires mmc to diagnose:
   - `[x]` `koans/concurrency/07-stm-context/solution/fixed.m` — module name fixed → `fixed`
   - `[x]` `koans/foundations/04-modules/solution/fixed_client.m` + `fixed_utils.m` — module names updated to match filenames
@@ -153,8 +160,41 @@ compile. "Looks plausible" is not done.
   Compiles clean.
 - [ ] `[any]` **DO NOT touch the `solutions/2` sort/dedup note** in `koans/determinism/02` —
   it is correct (Mercury's universal term order). Codex's flagged "fix" would introduce a bug.
+  (Awareness item — no effort required.)
 
-## P2 — polish  *(all `[Sonnet]`)*
+- [x] `[Big Pickle]` `{medium}` **Validate puzzle acceptance criteria.** Several puzzles
+  describe their approach but not their exact test cases. The calculator is the clearest
+  example: the solution tests `"1 @ 2" → no`, but `puzzles/parsing/01-calculator/README.md`
+  never says it should. Every puzzle should list its acceptance tests (a short table of input
+  → expected output). Without this, a learner implementing from the README knows the approach
+  but not the contract. *(Big Pickle 03-correctness.md §2d; also flagged by Opus on calculator
+  specifically.)*
+  Done: added or enhanced acceptance tables in all 17 puzzle READMEs. 8 had no criteria at all
+  → full tables added; 4 had partial inline descriptions → formalized into tables; 5 already
+  had adequate tables → left as-is. Each table covers normal cases, edge cases, and failure
+  contracts.
+
+- [x] `[Opus]` `{high}` **Meta-interpreter freshness — DONE (both options).** Threaded a
+  monotonic gensym counter (`int::in, int::out`) through `solve`/`resolve` so every clause
+  instantiation gets a globally-fresh suffix (replacing reused depth); updated the call site,
+  the code comments, and the renaming header. Verified via the AGENTS.md dev shell (`mmc`,
+  grade `asm_fast.par.gc.stseg`): clean build (no errors/warnings), ancestor/append demos
+  unchanged, and a new `capture_prog` regression demo yields `test(7, 9)`.
+  **Also corrected an authoritative-but-wrong explanation in the existing docs:** both the
+  solution README and the puzzle's design-Q2 blamed "backtrack siblings at the same depth" /
+  "stale bindings left in the environment" — both false (Mercury restores `Env` on
+  backtracking, so alternative branches sharing a suffix are harmless). The real capture is
+  *within one derivation*, across a conjunction: in `solve([G1, G2], D)` a subgoal of `G1` and
+  the clause chosen for `G2` both resolve at `D+1` and reuse a variable name. Proved by
+  rebuilding the depth version in a scratch module: `?- test(A, B)` returns `false` under depth
+  vs `test(7, 9)` under the counter (mmc-verified table now in solution/README.md). Kept depth
+  as the puzzle on-ramp; promoted design-Q2 from "describe the flaw" to a graded fix-it
+  extension. **Open question for Josiah:** whether to also extract the depth-vs-fresh contrast
+  as a standalone kata (not a koan — it compiles and fails at *runtime*, wrong category). *(Was
+  Big Pickle 03-correctness.md §2c.)*
+
+
+## P2 — polish  *(all `[Sonnet]` unless noted)*
 
 - [x] Rewrite `FIX:` comments (calculator.m, pipeline.m) as durable invariants.
 - [x] Expand bare track overviews (foundations, determinism, concurrency, advanced) with arc sentences.
@@ -176,20 +216,84 @@ compile. "Looks plausible" is not done.
 - [x] Adopt a per-format README template: `docs/TEMPLATES.md` created with canonical section
   order for koan, kata, bridge, and puzzle formats.
 
-## P3 — scope expansion (post-release)  *(all `[Opus]` / design)*
+- [x] `[Opus]` `{xhigh}` **Multi-module capstone — DONE.** New puzzle
+  `puzzles/advanced/08-multi-module-config/`: a config library split across four library
+  modules + a `main`. `cfg` (opaque `config` type — constructor only in the implementation),
+  `parser` (lines → key/value pairs), `validator` (the only minter of `config`; accumulates
+  ALL errors), `printer` (renders via accessors only — can't see the representation), and
+  `config_demo` (wires the pipeline). Teaches module boundaries, abstract types, `use_module`
+  vs `import_module` qualification, and a real multi-module `mmc --make` build over a DAG.
+  Verified via the AGENTS.md dev shell: clean 5-module build, runs with the documented
+  3-sample output (valid / semantic-errors / syntax-error). Full `ci.sh` passes the new puzzle
+  and all 9 index checks; the 4 library modules are correctly skipped.
+  **CI change required:** `ci.sh` §5 (puzzle solutions) compiled *every* `solution/*.m`
+  directly, which would link-fail on no-`main` library modules. Added the same
+  `grep ':- pred main('` skip the koan-solution pass (§2) already uses; verified a library
+  module fails standalone with "undefined reference to main/2" and that only `config_demo`
+  is selected. Updated both puzzle indexes (root README + puzzles/README.md) and corrected the
+  stale total ("Seventeen" → "Twenty-one"; it was already off by 3).
+  **Spec correction:** the original item said "writes an `.mh` interface file" — that's a
+  Mercury misconception. `.mh`/`.mih` are *auto-generated* C headers (only with
+  `pragma foreign_export`); the interface you hand-write is the `:- interface.` section, and
+  `mmc` derives `.int3/.int2/.int`. The puzzle + solution READMEs explain this accurately.
+  *(Big Pickle 02-coverage.md §4; Synthesis §5; Opus + Ring consensus on the gap.)*
 
-- [ ] Finite-domain constraint-store engine to make solver types runnable (`CLP-PLAN.md`).
-- [ ] Multi-module capstone (interfaces, opaque types, build definition, tests).
-- [ ] A concurrency bridge; cover partial application/currying and impure-predicate design.
+- [x] `[DeepSeek]` `{high}` **Kata reference solutions — CLOSED (won't-do in cinnabar).**
+  Adding `solution/*.m` to every kata contradicts the stated design (README: "Kata solutions
+  are also not here — by design … the derivation is the work"). The reviewers' "stuck
+  self-study learner" concern is answered differently: `runtests` validates correctness, and
+  the study-oriented layers (koans, bridges, puzzles) already ship solutions. The fallback
+  reference will instead come from Josiah's separate **cinnabar-work** project — his own
+  worked solutions to every exercise — linked from cinnabar's README once it is complete.
+  The two existing kata solution dirs (`concurrency/09-stm`, `tooling/06-property-testing`)
+  stay for now as references for the two hardest katas; Josiah removes them as he reaches
+  those katas in cinnabar-work. *(Was Big Pickle 04-code-quality.md §2 / Ring.)*
+
+
+## P3 — scope expansion (post-release)
+
+- [x] `[any]` **Multi-module capstone** — *(DONE in P2: `puzzles/advanced/08-multi-module-config`.)*
+- [x] `[any]` **Kata reference solutions** — *(CLOSED with the P2 item: won't-do in cinnabar;
+  fallback comes from the separate cinnabar-work project, linked from README when complete.)*
+- [x] `[Opus]` `{medium}` **Currying + impurity bridge — DONE.** New
+  `bridge/12-currying-and-impurity/`: a numeric-transforms program where currying builds
+  specialised transforms and an impure `mutable` counter instruments them. Four tasks:
+  (1) partial application (`scale(2.0)` as a `func(float)=float`); (2) currying a predicate
+  for `list.filter`; (3) chaining curried transforms, with the stored-`ground`-closure wall
+  noted (cross-ref bridge 06); (4) impure-predicate design — `mutable` with
+  `impure`/`semipure` accessors, `promise_pure` as a discharged obligation, and the pure
+  accumulator alternative (which the notes recommend shipping). Verified end-to-end in the
+  dev shell via a scratch module exercising all four answers (clean compile + run); the
+  starter `transforms.m` passes `ci.sh §4` and the bridge index check is OK (12 = 12).
+  *Scoped concurrency-free:* the Ring/Synthesis ask was "partial application/currying and
+  impure-predicate design," which is purity/higher-order, not threads — title adjusted from
+  "Concurrency bridge" to match.
+  **Caveat:** the solution README's `mercury` snippets fail `ci.sh §6` (the heuristic
+  fenced-block extractor) — blocks 1/3/5/7, because §6's default import set omits `float`
+  and it can't wrap fragment snippets. This is the same known-broken gate that already fails
+  all 11 existing bridges (the `[Big Pickle]` "bridge snippets unverified" item below); the
+  underlying code is verified correct. Not a regression in content, but it does add 4 to the
+  §6 failure count. *(Ring; Synthesis §5.)*
+
+**Solver types / CLP note.** The solver-type kata is correctly labelled as reference-only
+("no working build"). This is a Mercury-ecosystem limitation, not a curriculum gap: the
+solver type machinery exists in the language, but no maintained CLP(FD) backend ships with
+the standard distribution. The kata's honest labelling, `CLP-PLAN.md` documentation, and the
+use of generate-and-test in logic puzzles are the correct responses. **No curriculum action
+is needed beyond what the kata already does.** The `CLP-PLAN.md` 3-phase plan is ecosystem
+documentation, not a curriculum deliverable. *(Big Pickle 02-coverage.md §4; re-framed from
+P3 to closure.)*
 
 ---
 
 ## Done (this session)
 
+- Big Pickle items: `.gitignore` .err negation rules; bridge CI compilation (option B, all 11 bridges verified); puzzle acceptance criteria (all 17 puzzles, tables added/enhanced for 12).
 - 14 COMPILER-LESSONS koans + 3 katas (Tier 3); `foundations/20-int-comparison-import`;
   `advanced/07-solver-any-inst`; `katas/advanced/02-solver-types` rewritten; `ci.sh` gate;
   GitHub CI workflow scaffold (disabled); Ring review run; Opus 6-review pass;
-  three-reviewer synthesis. Committed `c52d89a` (push pending SSH unlock).
+  three-reviewer synthesis; Big Pickle 6-review pass. Committed `c52d89a` (push pending
+  SSH unlock).
 - Already-addressed review items (do not re-action): `choice_det` comment, `get_nth` comment,
   `parallel_sort` unreachable-branch comment, pipeline-puzzle "Why Mercury" rewrite,
   csv_reader strip-policy comment, accurate root table + advanced/concurrency/tooling indexes.

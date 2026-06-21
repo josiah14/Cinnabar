@@ -1,0 +1,6 @@
+imports_koan.m:013: In clause for predicate `report'/3:
+imports_koan.m:013:   in argument 2 of call to predicate `io.format'/4:
+imports_koan.m:013:   in list element #0:
+imports_koan.m:013:   error: undefined symbol `i'/1.
+imports_koan.m:013:   That symbol is defined in module `string', which does not
+imports_koan.m:013:   have an `:- import_module' declaration.

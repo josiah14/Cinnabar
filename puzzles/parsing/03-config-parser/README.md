@@ -100,6 +100,28 @@ changes from a map-of-maps to a flat map with `"section.key"` keys, no caller co
 
 ---
 
+---
+
+## Acceptance criteria
+
+With the sample config from the problem statement:
+
+| Section | Key | Expected result | Why |
+|---|---|---|---|
+| `"database"` | `"host"` | `yes("localhost")` | standard lookup |
+| `"database"` | `"port"` | `yes("5432")` | standard lookup |
+| `"server"` | `"debug"` | `yes("true")` | value after comment |
+| `"server"` | `"missing_key"` | `no` | key does not exist |
+| `"nonexistent"` | `"host"` | `no` | section does not exist |
+
+Edge cases:
+
+| Input | (Section, Key) | Expected | Why |
+|---|---|---|---|
+| empty string | `("s", "k")` | `no` | no sections parsed |
+| only comments + blank lines | `("s", "k")` | `no` | no data parsed |
+| section with no keys | `("empty", "k")` | `no` | section exists but empty |
+
 ## Extensions
 
 - Support `#` and `;` comments

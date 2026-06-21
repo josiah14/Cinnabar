@@ -87,6 +87,28 @@ Make Stage 2 do no IO (no `io.format` calls) — all printing is in Stage 3.
 
 ---
 
+---
+
+## Acceptance criteria
+
+With `N = 20` (producer sends 20, 19, ..., 1 followed by sentinel):
+
+| Metric | Expected value |
+|---|---|
+| Count | 20 |
+| Total | 210 (sum of 1..20) |
+| Maximum | 20 |
+| Average | 10 (210 / 20, integer division) |
+| Output format | `count: 20`, `total: 210`, `maximum: 20`, `average: 10` |
+
+Edge cases:
+
+| N | Count | Total | Max | Average |
+|---|---|---|---|---|
+| 0 | 0 | 0 | 0 | (none) |
+| 1 | 1 | 1 | 1 | 1 |
+| 5 | 5 | 15 | 5 | 3 |
+
 ## Design questions
 
 1. Stage 2 sends `stats(Count0, Sum0, Max0)` when it sees the sentinel. What

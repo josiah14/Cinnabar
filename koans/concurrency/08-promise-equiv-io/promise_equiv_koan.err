@@ -1,0 +1,13 @@
+promise_equiv_koan.m:011: In `worker'(in, di, uo):
+promise_equiv_koan.m:011:   warning: determinism declaration could be tighter.
+promise_equiv_koan.m:011:   Declared `cc_multi', inferred `det'.
+promise_equiv_koan.m:017: In `launch'(in, di, uo):
+promise_equiv_koan.m:017:   error: determinism declaration not satisfied.
+promise_equiv_koan.m:017:   Declared `det', inferred `multi'.
+promise_equiv_koan.m:017:   The reason for the difference is the following.
+promise_equiv_koan.m:019:   Call to `thread.spawn'(((pred(di, uo) is cc_multi)
+promise_equiv_koan.m:019:   >> (pred(di, uo) is cc_multi)), di, uo) can succeed
+promise_equiv_koan.m:019:   more than once.
+promise_equiv_koan.m:019: Error: call to predicate `thread.spawn'/3 with
+promise_equiv_koan.m:019:   determinism `cc_multi' occurs in a context which
+promise_equiv_koan.m:019:   requires all solutions.

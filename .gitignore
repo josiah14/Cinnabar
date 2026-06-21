@@ -5,6 +5,9 @@
 # mmc intermediate build directory (C output, object files, dep files)
 Mercury/
 
+# direnv / nix-direnv local environment cache (not part of the curriculum)
+.direnv/
+
 # mmc-generated Mercury interface headers
 *.mh
 
@@ -37,6 +40,10 @@ pipeline
 search
 tokenizer
 utils
+# Bridge 12 (currying/impurity) starter
+transforms
+# Puzzle 08 (multi-module config) main
+config_demo
 # Bridge solution helpers
 cc_unwrapped
 client

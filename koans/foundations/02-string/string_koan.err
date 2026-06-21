@@ -1,0 +1,22 @@
+string_koan.m:013: In clause for function `truncate_to'/2:
+string_koan.m:013:   error: undefined predicate `=<'/2.
+string_koan.m:025: In clause for predicate `main'/2:
+string_koan.m:025:   in argument 2 of call to predicate `io.format'/4:
+string_koan.m:025:   error: undefined symbol `[|]'/2.
+string_koan.m:025:   (The module `list' has not been imported.)
+string_koan.m:025: In clause for predicate `main'/2:
+string_koan.m:025:   in argument 2 of call to predicate `io.format'/4:
+string_koan.m:025:   in argument 2 of functor `[|]/2':
+string_koan.m:025:   error: undefined symbol `[]'/0.
+string_koan.m:025:   That symbol is defined in module `list', which does not
+string_koan.m:025:   have an `:- import_module' declaration.
+string_koan.m:027: In clause for predicate `main'/2:
+string_koan.m:027:   in argument 2 of call to predicate `io.format'/4:
+string_koan.m:027:   error: undefined symbol `[|]'/2.
+string_koan.m:027:   (The module `list' has not been imported.)
+string_koan.m:027: In clause for predicate `main'/2:
+string_koan.m:027:   in argument 2 of call to predicate `io.format'/4:
+string_koan.m:027:   in argument 2 of functor `[|]/2':
+string_koan.m:027:   error: undefined symbol `[]'/0.
+string_koan.m:027:   That symbol is defined in module `list', which does not
+string_koan.m:027:   have an `:- import_module' declaration.

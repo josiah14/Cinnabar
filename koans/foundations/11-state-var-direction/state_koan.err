@@ -1,0 +1,8 @@
+state_koan.m:017: In clause for predicate `double_it'/2:
+state_koan.m:017:   warning: variable `STATE_VARIABLE_N_0' occurs only once in
+state_koan.m:017:   this scope.
+state_koan.m:018: In clause for `double_it(in, out)':
+state_koan.m:018:   in argument 1 of call to function `int.*'/2:
+state_koan.m:018:   mode error: variable `STATE_VARIABLE_N' has
+state_koan.m:018:   instantiatedness `free',
+state_koan.m:018:   expected instantiatedness was `ground'.

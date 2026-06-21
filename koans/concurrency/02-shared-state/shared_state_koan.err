@@ -1,0 +1,6 @@
+shared_state_koan.m:018: In clause for `main(di, uo)':
+shared_state_koan.m:018:   in argument 2 of call to predicate
+shared_state_koan.m:018:   `io.write_string'/3:
+shared_state_koan.m:018:   unique-mode error: the called procedure would
+shared_state_koan.m:018:   clobber its argument, but variable `IO0' is still
+shared_state_koan.m:018:   live.

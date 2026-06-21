@@ -9,13 +9,17 @@ clause head with the current goal, then calls `solve` on the clause body.
 multiple solutions.
 
 ```mercury
-resolve(prog(Clauses), Goal0, Depth, Env0, Env) :-
+resolve(prog(Clauses), Goal0, N0, N, Env0, Env) :-
     deref(Goal0, Env0, Goal),
     list.member(Raw, Clauses),
-    rename_clause(Raw, string.int_to_string(Depth), c(Head, Body)),
+    rename_clause(Raw, string.int_to_string(N0), rule(Head, Body)),
     unify(Goal, Head, Env0, Env1),
-    solve(prog(Clauses), Body, Depth + 1, Env1, Env).
+    solve(prog(Clauses), Body, N0 + 1, N, Env1, Env).
 ```
+
+The `N0 -> N` pair is a freshness counter threaded through the whole
+derivation; see "Variable freshness" below for why a plain depth counter is
+not enough.
 
 The `nondet` of `list.member` is the source of all nondeterminism. Mercury's
 `solutions/2` forces `solve` to enumerate all branches and collect the resulting
@@ -83,18 +87,57 @@ Mercury cannot prove these patterns are mutually exclusive without evaluating
 the string arguments — it infers `multi`. The fix is the same: one clause, one
 if-then-else.
 
-## Variable renaming and the depth-counter limitation
+## Variable freshness — why depth is not enough
 
-Each resolution step increments `Depth` and uses it as the suffix. Variables
-in the ancestor rules (`X`, `Y`, `Z`) become `X_0`, `Y_0` on the first step,
-`X_1`, `Y_1` on the second, and so on.
+Each time a clause is used, its variables must be renamed to a *fresh* set, or
+two independent uses of the same clause (or two clauses that happen to share a
+variable name) will alias each other. We get freshness by threading one
+monotonic counter `N0 -> N` left-to-right through the entire derivation and
+using its current value as the rename suffix. Every instantiation therefore
+gets a distinct suffix.
 
-This breaks if two sibling backtrack branches at the **same depth** use different
-clauses — both would share suffix `_N`, creating phantom bindings. For the demo
-programs it doesn't arise because each ancestor step uses exactly one clause at
-each depth. A production-quality interpreter would use a global counter (via
-Mercury `mutable` or threading an `int::in int::out` state through `solutions`
-— which would require a state-threaded version of the solver).
+Threading an `(int::in, int::out)` counter through `nondet` code is safe, and
+the reason is worth internalizing: within a *single successful derivation* the
+counter only increases, so no two live instantiations share a suffix.
+Reusing a value across *alternative* (backtracked) branches is harmless,
+because Mercury restores the prior `Env` on backtracking — the two
+instantiations never coexist in one environment.
+
+### The bug the depth counter had
+
+An earlier version used the resolution `Depth` as the suffix. That is **not**
+globally unique. The collision is not between backtrack alternatives (those are
+safe, as above) — it is *within a single derivation*, across a conjunction:
+
+> In `solve([G1, G2], D)`, the body subgoals of `G1` run at depths
+> `D+1, D+2, …`, while `G2` itself is also resolved at `D+1`. So a subgoal of
+> `G1` and the clause chosen for `G2` get the **same** suffix `_{D+1}`. If both
+> clauses use the same variable name, the renamed variables are identical and
+> capture each other.
+
+`capture_prog` in `meta_interp.m` is the minimal trigger:
+
+```
+g1(X) :- s(X).   s(X) :- u(X).   u(7).
+g2(X) :- t(X).   t(9).
+test(A, B) :- g1(A), g2(B).
+```
+
+Resolving `test(A, B)`: `g1(A)` descends one step to its subgoal `s(A)` at
+depth 1, and `g2(B)` is also resolved at depth 1. The `s` clause and the `g2`
+clause both rename `X` to `X_1`, so `B` is captured to the `7` that flowed in
+through `s`/`u`. Then `t(X_1) = t(9)` becomes `t(7) = t(9)`, which fails — and
+the whole query **wrongly yields `false`**.
+
+This was verified against `mmc` (grade `asm_fast.par.gc.stseg`):
+
+| renaming scheme        | `?- test(A, B)` |
+| ---------------------- | --------------- |
+| depth as suffix (old)  | `false`         |
+| fresh counter (fixed)  | `test(7, 9)`    |
+
+The "variable freshness" section of the program's output runs exactly this
+query, so the fix is a permanent regression guard, not just prose.
 
 ## Answering the design questions
 
@@ -110,17 +153,21 @@ static determinism analysis).
 
 **Q2: Depth-counter collision**
 
-If the ancestor program had a clause like:
-```
-ancestor(X, Y) :- parent(X, Y).
-ancestor(X, Y) :- parent(X, Y).  % duplicate
-```
-and both clauses are tried at the same depth, both would be renamed with `_2`
-and would share bindings. If one clause leaves a binding `X_2 = tom` and the
-next is tried (backtracking), the old binding is still in the environment (we
-never remove bindings — only add). This can cause incorrect unification failures.
-A correct solution: use a monotonically increasing counter across all backtrack
-branches — e.g., threading `int::in int::out` through the entire solver.
+A subtle one, and easy to mis-diagnose. The tempting wrong answer is
+"backtracking leaves stale bindings behind." It does *not*: the environment is
+threaded functionally (`Env0 -> Env`), so when Mercury backtracks over
+`list.member` it restores the earlier `Env` and any binding the failed branch
+added is gone. Two clauses tried as *alternatives* at the same depth never
+share a live environment, so a shared suffix between them is harmless.
+
+The real collision is **within one derivation**, across a conjunction. In
+`solve([G1, G2], D)`, the subgoals of `G1` run at `D+1, D+2, …` while `G2` is
+also resolved at `D+1`; a subgoal of `G1` and the clause for `G2` then share
+suffix `_{D+1}` and capture each other if they reuse a variable name. See
+"Variable freshness" above for the worked `capture_prog` example and the
+`mmc`-verified `false`-vs-`test(7, 9)` contrast. The fix is to thread one
+monotonic counter `int::in, int::out` through the whole solver so every
+instantiation gets a globally distinct suffix.
 
 **Q3: Occurs check**
 

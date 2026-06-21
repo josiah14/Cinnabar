@@ -1,0 +1,4 @@
+res_koan.m:016: In clause for predicate `main'/2:
+res_koan.m:016:   error: undefined symbol `yes'/1.
+res_koan.m:016:   That symbol is defined in modules `bool' and `maybe', none of
+res_koan.m:016:   which have `:- import_module' declarations.

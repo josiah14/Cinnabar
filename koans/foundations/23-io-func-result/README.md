@@ -1,27 +1,47 @@
-# Solution notes
+# Koan: `!IO` as a function result
 
-`!IO` cannot be a function result because it stands for two variables (`!.IO`
-and `!:IO`) and a function returns one value.
+**Broken concept:** `!IO` is used in the result position of a function
+(`hello(!IO) = !IO`), but a function returns a single value.
 
-`fixed.m` keeps `hello` a function but names the IO states explicitly — it takes
-one io (`di`) and returns the next (`uo`):
+## Prerequisites
 
-```mercury
-:- func hello(io::di) = (io::uo) is det.
-hello(IO0) = IO :- io.write_string("Hi!\n", IO0, IO).
+- `koans/foundations/21-io-uniqueness` — IO state threading and `!IO`
+
+---
+
+```
+mmc --make func_result_koan
 ```
 
-and is called by binding the result to the next state: `!:IO = hello(!.IO)`.
+It will fail. The key error:
 
-This compiles and runs, but it is unusual style. IO-effecting code is almost
-always written as a **predicate**, where the two-ended threading is natural and
-`!IO` works directly:
-
-```mercury
-:- pred hello(io::di, io::uo) is det.
-hello(!IO) :- io.write_string("Hi!\n", !IO).
+```
+func_result_koan.m:015: Error: !IO cannot be a function result.
+func_result_koan.m:015:   You probably meant !:IO.
 ```
 
-Both are correct. The predicate form is the one you would actually write; the
-function form is shown because it is the most direct repair of the koan — the
-same `:- func` declaration, with the IO states named instead of `!IO`.
+You will also see cascade errors about `hello'/1` and `hello'/2` — they all stem
+from the same confusion: `!IO` expanded to two arguments, so the compiler saw
+two different arities for `hello`.
+
+---
+
+## What to observe
+
+`!IO` desugars to *two* variables — the "before" state (`!.IO`) and the "after"
+state (`!:IO`). A function returns exactly one value, so there is no result slot
+for a pair. The compiler's hint "You probably meant `!:IO`" points at the single
+out-state, but the real issue is structural: IO threading is inherently
+two-ended, and a function result has room for only one end.
+
+This is the second of exactly two places `!IO` is rejected (the other is a
+lambda head — `koans/foundations/22-io-lambda-head`).
+
+---
+
+## Your task
+
+Name the IO states explicitly. You can keep `hello` a function that takes one io
+and returns the next — `hello(IO0) = IO :- io.write_string(..., IO0, IO)` —
+called as `!:IO = hello(!.IO)`. More idiomatically, IO-effecting code is written
+as a predicate, where the two-ended threading is natural. See `solution/fixed.m`.

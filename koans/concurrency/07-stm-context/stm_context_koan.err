@@ -1,0 +1,13 @@
+stm_context_koan.m:013: In clause for predicate `main'/2:
+stm_context_koan.m:013:   in argument 3 of call to predicate
+stm_context_koan.m:013:   `stm_builtin.read_stm_var'/4:
+stm_context_koan.m:013:   type error: variable `STATE_VARIABLE_IO_9' has type
+stm_context_koan.m:013:     `io.state',
+stm_context_koan.m:013:   expected type was
+stm_context_koan.m:013:     `stm_builtin.stm'.
+stm_context_koan.m:014: In clause for predicate `main'/2:
+stm_context_koan.m:014:   in argument 2 of call to predicate `io.write_line'/3:
+stm_context_koan.m:014:   type error: variable `STATE_VARIABLE_IO_10' has type
+stm_context_koan.m:014:     `stm_builtin.stm',
+stm_context_koan.m:014:   expected type was
+stm_context_koan.m:014:     `io.state'.

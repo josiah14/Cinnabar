@@ -1,0 +1,14 @@
+channel_sentinel_koan.m:019: In clause for predicate `produce'/4:
+channel_sentinel_koan.m:019:   in argument 2 of call to predicate
+channel_sentinel_koan.m:019:   `thread.channel.put'/4:
+channel_sentinel_koan.m:019:   type error: argument has type
+channel_sentinel_koan.m:019:     `maybe.maybe(T)',
+channel_sentinel_koan.m:019:   expected type was
+channel_sentinel_koan.m:019:     `int'.
+channel_sentinel_koan.m:021: In clause for predicate `produce'/4:
+channel_sentinel_koan.m:021:   in argument 2 of call to predicate
+channel_sentinel_koan.m:021:   `thread.channel.put'/4:
+channel_sentinel_koan.m:021:   type error: argument has type
+channel_sentinel_koan.m:021:     `maybe.maybe(int)',
+channel_sentinel_koan.m:021:   expected type was
+channel_sentinel_koan.m:021:     `int'.

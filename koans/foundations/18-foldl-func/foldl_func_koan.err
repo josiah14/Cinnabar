@@ -1,0 +1,13 @@
+foldl_func_koan.m:015: In clause for predicate `sum_list'/2:
+foldl_func_koan.m:015:   in argument 1 of call to predicate `list.foldl'/4:
+foldl_func_koan.m:015:   type error: argument has type
+foldl_func_koan.m:015:     `func(
+foldl_func_koan.m:015:       int,
+foldl_func_koan.m:015:       int
+foldl_func_koan.m:015:     ) = int',
+foldl_func_koan.m:015:   expected type was
+foldl_func_koan.m:015:     `pred(
+foldl_func_koan.m:015:       L,
+foldl_func_koan.m:015:       A,
+foldl_func_koan.m:015:       A
+foldl_func_koan.m:015:     )'.

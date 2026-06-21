@@ -84,6 +84,33 @@ The compiler selects the right instance from the stream argument type.
 
 ---
 
+---
+
+## Acceptance criteria
+
+**Char stream** (`cstream`): `parse_number` should match the same behaviour as puzzle 04's `number`:
+
+| Input | Expected result | Rest |
+|---|---|---|
+| `cstream("314abc")` | 314 | `cstream("abc")` |
+| `cstream("abc")` | 0 | `cstream("abc")` |
+| `cstream("0")` | 0 | `cstream("")` |
+| `cstream("")` | 0 | `cstream("")` |
+
+**Token stream** (`tstream`): `collect_leading_ints` should gather all leading `tok_int` values:
+
+| Input | Expected result | Remaining tokens |
+|---|---|---|
+| `[tok_int(3), tok_int(7), tok_plus, tok_int(1), tok_star]` | `[3, 7]` | `[tok_plus, tok_int(1), tok_star]` (3 tokens) |
+| `[tok_plus, tok_int(5)]` | `[]` | `[tok_plus, tok_int(5)]` (2 tokens) |
+
+**Generic `many_p(satisfy(...))`** produces the same pattern from both stream types:
+
+| Stream | Collected | Rest |
+|---|---|---|
+| `cstream("987xyz")` with `is_digit_char` | `['9','8','7']` | `cstream("xyz")` |
+| `tstream([tok_int(5), tok_int(2), tok_plus])` with `is_tok_int` | 2 ints collected | 1 remaining token |
+
 ## Design questions
 
 1. `satisfy` requires `<= token_stream(S, T)` but `many_p` does not. What is the

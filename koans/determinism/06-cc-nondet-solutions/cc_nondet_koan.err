@@ -1,0 +1,14 @@
+cc_nondet_koan.m:022: In clause for `main(di, uo)':
+cc_nondet_koan.m:022:   in call to predicate `solutions.solutions'/2:
+cc_nondet_koan.m:022:   mode error: arguments `V_7, All' have the following
+cc_nondet_koan.m:022:   insts:
+cc_nondet_koan.m:022:     /* unique */ (pred(out) is cc_nondet),
+cc_nondet_koan.m:022:     free
+cc_nondet_koan.m:022:   which does not match any of the modes for predicate
+cc_nondet_koan.m:022:   `solutions.solutions'/2.
+cc_nondet_koan.m:022:   The first argument `V_7' has inst
+cc_nondet_koan.m:022:   `/* unique */ (pred(out) is cc_nondet)', which does not
+cc_nondet_koan.m:022:   match any of those modes.
+cc_nondet_koan.m:022:   (For higher order insts like this, the mismatch is
+cc_nondet_koan.m:022:   sometimes caused by the arity of the predicate or
+cc_nondet_koan.m:022:   function being different in the inst than in the type.)

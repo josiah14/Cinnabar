@@ -88,6 +88,28 @@ This is precisely the shape of a QBN eligibility check: a chain of conditions wh
 
 ---
 
+---
+
+## Acceptance criteria
+
+With environment `Env = {"x" -> 10, "y" -> 3}`:
+
+| Expression | Expected result | Why |
+|---|---|---|
+| `lit(7)` | `yes(7)` | literal |
+| `var("x")` | `yes(10)` | bound variable |
+| `var("z")` | `no` | unbound variable |
+| `add(lit(3), lit(4))` | `yes(7)` | addition |
+| `sub(lit(10), lit(3))` | `yes(7)` | subtraction |
+| `mul(lit(3), lit(4))` | `yes(12)` | multiplication |
+| `div(lit(10), lit(3))` | `yes(3)` | integer division |
+| `div(lit(10), lit(0))` | `no` | division by zero |
+| `neg(lit(5))` | `yes(-5)` | negation |
+| `add(var("x"), lit(5))` | `yes(15)` | the sample |
+| `div(var("x"), var("y"))` | `yes(3)` | 10/3 = 3 |
+| `add(var("x"), var("z"))` | `no` | z unbound |
+| `mul(add(var("x"), lit(2)), var("y"))` | `yes(36)` | (10+2)×3 |
+
 ## Extensions
 
 - Add `let(string, expr, expr)` — bind a variable in scope for the body expression

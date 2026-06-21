@@ -1,0 +1,14 @@
+spawn_propagate_koan.m:004: In `main'(di, uo):
+spawn_propagate_koan.m:004:   warning: determinism declaration could be
+spawn_propagate_koan.m:004:   tighter.
+spawn_propagate_koan.m:004:   Declared `cc_multi', inferred `det'.
+spawn_propagate_koan.m:013: In `launch_workers'(di, uo):
+spawn_propagate_koan.m:013:   error: determinism declaration not satisfied.
+spawn_propagate_koan.m:013:   Declared `det', inferred `multi'.
+spawn_propagate_koan.m:013:   The reason for the difference is the following.
+spawn_propagate_koan.m:015:   Call to `thread.spawn'(((pred(di, uo) is
+spawn_propagate_koan.m:015:   cc_multi) >> (pred(di, uo) is cc_multi)), di, uo)
+spawn_propagate_koan.m:015:   can succeed more than once.
+spawn_propagate_koan.m:015: Error: call to predicate `thread.spawn'/3 with
+spawn_propagate_koan.m:015:   determinism `cc_multi' occurs in a context which
+spawn_propagate_koan.m:015:   requires all solutions.

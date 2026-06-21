@@ -1,0 +1,4 @@
+export_arity_koan.m:016: Error: `:- pragma foreign_export' declaration for
+export_arity_koan.m:016:   predicate `scale'/2 without corresponding `:- pred'
+export_arity_koan.m:016:   declaration.
+export_arity_koan.m:016:   `scale' does exist with arity 3.

@@ -1,0 +1,15 @@
+nondet_io_koan.m:022: In `report_even'(in, di, uo):
+nondet_io_koan.m:022:   error: determinism declaration not satisfied.
+nondet_io_koan.m:022:   Declared `det', inferred `multi'.
+nondet_io_koan.m:022:   The reason for the difference is the following.
+nondet_io_koan.m:024:   Call to `nondet_io_koan.any_even'(in, out) can succeed
+nondet_io_koan.m:024:   more than once.
+nondet_io_koan.m:025: In clause for `report_even(in, di, uo)':
+nondet_io_koan.m:025:   in argument 3 of call to predicate `io.format'/4:
+nondet_io_koan.m:025:   mode error: variable `STATE_VARIABLE_IO_0' has
+nondet_io_koan.m:025:   instantiatedness `mostly_unique',
+nondet_io_koan.m:025:   expected instantiatedness was `unique'.
+nondet_io_koan.m:025:   This kind of uniqueness mismatch is usually caused by
+nondet_io_koan.m:025:   doing input/output or some other kind of destructive
+nondet_io_koan.m:025:   update in a context where it can be backtracked over,
+nondet_io_koan.m:025:   such as the condition of an if-then-else.

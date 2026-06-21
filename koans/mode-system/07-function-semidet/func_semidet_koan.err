@@ -1,0 +1,11 @@
+func_semidet_koan.m:024: In `eval'(in) = out:
+func_semidet_koan.m:024:   error: implicit determinism declaration not
+func_semidet_koan.m:024:   satisfied.
+func_semidet_koan.m:024:   Declared `det', inferred `semidet'.
+func_semidet_koan.m:024:   The reasons for the difference are the following.
+func_semidet_koan.m:027:   Unification with `func_semidet_koan.int_val(N)' can
+func_semidet_koan.m:027:   fail.
+func_semidet_koan.m:029:   Unification with `func_semidet_koan.int_val(NA)' can
+func_semidet_koan.m:029:   fail.
+func_semidet_koan.m:030:   Unification with `func_semidet_koan.int_val(NB)' can
+func_semidet_koan.m:030:   fail.

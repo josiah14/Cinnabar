@@ -1,0 +1,49 @@
+ho_inst_koan.m:011: In clause for predicate `double'/2:
+ho_inst_koan.m:011:   error: undefined symbol `*'/2.
+ho_inst_koan.m:014: In clause for predicate `negate'/2:
+ho_inst_koan.m:014:   error: undefined symbol `-'/1.
+ho_inst_koan.m:014:   That symbol is defined in module `pair', which does not
+ho_inst_koan.m:014:   have an `:- import_module' declaration.
+ho_inst_koan.m:022: In clause for function `build_table'/0:
+ho_inst_koan.m:022:   in function result term of clause head:
+ho_inst_koan.m:022:   in argument 1 of functor `map.from_assoc_list/1':
+ho_inst_koan.m:022:   error: undefined symbol `[|]'/2.
+ho_inst_koan.m:022:   (The module `list' has not been imported.)
+ho_inst_koan.m:022: In clause for function `build_table'/0:
+ho_inst_koan.m:022:   in function result term of clause head:
+ho_inst_koan.m:022:   in argument 1 of functor `map.from_assoc_list/1':
+ho_inst_koan.m:022:   in list element #0:
+ho_inst_koan.m:022:   error: undefined symbol `-'/2.
+ho_inst_koan.m:022:   That symbol is defined in module `pair', which does not
+ho_inst_koan.m:022:   have an `:- import_module' declaration.
+ho_inst_koan.m:023: In clause for function `build_table'/0:
+ho_inst_koan.m:023:   in function result term of clause head:
+ho_inst_koan.m:023:   in argument 1 of functor `map.from_assoc_list/1':
+ho_inst_koan.m:023:   in list element #1:
+ho_inst_koan.m:023:   error: undefined symbol `-'/2.
+ho_inst_koan.m:023:   That symbol is defined in module `pair', which does not
+ho_inst_koan.m:023:   have an `:- import_module' declaration.
+ho_inst_koan.m:024: In clause for function `build_table'/0:
+ho_inst_koan.m:024:   in function result term of clause head:
+ho_inst_koan.m:024:   in argument 1 of functor `map.from_assoc_list/1':
+ho_inst_koan.m:024:   in argument 2 of functor `[|]/2':
+ho_inst_koan.m:024:   error: undefined symbol `[|]'/2.
+ho_inst_koan.m:024:   (The module `list' has not been imported.)
+ho_inst_koan.m:024: In clause for function `build_table'/0:
+ho_inst_koan.m:024:   in function result term of clause head:
+ho_inst_koan.m:024:   in argument 1 of functor `map.from_assoc_list/1':
+ho_inst_koan.m:024:   in argument 2 of functor `[|]/2':
+ho_inst_koan.m:024:   in argument 2 of functor `[|]/2':
+ho_inst_koan.m:024:   error: undefined symbol `[]'/0.
+ho_inst_koan.m:024:   That symbol is defined in module `list', which does not
+ho_inst_koan.m:024:   have an `:- import_module' declaration.
+ho_inst_koan.m:031: In clause for predicate `main'/2:
+ho_inst_koan.m:031:   in argument 2 of call to predicate `io.format'/4:
+ho_inst_koan.m:031:   error: undefined symbol `[|]'/2.
+ho_inst_koan.m:031:   (The module `list' has not been imported.)
+ho_inst_koan.m:031: In clause for predicate `main'/2:
+ho_inst_koan.m:031:   in argument 2 of call to predicate `io.format'/4:
+ho_inst_koan.m:031:   in argument 2 of functor `[|]/2':
+ho_inst_koan.m:031:   error: undefined symbol `[]'/0.
+ho_inst_koan.m:031:   That symbol is defined in module `list', which does not
+ho_inst_koan.m:031:   have an `:- import_module' declaration.

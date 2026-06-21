@@ -1,0 +1,2 @@
+tail_rec_koan.m:020: In mode number 1 of predicate `sum_list'/2:
+tail_rec_koan.m:020:   error: self-recursive call is not tail recursive.

@@ -1,0 +1,6 @@
+nondet_koan.m:020: In `all_factors'(in, out):
+nondet_koan.m:020:   error: determinism declaration not satisfied.
+nondet_koan.m:020:   Declared `det', inferred `nondet'.
+nondet_koan.m:020:   The reason for the difference is the following.
+nondet_koan.m:022:   Call to `nondet_koan.find_factor'(in, out) can fail and
+nondet_koan.m:022:   can succeed more than once.

@@ -1,0 +1,9 @@
+uniqueness_koan.m:010: In clause for `checkpoint(in, di, uo)':
+uniqueness_koan.m:010:   in argument 2 of call to predicate
+uniqueness_koan.m:010:   `io.write_string'/3:
+uniqueness_koan.m:010:   mode error: variable `STATE_VARIABLE_IO_0' has
+uniqueness_koan.m:010:   instantiatedness `ground',
+uniqueness_koan.m:010:   expected instantiatedness was `unique'.
+uniqueness_koan.m:010: In clause for predicate `checkpoint'/3:
+uniqueness_koan.m:010:   warning: variable `STATE_VARIABLE_IO_9' occurs only
+uniqueness_koan.m:010:   once in this scope.

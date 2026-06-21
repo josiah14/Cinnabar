@@ -91,6 +91,27 @@ Shortest path from "a" to "d": a→b→c→d (cost 4), not a→c→d (cost 5), n
 
 ---
 
+---
+
+## Acceptance criteria
+
+With the sample graph, `shortest_path/5` should yield:
+
+| Start | Goal | Expected cost | Expected path | Notes |
+|---|---|---|---|---|
+| `"a"` | `"d"` | 4 | `["a", "b", "c", "d"]` | a→b→c→d beats a→c→d (5) and a→b→d (6) |
+| `"a"` | `"c"` | 3 | `["a", "b", "c"]` | via-b (1+2) beats direct (4) |
+| `"d"` | `"c"` | 6 | `["d", "a", "b", "c"]` | must go through the cycle (3+1+2) |
+| `"a"` | `"a"` | 0 | `["a"]` | zero-cost trivial path |
+| `"x"` | `"y"` | `no` (fails) | — | unreachable → `shortest_path` fails |
+
+**Task (grade exploration):** Build the memoized version twice — once with
+`mmc --grade asm_fast.par.gc -o memo_par memoized_search.m` and once with
+`mmc --grade asm_fast.gc -o memoized_search memoized_search.m`. Run each on
+the cyclic graph. The compiler warns for the parallel build — read the warning.
+Does `pragma loop_check` (from the graph-reachability puzzle) have the same
+grade restriction? Are there tabling pragmas that *do* work with `.par` grades?
+
 ## What to observe
 
 - Without `pragma memo`: the program loops on the `d → a` cycle

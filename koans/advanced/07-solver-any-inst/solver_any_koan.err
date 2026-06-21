@@ -1,0 +1,5 @@
+solver_any_koan.m:036: In clause for `main(di, uo)':
+solver_any_koan.m:036:   in argument 1 of call to predicate
+solver_any_koan.m:036:   `solver_any_koan.extract'/2:
+solver_any_koan.m:036:   mode error: variable `T' has instantiatedness `any',
+solver_any_koan.m:036:   expected instantiatedness was `ground'.

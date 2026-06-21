@@ -1,0 +1,6 @@
+negation_koan.m:020: In clause for `find_important(in, out)':
+negation_koan.m:020:   in argument 1 of call to predicate `list.member'/2:
+negation_koan.m:020:   scope error: attempt to bind a non-local variable inside
+negation_koan.m:020:   a negation.
+negation_koan.m:020:   Variable `T' has instantiatedness `free',
+negation_koan.m:020:   expected instantiatedness was `ground'.

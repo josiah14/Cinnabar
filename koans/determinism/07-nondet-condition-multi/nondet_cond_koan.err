@@ -1,0 +1,6 @@
+nondet_cond_koan.m:020: In `classify'(in, out):
+nondet_cond_koan.m:020:   error: determinism declaration not satisfied.
+nondet_cond_koan.m:020:   Declared `det', inferred `multi'.
+nondet_cond_koan.m:020:   The reason for the difference is the following.
+nondet_cond_koan.m:022:   Call to `nondet_cond_koan.find_tag'(in, out) can
+nondet_cond_koan.m:022:   succeed more than once.

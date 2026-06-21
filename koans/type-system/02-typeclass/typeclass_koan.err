@@ -1,0 +1,4 @@
+typeclass_koan.m:022: In instance declaration for `showable(list.list(int))':
+typeclass_koan.m:022:   in the first instance type, one of the arguments of the
+typeclass_koan.m:022:   type constructor `list'/1 is not a type variable, but
+typeclass_koan.m:022:   should be. This is the first argument, `int'.

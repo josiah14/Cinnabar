@@ -1,0 +1,19 @@
+exceptions_koan.m:011: In clause for predicate `main'/2:
+exceptions_koan.m:011:   error: undefined symbol `[|]'/2.
+exceptions_koan.m:011:   (The module `list' has not been imported.)
+exceptions_koan.m:015: In clause for predicate `main'/2:
+exceptions_koan.m:015:   in argument 1 of call to predicate
+exceptions_koan.m:015:   `io.read_line_as_string'/4:
+exceptions_koan.m:015:   type error: variable `Stream' has type
+exceptions_koan.m:015:   `io.res(io.input_stream)',
+exceptions_koan.m:015:   expected type was `io.input_stream'.
+exceptions_koan.m:024: In clause for predicate `main'/2:
+exceptions_koan.m:024:   in argument 2 of call to predicate `io.format'/4:
+exceptions_koan.m:024:   error: undefined symbol `[|]'/2.
+exceptions_koan.m:024:   (The module `list' has not been imported.)
+exceptions_koan.m:024: In clause for predicate `main'/2:
+exceptions_koan.m:024:   in argument 2 of call to predicate `io.format'/4:
+exceptions_koan.m:024:   in argument 2 of functor `[|]/2':
+exceptions_koan.m:024:   error: undefined symbol `[]'/0.
+exceptions_koan.m:024:   That symbol is defined in module `list', which does
+exceptions_koan.m:024:   not have an `:- import_module' declaration.

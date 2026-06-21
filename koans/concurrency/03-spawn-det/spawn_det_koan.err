@@ -1,0 +1,6 @@
+spawn_det_koan.m:019: In clause for `main(di, uo)':
+spawn_det_koan.m:019:   in argument 1 of call to predicate `thread.spawn'/3:
+spawn_det_koan.m:019:   mode error: variable `V_6' has instantiatedness
+spawn_det_koan.m:019:   `/* unique */ (pred(di, uo) is det)',
+spawn_det_koan.m:019:   expected instantiatedness was
+spawn_det_koan.m:019:   `(pred(di, uo) is cc_multi)'.

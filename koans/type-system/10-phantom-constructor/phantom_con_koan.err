@@ -1,0 +1,8 @@
+phantom_con_koan.m:010: Error: abstract declaration for type `metres'/0 has no
+phantom_con_koan.m:010:   corresponding definition.
+phantom_con_koan.m:010: Error: the type `metres'/0 has this declaration, but it
+phantom_con_koan.m:010:   has no definition.
+phantom_con_koan.m:011: Error: abstract declaration for type `seconds'/0 has no
+phantom_con_koan.m:011:   corresponding definition.
+phantom_con_koan.m:011: Error: the type `seconds'/0 has this declaration, but
+phantom_con_koan.m:011:   it has no definition.

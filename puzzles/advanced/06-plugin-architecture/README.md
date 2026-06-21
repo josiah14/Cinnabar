@@ -92,6 +92,39 @@ Feed it a test string and print the transformation chain.
 
 ---
 
+---
+
+## Acceptance criteria
+
+With the pipeline `[prefix(">> "), upper, repeat(2), prefix("**")]` and input `"hello"`:
+
+| Step | Plugin | Input | Output |
+|---|---|---|---|
+| 1 | `prefix(">> ")` | `"hello"` | `">> hello"` |
+| 2 | `upper` | `">> hello"` | `">> HELLO"` |
+| 3 | `repeat(2)` | `">> HELLO"` | `">> HELLO>> HELLO"` |
+| 4 | `prefix("**")` | `">> HELLO>> HELLO"` | `"**>> HELLO>> HELLO"` |
+| **Final** | — | — | `"**>> HELLO>> HELLO"` |
+
+Single-plugin verification:
+
+| Plugin | Input | Expected output |
+|---|---|---|
+| `upper` | `"test"` | `"TEST"` |
+| `repeat(3)` | `"test"` | `"testtesttest"` |
+| `prefix("x: ")` | `"test"` | `"x: test"` |
+| `repeat(0)` | `"anything"` | `""` (empty) |
+| `repeat(-5)` | `"anything"` | `""` (empty) |
+| `prefix("")` | `"x"` | `"x"` (unchanged) |
+
+Edge cases:
+
+| Pipeline | Input | Final output |
+|---|---|---|
+| `[]` (empty) | `"hello"` | `"hello"` |
+| `[upper]` | `"abc"` | `"ABC"` |
+| `[repeat(1)]` | `"x"` | `"x"` |
+
 ## Design questions
 
 1. The existential type `some [T] plugin(T) => formatter(T)` hides T from the

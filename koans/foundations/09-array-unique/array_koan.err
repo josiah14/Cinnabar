@@ -1,0 +1,6 @@
+array_koan.m:020: In clause for `build_array(array_uo)':
+array_koan.m:020:   in argument 3 of call to predicate `array.set'/4:
+array_koan.m:020:   unique-mode error: the called procedure would clobber its
+array_koan.m:020:   argument, but variable `Arr0' is still live.
+array_koan.m:020: In clause for predicate `build_array'/1:
+array_koan.m:020:   warning: variable `Arr1' occurs only once in this scope.

@@ -1,0 +1,11 @@
+complete_switch_koan.m:017: In `direction_name'(in, out):
+complete_switch_koan.m:017:   error: determinism declaration not satisfied.
+complete_switch_koan.m:017:   Declared `det', inferred `semidet'.
+complete_switch_koan.m:017:   The reason for the difference is the following.
+complete_switch_koan.m:021:   The switch on Direction does not cover
+complete_switch_koan.m:021:     `east'/0 or
+complete_switch_koan.m:021:     `west'/0.
+complete_switch_koan.m:019: Error: the switch on `Direction' is required to be
+complete_switch_koan.m:019:   complete, but it does not cover
+complete_switch_koan.m:019:     `east'/0 or
+complete_switch_koan.m:019:     `west'/0.

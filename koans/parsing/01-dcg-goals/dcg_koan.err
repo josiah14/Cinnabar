@@ -1,0 +1,3 @@
+dcg_koan.m:017: In clause for predicate `digit'/3:
+dcg_koan.m:017:   error: wrong number of arguments (3; should be 1)
+dcg_koan.m:017:   in call to predicate `char.is_digit'.

@@ -1,0 +1,5 @@
+phrase_string_koan.m:026: In clause for predicate `first_word'/2:
+phrase_string_koan.m:026:   in argument 2 of call to predicate
+phrase_string_koan.m:026:   `phrase_string_koan.word_chars'/3:
+phrase_string_koan.m:026:   type error: variable `Input' has type `string',
+phrase_string_koan.m:026:   expected type was `list.list(character)'.

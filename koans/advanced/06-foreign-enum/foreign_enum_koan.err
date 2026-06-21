@@ -1,0 +1,5 @@
+foreign_enum_koan.m:023: In `:- pragma foreign_enum' declaration for type
+foreign_enum_koan.m:023:   `color'/0:
+foreign_enum_koan.m:023:   error: the following constructor does not have a
+foreign_enum_koan.m:023:   foreign value:
+foreign_enum_koan.m:023:       `yellow'.

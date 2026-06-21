@@ -1,0 +1,3 @@
+fixed.m:020: In clause for `main(di, uo)':
+fixed.m:020:   warning: unification of `Flag' and bool.no cannot succeed.
+fixed.m:020:   `Flag' has instantiatedness `unique(yes)'.

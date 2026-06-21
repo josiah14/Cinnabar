@@ -30,3 +30,4 @@ blank-page friction: you already have a structure to work within and extend.
 | 09 | `09-typeclass-refactor` | typeclass instances, polymorphic evaluation | `katas/type-system/07-typeclass-design` |
 | 10 | `10-parallel-pipeline` | `thread.spawn`, channels, fan-out/fan-in, `maybe` sentinel | `katas/concurrency/02-threads`, `puzzles/concurrent/02-pipeline` |
 | 11 | `11-error-handling` | `maybe`, custom error types, `io.res`, exceptions | `katas/foundations/02-maybe`, `katas/foundations/07-exceptions` |
+| 12 | `12-currying-and-impurity` | partial application, currying, `impure`/`semipure`, `promise_pure` | `katas/foundations/04-higher-order`, `katas/foundations/00-reactivation/06-pure-randomness` |

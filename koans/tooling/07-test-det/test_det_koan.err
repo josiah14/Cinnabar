@@ -1,0 +1,5 @@
+test_det_koan.m:020: In `test_sum':
+test_det_koan.m:020:   error: determinism declaration not satisfied.
+test_det_koan.m:020:   Declared `det', inferred `semidet'.
+test_det_koan.m:020:   The reason for the difference is the following.
+test_det_koan.m:023:   Unification of `Got' and `6' can fail.

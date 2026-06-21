@@ -1,0 +1,5 @@
+purity_koan.m:014: In predicate `c_square'/2:
+purity_koan.m:014:   purity error: predicate is impure.
+purity_koan.m:014:   It must be declared `impure' or promised pure.
+purity_koan.m:015: Error: foreign clause for predicate `c_square'/2 has purity
+purity_koan.m:015:   impure but that predicate has been declared pure.

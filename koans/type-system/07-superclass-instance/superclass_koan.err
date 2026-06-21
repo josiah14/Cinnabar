@@ -1,0 +1,4 @@
+superclass_koan.m:022: In instance declaration for
+superclass_koan.m:022:   `describable(superclass_koan.shape)':
+superclass_koan.m:022:   the following superclass constraint is not satisfied:
+superclass_koan.m:022:   `superclass_koan.printable(superclass_koan.shape)'.

@@ -1,0 +1,6 @@
+phrase_det_koan.m:020: In `parse_digit'(in, out):
+phrase_det_koan.m:020:   error: determinism declaration not satisfied.
+phrase_det_koan.m:020:   Declared `det', inferred `semidet'.
+phrase_det_koan.m:020:   The reason for the difference is the following.
+phrase_det_koan.m:023:   Call to `phrase_det_koan.digit_char'(out, in, out) can
+phrase_det_koan.m:023:   fail.

@@ -1,0 +1,18 @@
+map_io_koan.m:018: In clause for `print_all(in, di, uo)':
+map_io_koan.m:018:   in call to predicate `list.map'/3:
+map_io_koan.m:018:   mode error: arguments `V_11, Strs, _Echoed' have the
+map_io_koan.m:018:   following insts:
+map_io_koan.m:018:     free,
+map_io_koan.m:018:     ground,
+map_io_koan.m:018:     free
+map_io_koan.m:018:   which does not match any of the modes for predicate
+map_io_koan.m:018:   `list.map'/3.
+map_io_koan.m:018:   The first argument `V_11' has inst `free', which does not
+map_io_koan.m:018:   match any of those modes.
+map_io_koan.m:021: Error: cannot use !:IO here due to the surrounding lambda
+map_io_koan.m:021:   expression; you may only refer to !.IO.
+map_io_koan.m:018:   Here is the surrounding context that makes state variable
+map_io_koan.m:018:   IO readonly.
+map_io_koan.m:021: In clause for predicate `print_all'/3:
+map_io_koan.m:021:   warning: variable `STATE_VARIABLE_IO_15' occurs only once
+map_io_koan.m:021:   in this scope.

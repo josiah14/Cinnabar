@@ -16,4 +16,4 @@ solution*.
 | `data-structures/` | Anagram finder, expression evaluator, graph reachability, frequency histogram |
 | `parsing/` | Calculator, CSV reader, config parser |
 | `concurrent/` | Parallel sort, producer-consumer pipeline, parallel pipeline with unique state |
-| `advanced/` | Generic printer, memoized search, bidirectional search, combinator library, generic parser, plugin architecture, Mercury meta-interpreter |
+| `advanced/` | Generic printer, memoized search, bidirectional search, combinator library, generic parser, plugin architecture, Mercury meta-interpreter, multi-module config library |

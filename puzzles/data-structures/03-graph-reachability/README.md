@@ -97,6 +97,27 @@ Reachable from "a": {"a", "b", "c", "d", "e"}
 
 ---
 
+---
+
+## Acceptance criteria
+
+| Start node | Expected reachable set | Notes |
+|---|---|---|
+| `"a"` | `{"a", "b", "c", "d", "e"}` | All nodes reachable via the cycle |
+| `"e"` | `{"e"}` | Sink node, no outgoing edges |
+| any node in the cycle | all 5 nodes | Cycle eventually reaches everything |
+| non-existent node | empty set or no solutions | Graceful handling |
+
+The manual visited-set approach (approach 1) should complete without infinite looping for
+any start node in the sample graph.
+
+**Task (grade exploration):** Build the `nondet` version twice — once with
+`mmc --grade asm_fast.par.gc -o graph_par graph.m` and once with
+`mmc --grade asm_fast.gc -o graph graph.m`. Run each on the cyclic graph.
+What happens? The compiler emits a non-fatal warning for the parallel build —
+read it carefully. Why is it only a warning, not an error? When would compiling
+with a `.par` grade be the right choice, despite losing tabling?
+
 ## What to observe
 
 Without `pragma loop_check` (or a manual visited set), the program loops on the `d → a`

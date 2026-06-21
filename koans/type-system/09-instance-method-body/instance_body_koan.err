@@ -1,0 +1,6 @@
+instance_body_koan.m:024: In instance declaration for `drawable'/1:
+instance_body_koan.m:024:   the type class has no predicate method named
+instance_body_koan.m:024:   `write_string'/3.
+instance_body_koan.m:025: In clause for predicate `draw'/3:
+instance_body_koan.m:025:   warning: variable `Str' occurs only once in this
+instance_body_koan.m:025:   scope.

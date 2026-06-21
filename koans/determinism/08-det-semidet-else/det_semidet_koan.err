@@ -1,0 +1,6 @@
+det_semidet_koan.m:025: In `drain'(in, di, uo):
+det_semidet_koan.m:025:   error: determinism declaration not satisfied.
+det_semidet_koan.m:025:   Declared `det', inferred `semidet'.
+det_semidet_koan.m:025:   The reason for the difference is the following.
+det_semidet_koan.m:030:   Call to `det_semidet_koan.pop'(in, out, out) can
+det_semidet_koan.m:030:   fail.

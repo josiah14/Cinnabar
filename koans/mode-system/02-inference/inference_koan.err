@@ -1,0 +1,8 @@
+inference_koan.m:012: In clause for predicate `classify'/2:
+inference_koan.m:012:   error: undefined predicate `>'/2.
+inference_koan.m:016: In clause for predicate `classify'/2:
+inference_koan.m:016:   warning: variable `Threshold' occurs only once in this
+inference_koan.m:016:   scope.
+inference_koan.m:022: In clause for predicate `main'/2:
+inference_koan.m:022:   in argument 1 of call to predicate `io.write_string'/3:
+inference_koan.m:022:   error: undefined symbol `++'/2.

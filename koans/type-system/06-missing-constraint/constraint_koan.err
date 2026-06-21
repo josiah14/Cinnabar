@@ -1,0 +1,3 @@
+constraint_koan.m:023: In clause for predicate `print_value'/3:
+constraint_koan.m:023:   unsatisfiable typeclass constraint:
+constraint_koan.m:023:   `constraint_koan.show(T)'.

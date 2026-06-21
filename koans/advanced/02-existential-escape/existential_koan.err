@@ -1,0 +1,7 @@
+existential_koan.m:014: In clause for predicate `tag'/3:
+existential_koan.m:014:   in argument 3 of clause head:
+existential_koan.m:014:   in unification of variable `HeadVar__3'
+existential_koan.m:014:   and term `tagged(Label, Value)':
+existential_koan.m:014:   type error in argument of functor `tagged'/2.
+existential_koan.m:014:   Argument 2 (Value) has type `(some [T_1] T_1)',
+existential_koan.m:014:   expected type was `(some [T_2] T_2)'.

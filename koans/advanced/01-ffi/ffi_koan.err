@@ -1,0 +1,16 @@
+ffi_koan.m:029: In clause for predicate `benchmark_loop'/4:
+ffi_koan.m:029:   in argument 2 of call to predicate `io.format'/4:
+ffi_koan.m:029:   error: undefined symbol `[|]'/2.
+ffi_koan.m:029:   (The module `list' has not been imported.)
+ffi_koan.m:029: In clause for predicate `benchmark_loop'/4:
+ffi_koan.m:029:   in argument 2 of call to predicate `io.format'/4:
+ffi_koan.m:029:   in argument 2 of functor `[|]/2':
+ffi_koan.m:029:   error: undefined symbol `[]'/0.
+ffi_koan.m:029:   That symbol is defined in module `list', which does not have
+ffi_koan.m:029:   an `:- import_module' declaration.
+ffi_koan.m:029: In clause for predicate `benchmark_loop'/4:
+ffi_koan.m:029:   in argument 2 of call to predicate `io.format'/4:
+ffi_koan.m:029:   in list element #0:
+ffi_koan.m:029:   error: undefined symbol `i'/1.
+ffi_koan.m:029:   That symbol is defined in module `string', which does not
+ffi_koan.m:029:   have an `:- import_module' declaration.

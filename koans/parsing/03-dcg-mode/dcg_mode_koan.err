@@ -1,0 +1,6 @@
+dcg_mode_koan.m:042: In clause for `tokens(out, in, out)':
+dcg_mode_koan.m:042:   in argument 3 of call to predicate
+dcg_mode_koan.m:042:   `dcg_mode_koan.token'/3:
+dcg_mode_koan.m:042:   mode error: variable `DCG_1' has instantiatedness
+dcg_mode_koan.m:042:   `free',
+dcg_mode_koan.m:042:   expected instantiatedness was `ground'.

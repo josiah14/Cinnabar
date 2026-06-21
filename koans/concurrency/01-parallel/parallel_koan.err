@@ -1,0 +1,28 @@
+parallel_koan.m:022: In clause for predicate `main'/2:
+parallel_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+parallel_koan.m:022:   error: undefined symbol `[|]'/2.
+parallel_koan.m:022:   (The module `list' has not been imported.)
+parallel_koan.m:022: In clause for predicate `main'/2:
+parallel_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+parallel_koan.m:022:   in argument 2 of functor `[|]/2':
+parallel_koan.m:022:   error: undefined symbol `[|]'/2.
+parallel_koan.m:022:   (The module `list' has not been imported.)
+parallel_koan.m:022: In clause for predicate `main'/2:
+parallel_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+parallel_koan.m:022:   in argument 2 of functor `[|]/2':
+parallel_koan.m:022:   in argument 2 of functor `[|]/2':
+parallel_koan.m:022:   error: undefined symbol `[]'/0.
+parallel_koan.m:022:   That symbol is defined in module `list', which does not
+parallel_koan.m:022:   have an `:- import_module' declaration.
+parallel_koan.m:022: In clause for predicate `main'/2:
+parallel_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+parallel_koan.m:022:   in list element #0:
+parallel_koan.m:022:   error: undefined symbol `i'/1.
+parallel_koan.m:022:   That symbol is defined in module `string', which does
+parallel_koan.m:022:   not have an `:- import_module' declaration.
+parallel_koan.m:022: In clause for predicate `main'/2:
+parallel_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+parallel_koan.m:022:   in list element #1:
+parallel_koan.m:022:   error: undefined symbol `i'/1.
+parallel_koan.m:022:   That symbol is defined in module `string', which does
+parallel_koan.m:022:   not have an `:- import_module' declaration.

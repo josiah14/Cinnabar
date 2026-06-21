@@ -1,0 +1,2 @@
+memo_io_koan.m:015: Error: `:- pragma memo' declaration not allowed for
+memo_io_koan.m:015:   procedure with unique modes.

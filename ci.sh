@@ -208,6 +208,11 @@ done < <(
 echo ""
 echo "=== Puzzle solutions (expect compile success) ==="
 while IFS= read -r -d '' puzzle_file; do
+    # Skip library modules (no main predicate — they are compiled as
+    # dependencies of the main module in multi-module solutions, e.g.
+    # advanced/08-multi-module-config). Building one directly would fail at the
+    # link stage for lack of a main/2.
+    grep -q ':- pred main(' "$puzzle_file" 2>/dev/null || continue
     dir="$(dirname "$puzzle_file")"
     module="$(module_of "$puzzle_file")"
     label="${puzzle_file#"$CINNABAR/"}"
@@ -216,6 +221,97 @@ done < <(
     find "$CINNABAR/puzzles" -path "*/solution/*.m" \
         ! -name "*.mh" \
         -print0 | sort -z
+)
+
+# ---------------------------------------------------------------------------
+# 6. Bridge solution snippets — extract and syntax-check ```mercury blocks
+# ---------------------------------------------------------------------------
+echo ""
+echo "=== Bridge solution README code blocks (syntax check) ==="
+
+BRIDGE_TMPDIR="$(mktemp -d "/tmp/cinnabar-bridge-XXXXXX")"
+cleanup_bridge() { rm -rf "$BRIDGE_TMPDIR"; }
+trap cleanup_bridge EXIT
+
+# Common imports for bridge snippet compilation
+BRIDGE_STD_IMPORTS="io, int, string, list, maybe, char, bool, exception, require"
+BRIDGE_CONCUR_IMPORTS="$BRIDGE_STD_IMPORTS, channel, thread, thread.semaphore, univ, unit"
+
+while IFS= read -r -d '' readme; do
+    bridge_name="$(basename "$(dirname "$(dirname "$readme")")")"
+    block_num=0
+
+    # Write each ```mercury block to a temp file via awk
+    safe_bname="${bridge_name//-/_}"
+    awk -v tmpdir="$BRIDGE_TMPDIR" -v bname="$safe_bname" '
+    BEGIN { in_block = 0; block = ""; count = 0; }
+    /^```mercury/ { in_block = 1; block = ""; next; }
+    /^```$/ && in_block {
+        in_block = 0;
+        count++;
+        fname = tmpdir "/raw_" bname "_" count ".txt";
+        printf "%s", block > fname;
+        close(fname);
+        block = "";
+        next;
+    }
+    in_block { block = block $0 "\n"; }
+    ' "$readme"
+
+    for raw_file in "$BRIDGE_TMPDIR/raw_${safe_bname}"_*.txt; do
+        [[ -f "$raw_file" ]] || continue
+        ((block_num++))
+        content="$(cat "$raw_file")"
+        rm -f "$raw_file"
+        line_count="$(echo "$content" | wc -l)"
+
+        # Skip trivial blocks (< 3 lines or no predicate/func/type/import declaration)
+        if [[ "$line_count" -lt 3 ]]; then continue; fi
+        if ! echo "$content" | grep -qE '^\s*:- (pred|func|type|import_module)'; then continue; fi
+
+        # Determine imports
+        block_imports="$(echo "$content" | grep '^\s*:- import_module' | sed 's/.*:- import_module *//;s/%%.*//' | tr '\n' ',' | sed 's/,$//')"
+        if [[ -n "$block_imports" ]]; then
+            combined_imports="io, int, string, list, maybe, $block_imports"
+            content="$(echo "$content" | grep -v '^\s*:- import_module')"
+        elif echo "$content" | grep -qE '\b(channel|thread\.|semaphore)\b'; then
+            combined_imports="$BRIDGE_CONCUR_IMPORTS"
+        else
+            combined_imports="$BRIDGE_STD_IMPORTS"
+        fi
+
+        module_name="br_${bridge_name}_${block_num}"
+        module_name="${module_name//-/_}"
+        tmpfile="$BRIDGE_TMPDIR/${module_name}.m"
+
+        cat > "$tmpfile" <<- MODEOF
+:- module $module_name.
+:- interface.
+:- implementation.
+
+:- import_module $combined_imports.
+
+$content
+MODEOF
+
+        label="${readme#"$CINNABAR/"} block $block_num"
+        (
+            cd "$BRIDGE_TMPDIR"
+            rm -rf Mercury/
+            mmc --make --errorcheck-only --grade "$GRADE" "$module_name" > "$MMC_OUT" 2>&1
+        )
+        code=$?
+        if [[ $code -eq 0 ]]; then
+            echo "  PASS: $label"
+            ((pass++))
+        else
+            echo "  FAIL: $label"
+            ((fail++))
+            failures+=("bridge snippet does not compile: $label")
+        fi
+    done
+done < <(
+    find "$CINNABAR/bridge" -path "*/solution/README.md" -print0 | sort -z
 )
 
 # ---------------------------------------------------------------------------

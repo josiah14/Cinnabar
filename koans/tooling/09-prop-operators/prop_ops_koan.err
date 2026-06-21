@@ -1,0 +1,11 @@
+prop_ops_koan.m:016: In clause for predicate `gen_small_int'/1:
+prop_ops_koan.m:016:   error: undefined predicate `int.between'/3.
+prop_ops_koan.m:022: In clause for predicate `prop_length_eq'/1:
+prop_ops_koan.m:022:   error: ambiguous overloading causes type ambiguity.
+prop_ops_koan.m:022:   Possible type assignments include:
+prop_ops_koan.m:022:   V_3:
+prop_ops_koan.m:022:     `pred(
+prop_ops_koan.m:022:       int
+prop_ops_koan.m:022:     )'
+prop_ops_koan.m:022:   or
+prop_ops_koan.m:022:     `int'

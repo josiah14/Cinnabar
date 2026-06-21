@@ -1,0 +1,6 @@
+stateful_koan.m:037: In clause for `item(in, out, in, out)':
+stateful_koan.m:037:   mode mismatch in disjunction.
+stateful_koan.m:037:   The variable `A' is ground in some branches but not
+stateful_koan.m:037:   others.
+stateful_koan.m:033:     In this branch, `A' is ground.
+stateful_koan.m:036:     In this branch, `A' is free.

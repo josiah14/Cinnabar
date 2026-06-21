@@ -1,0 +1,6 @@
+graph.m:041: Ignoring the `:- pragma loop_check' declaration for predicate
+graph.m:041:   `graph.reachable_node'/3 mode 0, because tabling is not
+graph.m:041:   compatible with parallel execution.
+graph.m:041: In `reachable_node'(in, in, out):
+graph.m:041:   warning: determinism declaration could be tighter.
+graph.m:041:   Declared `nondet', inferred `multi'.

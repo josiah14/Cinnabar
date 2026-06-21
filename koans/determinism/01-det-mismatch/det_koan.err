@@ -1,0 +1,18 @@
+det_koan.m:014: In clause for predicate `abs_val'/2:
+det_koan.m:014:   error: `->' without `;'.
+det_koan.m:015: In clause for predicate `abs_val'/2:
+det_koan.m:015:   in argument 2 of call to predicate `->'/2:
+det_koan.m:015:   error: the language construct `='/2 should be used as a goal,
+det_koan.m:015:   not as an expression.
+det_koan.m:022: In clause for predicate `main'/2:
+det_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+det_koan.m:022:   in list element #0:
+det_koan.m:022:   error: undefined symbol `i'/1.
+det_koan.m:022:   That symbol is defined in module `string', which does not
+det_koan.m:022:   have an `:- import_module' declaration.
+det_koan.m:022: In clause for predicate `main'/2:
+det_koan.m:022:   in argument 2 of call to predicate `io.format'/4:
+det_koan.m:022:   in list element #1:
+det_koan.m:022:   error: undefined symbol `i'/1.
+det_koan.m:022:   That symbol is defined in module `string', which does not
+det_koan.m:022:   have an `:- import_module' declaration.

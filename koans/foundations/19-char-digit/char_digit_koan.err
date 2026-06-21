@@ -1,0 +1,5 @@
+char_digit_koan.m:016: In clause for predicate `report_char'/3:
+char_digit_koan.m:016:   error: undefined predicate `char.digit_to_int'/2.
+char_digit_koan.m:019: In clause for predicate `report_char'/3:
+char_digit_koan.m:019:   warning: variable `Digit' occurs only once in this
+char_digit_koan.m:019:   scope.

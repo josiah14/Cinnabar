@@ -1,0 +1,7 @@
+phantom_koan.m:027: In clause for predicate `main'/2:
+phantom_koan.m:027:   in argument 2 of call to predicate
+phantom_koan.m:027:   `phantom_koan.add_lengths'/3:
+phantom_koan.m:027:   type error: variable `M' has type
+phantom_koan.m:027:     `phantom_koan.length(phantom_koan.miles)',
+phantom_koan.m:027:   expected type was
+phantom_koan.m:027:     `phantom_koan.length(phantom_koan.km)'.

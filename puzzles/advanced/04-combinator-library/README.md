@@ -109,6 +109,32 @@ Test `number` on: `"123abc"`, `"abc"`, `"0"`.
 
 ---
 
+---
+
+## Acceptance criteria
+
+Test `number` (det, consumes digits, converts to int):
+
+| Input | Expected result | Remaining |
+|---|---|---|
+| `"123abc"` | `123` | `"abc"` |
+| `"abc"` | `0` | `"abc"` |
+| `"0"` | `0` | `""` |
+| `""` | `0` | `""` |
+
+Test `literal(string)` (semidet, matches exact prefix):
+
+| Input | Match target | Matched? | Remaining |
+|---|---|---|---|
+| `"hello world"` | `"hello"` | yes | `" world"` |
+| `"hello world"` | `"world"` | no | `"hello world"` (unchanged) |
+
+Test `seq_semidet` (two semidet parsers in sequence):
+
+| Input | Parsers | Expected result | Remaining |
+|---|---|---|---|
+| `"42x"` | `digit` then `digit` | `'4' - '2'` | `"x"` |
+
 ## Design question
 
 Mercury does not allow a single combinator that is polymorphic over determinism:

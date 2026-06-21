@@ -1,0 +1,4 @@
+foldl_koan.m:021: Error: !Acc cannot be a lambda argument.
+foldl_koan.m:021:   Perhaps you meant !.Acc or !:Acc.
+foldl_koan.m:021: Error: in head of lambda expression: some but not all
+foldl_koan.m:021:   arguments have modes.

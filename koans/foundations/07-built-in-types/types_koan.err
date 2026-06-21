@@ -1,0 +1,56 @@
+types_koan.m:015: In clause for predicate `main'/2:
+types_koan.m:015:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:015:   error: undefined symbol `[|]'/2.
+types_koan.m:015:   (The module `list' has not been imported.)
+types_koan.m:015: In clause for predicate `main'/2:
+types_koan.m:015:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:015:   in argument 2 of functor `[|]/2':
+types_koan.m:015:   error: undefined symbol `[]'/0.
+types_koan.m:015:   That symbol is defined in module `list', which does not
+types_koan.m:015:   have an `:- import_module' declaration.
+types_koan.m:020: In clause for predicate `main'/2:
+types_koan.m:020:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:020:   error: undefined symbol `[|]'/2.
+types_koan.m:020:   (The module `list' has not been imported.)
+types_koan.m:020: In clause for predicate `main'/2:
+types_koan.m:020:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:020:   in argument 2 of functor `[|]/2':
+types_koan.m:020:   error: undefined symbol `[|]'/2.
+types_koan.m:020:   (The module `list' has not been imported.)
+types_koan.m:020: In clause for predicate `main'/2:
+types_koan.m:020:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:020:   in argument 2 of functor `[|]/2':
+types_koan.m:020:   in argument 2 of functor `[|]/2':
+types_koan.m:020:   error: undefined symbol `[|]'/2.
+types_koan.m:020:   (The module `list' has not been imported.)
+types_koan.m:020: In clause for predicate `main'/2:
+types_koan.m:020:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:020:   in argument 2 of functor `[|]/2':
+types_koan.m:020:   in argument 2 of functor `[|]/2':
+types_koan.m:020:   in argument 2 of functor `[|]/2':
+types_koan.m:020:   error: undefined symbol `[]'/0.
+types_koan.m:020:   That symbol is defined in module `list', which does not
+types_koan.m:020:   have an `:- import_module' declaration.
+types_koan.m:021: In clause for predicate `main'/2:
+types_koan.m:021:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:021:   error: undefined symbol `[|]'/2.
+types_koan.m:021:   (The module `list' has not been imported.)
+types_koan.m:021: In clause for predicate `main'/2:
+types_koan.m:021:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:021:   in argument 2 of functor `[|]/2':
+types_koan.m:021:   error: undefined symbol `[|]'/2.
+types_koan.m:021:   (The module `list' has not been imported.)
+types_koan.m:021: In clause for predicate `main'/2:
+types_koan.m:021:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:021:   in argument 2 of functor `[|]/2':
+types_koan.m:021:   in argument 2 of functor `[|]/2':
+types_koan.m:021:   error: undefined symbol `[|]'/2.
+types_koan.m:021:   (The module `list' has not been imported.)
+types_koan.m:021: In clause for predicate `main'/2:
+types_koan.m:021:   in argument 2 of call to predicate `io.format'/4:
+types_koan.m:021:   in argument 2 of functor `[|]/2':
+types_koan.m:021:   in argument 2 of functor `[|]/2':
+types_koan.m:021:   in argument 2 of functor `[|]/2':
+types_koan.m:021:   error: undefined symbol `[]'/0.
+types_koan.m:021:   That symbol is defined in module `list', which does not
+types_koan.m:021:   have an `:- import_module' declaration.

@@ -84,6 +84,20 @@ pretty(U, Depth, !IO) :-
 
 ---
 
+---
+
+## Acceptance criteria
+
+| Input value | Expected printed output | Key property |
+|---|---|---|
+| `42` | `42` | atomic value, arity 0 |
+| `"hello"` | `"hello"` | string as functor name |
+| `[]` | `[]` | empty list, arity 0 |
+| `[1]` | `[|](\n  1\n  []\n)` | singleton cons-cell |
+| `[1, 2]` | `[|](\n  1\n  [|](\n    2\n    []\n  )\n)` | nested cons-cells |
+| `yes(yes(42))` | `yes(\n  yes(\n    42\n  )\n)` | nested compound |
+| `no` | `no` | arity 0 maybe |
+
 ## What to observe
 
 - `[]` and `[H|T]` have functor names `"[]"` and `"[|]"` respectively

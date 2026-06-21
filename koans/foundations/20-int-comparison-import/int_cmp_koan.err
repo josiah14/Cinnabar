@@ -1,0 +1,4 @@
+int_cmp_koan.m:014: In clause for predicate `classify'/2:
+int_cmp_koan.m:014:   error: undefined predicate `>'/2.
+int_cmp_koan.m:016: In clause for predicate `classify'/2:
+int_cmp_koan.m:016:   error: undefined predicate `<'/2.

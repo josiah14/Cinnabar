@@ -1,0 +1,22 @@
+file_io_koan.m:011: In clause for predicate `process_lines'/3:
+file_io_koan.m:011:   error: ambiguous overloading causes type ambiguity.
+file_io_koan.m:011:   Possible type assignments include:
+file_io_koan.m:011:   V_12:
+file_io_koan.m:011:     `pred(
+file_io_koan.m:011:       string
+file_io_koan.m:011:     )'
+file_io_koan.m:011:   or
+file_io_koan.m:011:     `string'
+file_io_koan.m:027: In clause for predicate `main'/2:
+file_io_koan.m:027:   error: undefined symbol `[|]'/2.
+file_io_koan.m:027:   (The module `list' has not been imported.)
+file_io_koan.m:037: In clause for predicate `main'/2:
+file_io_koan.m:037:   in argument 2 of call to predicate `io.format'/4:
+file_io_koan.m:037:   error: undefined symbol `[|]'/2.
+file_io_koan.m:037:   (The module `list' has not been imported.)
+file_io_koan.m:037: In clause for predicate `main'/2:
+file_io_koan.m:037:   in argument 2 of call to predicate `io.format'/4:
+file_io_koan.m:037:   in argument 2 of functor `[|]/2':
+file_io_koan.m:037:   error: undefined symbol `[]'/0.
+file_io_koan.m:037:   That symbol is defined in module `list', which does not
+file_io_koan.m:037:   have an `:- import_module' declaration.
