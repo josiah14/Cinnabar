@@ -25,11 +25,12 @@
 % begin the implementation code.
 :- implementation.
 
-% the way IO works here is each write_string takes a destructive input as the
-% first argument - if this were provided as a variable, the destructive part
-% means that the value of the variable is destroyed after
-% the call to write_string - and then a new unique IO token is produced. This
-% purely (in logical and functional terms) sequences the IO operations in the
+% the way IO works here is each write_string takes a string to output as the
+% first argument, and then the following handle IO state. The second argument
+% is a destructive inuput: the destructive part means that the value of the
+% variable is destroyed after the call to write_string - and then a new unique IO
+% token is produced.
+% This purely (in logical and functional terms) sequences the IO operations in the
 % order they're written. The operations are strung together by and (,)
 % operators, and logic ensures that the next operation only runs if the
 % previous succeeded, and this is important because in event of failure the IO
@@ -42,7 +43,7 @@
 % destroyed in the execution of the predicate or function with the di designation.
 main(!IO) :-
     io.write_string("Hello, World!\n", !IO),
-    io.write_string("Hello, Mercury!\n", !IO),
+    io.write_string("Hello, Mercury!!\n", !IO),
     io.write_string("IO token threaded: write_string 2\n", !IO),
     io.write_string("IO token threaded: write_string 3\n", !IO).
 
