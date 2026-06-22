@@ -24,3 +24,7 @@ Work them in order. The later katas assume the earlier ones.
 ## Build
 
 The dev shell provided by the project `flake.nix` sets `asm_fast.par.gc.stseg` as the default grade. A bare `mmc --make <module>` will use that grade. If you see a "standard library not found" error, confirm you entered the shell with `nix develop` before building.
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).
