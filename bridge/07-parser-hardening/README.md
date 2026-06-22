@@ -2,6 +2,13 @@
 
 **After:** `katas/parsing/03-parsing-utils` and `puzzles/parsing/02-csv-reader`
 
+**Why Mercury:** Mercury draws a line the determinism system enforces — a parser that
+*fails* (`semidet`, producing no output) is a different thing from one that *returns*
+an `error(Line, Msg)` value (`det`, with a structured result). Silent failure and
+reported failure cannot be confused, because they have different determinisms and
+different types. Threading a line counter through the DCG is likewise mode-checked:
+the compiler verifies the state is produced before it is consumed at every rule.
+
 `csv_reader.m` is a working CSV parser built with DCG rules. It handles quoted fields
 (including embedded commas) and CRLF/LF line endings.
 

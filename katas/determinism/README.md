@@ -19,3 +19,7 @@ The track moves from naming the six categories through committed choice (`cc_mul
 **Tutorial cross-reference:** Mercury Tutorial §3 covers `det`/`semidet`/`nondet`. This
 track names and exercises all six categories and covers the committed-choice subset, which
 the tutorial does not address.
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

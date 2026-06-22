@@ -24,7 +24,7 @@ Now you want to *think* in Mercury — to reach for modes and determinism as too
 
 ## Recommended order
 
-Foundations → Type system → Mode system → Determinism → Parsing. After those five, Tooling, Concurrency, and Advanced can be taken in any order. Puzzles work well between tracks as a change of pace — `puzzles/logic/` and `puzzles/data-structures/` pair naturally with Foundations. Bridges sit between katas and puzzles; bridge 01–03 and 11 after Foundations, bridge 04–06 after Mode system and Determinism, bridge 07–10 after Parsing and Advanced.
+Foundations → Type system → Mode system → Determinism → Parsing. After those five: Tooling → Concurrency → Advanced; within Advanced, 01 (FFI) → 02 (solver) → 03–08 (any order). Puzzles work well between tracks as a change of pace — `puzzles/logic/` and `puzzles/data-structures/` pair naturally with Foundations. Bridges sit between katas and puzzles; bridge 01–03, 11, and 12 after Foundations, bridge 04–06 after Mode system and Determinism, bridge 07–10 after Parsing and Advanced.
 
 Start at the beginning of each track even if it feels easy. The early exercises establish habits the later ones depend on.
 
@@ -43,14 +43,14 @@ Katas and koans are organized into tracks. Puzzles draw on multiple tracks and l
 
 | Track | Katas | Koans | Start here |
 |---|---|---|---|
-| Foundations | 12 | 23 | `katas/foundations/00-reactivation/01-hello-world` |
+| Foundations | 13 | 23 | `katas/foundations/00-reactivation/01-hello-world` |
 | Type system | 10 | 10 | `katas/type-system/01-discriminated-unions` |
-| Mode system | 8 | 8 | `katas/mode-system/01-insts-and-modes` |
+| Mode system | 9 | 8 | `katas/mode-system/01-insts-and-modes` |
 | Determinism | 7 | 8 | `katas/determinism/01-six-categories` |
 | Parsing | 9 | 7 | `katas/parsing/01-dcg-basics` |
 | Tooling | 6 | 9 | `katas/tooling/01-grades` |
 | Concurrency | 9 | 7 | `katas/concurrency/01-parallel-conjunction` |
-| Advanced | 7 | 8 | `katas/advanced/01-ffi-depth` |
+| Advanced | 8 | 8 | `katas/advanced/01-ffi-depth` |
 
 ### Bridges
 
@@ -61,7 +61,7 @@ Twelve bridges in `bridge/`, each handing you a working file and asking you to e
 | `01-maybe-extend` | Maybe chaining, option handling |
 | `02-pipeline-extend` | Higher-order filter/map/fold pipeline grouping |
 | `03-dcg-extend` | DCG grammars and token parsers |
-| `04-determinism-ratchet` | Committed choice, parallel conjunctions |
+| `04-determinism-ratchet` | First solution of a `nondet` goal three ways (`solutions`/`find_first_match`/`cc_multi`); committed choice; parallel conjunctions |
 | `05-mode-reversal` | Multi-mode predicates, `promise_equivalent_clauses` |
 | `06-pipeline-parameterization` | Higher-order predicates with inst annotations |
 | `07-parser-hardening` | Error recovery, structured error types |
@@ -69,6 +69,7 @@ Twelve bridges in `bridge/`, each handing you a working file and asking you to e
 | `09-typeclass-refactor` | Extracting a numeric typeclass |
 | `10-parallel-pipeline` | Bounded channels, backpressure, supervisors |
 | `11-error-handling` | `maybe`, custom error types, `io.res`, exceptions — choosing the right mechanism |
+| `12-currying-and-impurity` | Partial application, currying, `impure`/`semipure` predicates |
 
 ### Puzzles
 

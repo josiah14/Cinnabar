@@ -3,6 +3,11 @@
 **Concept:** `det`, `semidet`, `multi`, `nondet`, `erroneous`, `failure` — one predicate
 per category
 
+**Why Mercury:** in most languages determinism is a runtime property — you find out how
+many answers a routine has by running it. In Mercury it is a compile-time contract: each
+of these six categories is a promise the compiler checks, so "how many solutions, and can
+it fail?" is settled before the program ever runs.
+
 **Tutorial cross-reference:** Mercury Tutorial §3 covers `det`, `semidet`, and `nondet`.
 This kata names and exercises all six categories explicitly, including the three the
 tutorial omits.

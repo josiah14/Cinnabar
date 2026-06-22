@@ -3,16 +3,19 @@
 ## Task 1: parameterized filter
 
 ```mercury
-:- pred run_filter(pred(item::in) is semidet, list(item)::in,
-                   list(item)::out) is det.
+:- pred run_filter(pred(item)::in(pred(in) is semidet),
+                   list(item)::in, list(item)::out) is det.
 run_filter(Criterion, Items, Filtered) :-
     list.filter(Criterion, Items, Filtered).
 ```
 
-The mode annotation on `Criterion` — `pred(item::in) is semidet` — is what allows
-`list.filter` to call it. `list.filter` itself expects a predicate with this inst.
-If you write `pred(item)` without the inst, Mercury infers inst `ground`, and calling
-a `ground`-inst predicate is a mode error.
+The inst on `Criterion` is what allows `list.filter` to call it. The argument's
+*type* is `pred(item)` and its *mode* is `in(pred(in) is semidet)` — already bound
+(`in`), taking one input, succeeding at most once. The higher-order inst must live in
+the mode position: writing it inside the type as `pred(item::in) is semidet` is an
+error ("higher order inst information ... not allowed in a predicate's argument").
+And a bare `pred(item)` typed `in` is treated as `ground`; calling a `ground`
+higher-order value is itself a mode error.
 
 Usage:
 ```mercury
@@ -24,10 +27,10 @@ run_filter((pred(I::in) is semidet :- I^price > 1.0), sample_items, Expensive),
 
 ```mercury
 :- pred run_pipeline(
-    pred(item::in) is semidet,
-    func(item) = float,
-    list(item)::in,
-    float::out) is det.
+    pred(item),
+    (func(item) = float),
+    list(item),
+    float).
 :- mode run_pipeline(
     in(pred(in) is semidet),
     in(func(in) = out is det),

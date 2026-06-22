@@ -17,3 +17,7 @@ solution*.
 | `parsing/` | Calculator, CSV reader, config parser |
 | `concurrent/` | Parallel sort, producer-consumer pipeline, parallel pipeline with unique state |
 | `advanced/` | Generic printer, memoized search, bidirectional search, combinator library, generic parser, plugin architecture, Mercury meta-interpreter, multi-module config library |
+
+---
+
+**Adding a puzzle?** See [`docs/TEMPLATES.md`](../docs/TEMPLATES.md) for the canonical section order (the *Puzzle* template).

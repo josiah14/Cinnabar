@@ -68,10 +68,12 @@ Write:
 first_element([H | _], H).
 ```
 
-Try calling it with an empty list — the mode says `in(list_of(ground))` which requires the
-list to be non-empty (since `list_of(ground)` is `bound([] ; [...])` which includes `[]`).
-Actually, `list_of(ground)` does allow empty lists. Try to construct an inst that forbids
-empty lists (hint: `bound([ground | list_of(ground)])`).
+Try calling `first_element` with `[]`. You might expect a mode error — after all, the
+function only handles the non-empty case. But `list_of(ground)` matches `[]` (the inst
+includes `bound([] ; ...)`), so the mode checker accepts it and you get a runtime
+`software_error` instead. **The inst describes what values are *shaped correctly*, not
+which cases the predicate handles.** To forbid the empty list, construct a non-empty-only
+inst (hint: `bound([ground | list_of(ground)])`).
 
 ---
 

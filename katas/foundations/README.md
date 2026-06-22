@@ -20,6 +20,7 @@ Work them in order. The later katas assume the earlier ones.
 | `09-mode-inference/` | Goal reordering, multi-mode predicates, reading mode errors |
 | `10-record-update/` | `^` field access, `:=` functional update, chained updates, copy-on-modify pattern |
 | `11-stdlib-collections/` | `bag`, `bimap`, `array` vs `version_array` — less-visited stdlib collections |
+| `12-io-patterns/` | File IO patterns: `io.open_input`/`close_input`, `read_line_as_string` (ok/eof/error), `io.res` errors-as-values, IO vs pure logic |
 
 ## Build
 

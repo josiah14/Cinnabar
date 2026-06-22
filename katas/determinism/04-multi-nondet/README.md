@@ -1,5 +1,10 @@
 # Kata: multi and nondet predicates
 
+**Why Mercury:** in most languages determinism is a runtime property; in Mercury it is a
+compile-time contract. `multi` and `nondet` are how that contract says "this relation has
+more than one answer" — and the compiler then forces every caller to handle them in a
+context prepared for multiple solutions.
+
 You have used `det` and `semidet`. Mercury has two more categories that allow multiple solutions:
 
 - `nondet` — may succeed zero or more times

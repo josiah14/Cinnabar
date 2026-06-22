@@ -15,5 +15,10 @@ constraint solver.
 | `06-inst-hierarchy/` | User-defined `bound(...)` insts, parametric insts, inst subtyping |
 | `07-clause-selection/` | How Mercury selects clause bodies by calling mode |
 | `08-array-threading/` | `array(T)` (unique, di/uo threading) vs `version_array(T)` (persistent, aliasable): histogram exercise |
+| `09-func-vs-pred/` | Function vs predicate form: how a relation's determinism (det/semidet/nondet) and modes decide the shape, and what each form cannot express |
 
 `09-mode-inference` in the foundations track is prerequisite.
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

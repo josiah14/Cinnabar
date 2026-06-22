@@ -18,3 +18,7 @@ user-defined parametric types, abstract types, type classes, and existential typ
 | `10-gadts/` | GADT approximation strategies in Mercury (no native GADTs) |
 
 Work in order — each kata builds vocabulary used by the next.
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

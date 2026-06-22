@@ -2,6 +2,13 @@
 
 **After:** `katas/foundations/04-higher-order`
 
+**Why Mercury:** passing a function to `map` or `foldl` is routine everywhere. What
+Mercury adds is that a higher-order argument carries an *inst* — the modes and
+determinism of the closure — and the compiler checks that the closure you pass
+matches what the consumer declared. The `print_category` predicate you hand to
+`foldl` must prove it has exactly the mode and determinism `foldl`'s argument inst
+demands; a mismatch is a compile error, not a runtime surprise.
+
 `pipeline.m` is the working pipeline from kata 04. It defines `item`, filters by stock
 level, maps to revenue, and folds to a total. It compiles and runs.
 

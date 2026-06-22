@@ -577,6 +577,47 @@ the variable `free`, violating the `uo` mode.
 
 ---
 
+### An `is failure` predicate needs a `fail` body — an empty fact body is a mode error
+
+**Symptom:** A predicate that always fails, written as a fact "to drop the
+Prolog-ism" of an explicit `fail`:
+
+```mercury
+:- pred empty(T, list(char), list(char)).
+:- mode empty(out, in, out) is failure.
+empty(_, _, _).        % WRONG
+```
+
+produces:
+
+```
+mode error: argument 2 did not get sufficiently instantiated.
+Final instantiatedness of `HeadVar__1' was `free',
+expected final instantiatedness was `ground'.
+```
+
+**Cause:** A fact body asserts the predicate *succeeds*. On a success path every
+`out` argument must be bound `ground`; the fact binds nothing, so the output is
+left `free` — a mode error. The empty body does *not* mean "no solutions"; it
+means "succeeds, binding nothing," which collides with both the `out` mode and
+the `is failure` determinism.
+
+**Fix:** Keep the `fail` body. With no success path there is nothing obliged to
+bind the output, so leaving it `free` is legitimate and `is failure` holds:
+
+```mercury
+empty(_, _, _) :- fail.
+```
+
+The `is failure` annotation is the Mercury feature worth teaching; the `fail`
+goal is what the mode checker *requires* to satisfy it, not a Prolog vestige to
+be removed. (Verified: the fact form fails to compile with the mode error above;
+the `fail` form compiles clean with `--errorcheck-only`.)
+
+**Where discovered:** `puzzles/advanced/04-combinator-library/solution/combinators.m`
+
+---
+
 ### Existential construction needs the `'new <ctor>'` syntax — bare constructor is a type error
 
 **Symptom:** Constructing a value of an existential type with the ordinary

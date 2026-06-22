@@ -3,6 +3,11 @@
 **Concept:** `\+` is always `semidet`; the variable-binding rules for negation; the classic
 pitfall of trying to use `\+` as a filter
 
+**Why Mercury:** in most languages determinism is a runtime property; in Mercury it is a
+compile-time contract. Negation has a fixed place in that contract — `\+` is always
+`semidet` — which is exactly why it cannot bind variables, and why misusing it as a filter
+fails to compile rather than misbehaving at runtime.
+
 **Not in the Mercury tutorial.**
 
 ---

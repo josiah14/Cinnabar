@@ -58,7 +58,7 @@ main(!IO) :-
     ...test harness that prints expected output vs actual...
 ```
 
-The consistent format is valuable — learners know exactly what to expect. The test harness in `main` is self-checking; learners see PASS/FAIL at the bottom. This is good pedagogy. 
+The consistent format is valuable — learners know exactly what to expect. The test harness in `main` is self-checking; learners see PASS/FAIL at the bottom. This is good pedagogy.
 
 The main quality issue with katas is **no reference solution exists for any kata** except `concurrency/09-stm`. This means:
 - A learner who cannot solve a kata has no canonical answer to study.

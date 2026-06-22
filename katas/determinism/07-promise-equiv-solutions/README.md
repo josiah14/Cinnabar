@@ -1,5 +1,11 @@
 # Kata: `promise_equivalent_solutions` — two forms
 
+**Why Mercury:** in most languages determinism is a runtime property; in Mercury it is a
+compile-time contract. `promise_equivalent_solutions` is you signing that contract by
+hand — promising the compiler that a `cc_multi`/`cc_nondet` goal's solutions are
+observationally equivalent for the listed variables, so the goal may be treated as
+deterministic.
+
 ## Concept
 
 `promise_equivalent_solutions` suppresses `cc_multi` or `cc_nondet` propagation by

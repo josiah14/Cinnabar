@@ -146,3 +146,26 @@ refinement types or dependent types, but the decidability cost is higher.
 is never bound because the predicate never produces a solution. Mercury accepts
 this. `empty` is the identity of `choice_semidet` (analogous to `[]` for lists)
 and is included for algebraic completeness of the API.
+
+The body **must** be `fail`, and an empty fact body is *not* an equivalent
+Mercury idiom here — a tempting "cleanup" that does not compile:
+
+```mercury
+:- mode empty(out, in, out) is failure.
+empty(_, _, _).        % WRONG
+```
+
+A fact body asserts the predicate *succeeds*, which obliges it to bind the `out`
+argument. It doesn't, so mmc reports a mode error, not `failure`:
+
+```
+mode error: argument 2 did not get sufficiently instantiated.
+Final instantiatedness of `HeadVar__1' was `free',
+expected final instantiatedness was `ground'.
+```
+
+With the `fail` body there is no success path, so the unbound output is
+legitimate and the `is failure` determinism is satisfied. The `is failure`
+annotation is the Mercury innovation worth noticing; the `fail` goal in the body
+is what the mode checker requires to make it hold, not a Prolog vestige to be
+removed.

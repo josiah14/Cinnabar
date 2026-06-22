@@ -14,3 +14,7 @@ Each kata here has a specific Mercury or logic programming concept it is drillin
 - [**tooling/**](tooling/) — grades, mdb, profiling, tabling, testing, property-based testing.
 - [**concurrency/**](concurrency/) — parallel conjunction, threads, channels, deadlock, STM.
 - [**advanced/**](advanced/) — FFI, solver types, RTTI, memoization, abstract modules.
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

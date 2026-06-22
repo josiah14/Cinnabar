@@ -13,3 +13,7 @@ covers the tooling layer that most Mercury documentation assumes you already kno
 | `04-tabling/` | `pragma memo`, `pragma loop_check`, memoized Fibonacci |
 | `05-testing/` | assertion pattern with `check/2`, `check_equal/3`, `check_solutions/3` |
 | `06-property-testing/` | property-based testing: bounded generators, semidet properties, runner with `solutions/2` |
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

@@ -25,6 +25,10 @@ pure(V, V, S, S).
 
 :- pred empty(T, list(char), list(char)).
 :- mode empty(out, in, out) is failure.
+% A parser that never succeeds. The body must be `fail`, not an empty fact
+% body: with `is failure` there is no success path, so the `out` result is
+% legitimately never bound. An empty body `empty(_, _, _).` instead asserts the
+% predicate succeeds, leaving that output `free` — a mode error, not `failure`.
 empty(_, _, _) :- fail.
 
 :- pred item(char, list(char), list(char)).

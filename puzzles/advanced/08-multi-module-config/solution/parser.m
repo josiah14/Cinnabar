@@ -21,7 +21,12 @@
 :- import_module int, pair.
 
 parse(Lines, Result) :-
-    parse_acc(Lines, 1, [], Result).
+    parse_acc(Lines, 1, [], RevResult),
+    ( RevResult = ok(Rev) ->
+        Result = ok(list.reverse(Rev))
+    ;
+        RevResult = Result
+    ).
 
     % Accumulate key/value pairs in source order; stop at the first bad line.
 :- pred parse_acc(list(string)::in, int::in,
@@ -32,7 +37,7 @@ parse_acc([Line | Rest], LineNo, Acc, Result) :-
     ( if ( Stripped = "" ; string.prefix(Stripped, "#") ) then
         parse_acc(Rest, LineNo + 1, Acc, Result)
     else if split_kv(Line, Key, Val) then
-        parse_acc(Rest, LineNo + 1, Acc ++ [Key - Val], Result)
+        parse_acc(Rest, LineNo + 1, [Key - Val | Acc], Result)
     else
         Result = bad_line(LineNo, Stripped)
     ).

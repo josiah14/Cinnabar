@@ -2,6 +2,13 @@
 
 **After:** `katas/type-system/07-typeclass-design`
 
+**Why Mercury:** the `numeric` typeclass is a contract the compiler enforces from both
+sides. Every `instance numeric(int)` must supply *all* the declared methods or it is
+rejected; every call to `eval` must prove its element type satisfies the `<= numeric(N)`
+constraint or it will not compile. The hardcoded `int` evaluator becomes polymorphic
+without losing any checking — the abstraction is verified, not merely conventional, and
+the `rational` instance gains exact division with no change to `eval`'s code.
+
 `expr_eval.m` is a working expression evaluator over integer arithmetic. The numeric
 type is hardcoded as `int` throughout. The `env` type maps variable names to `int`.
 Operations like `+`, `-`, `*`, and `//` are all `int` operations.

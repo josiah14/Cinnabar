@@ -21,3 +21,7 @@ Both require the `.par` grade.
 | `09-stm/` | Software transactional memory: `stm_var`, `atomic_transaction`, `retry`, `or_else` |
 
 **Not in the Mercury tutorial.**
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

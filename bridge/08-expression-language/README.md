@@ -2,6 +2,14 @@
 
 **After:** `katas/parsing/02-dcg-goals` and `bridge/03-dcg-extend`
 
+**Why Mercury:** a recursive-descent grammar written as multiple DCG clauses is, to
+Mercury, a *nondeterministic* predicate — and the determinism checker says so out loud
+(`multi`/`nondet`). Turning it into a real single-parse recursive-descent parser means
+rewriting with if-then-else so each rule is `det` or `semidet`, and the compiler
+confirms you actually achieved that. Precedence and left-associativity are encoded in
+the grammar's structure; determinism analysis is what tells you whether that structure
+is unambiguous.
+
 `tokenizer.m` is a working lexer for arithmetic expressions. It converts a string
 like `"10 * 3 - 4"` into a list of tokens: `[int_tok(10), star, int_tok(3), minus, int_tok(4)]`.
 

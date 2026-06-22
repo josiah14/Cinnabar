@@ -1,238 +1,173 @@
-# Cinnabar review synthesis
+# Cinnabar quorum synthesis (2026-06-21)
 
-*Synthesized 2026-06-19 by Claude Opus 4.8 from three independent review passes:*
+*Synthesized by Big Pickle from four independent review passes:*
 
-- **Opus** (`OPUS-REVIEWS/`, 6 reviews) — Claude Opus 4.8, direct read of the current tree.
-- **Codex** (`CODEX-REVIEWS/`, 6 reviews) — line-cited, harshest grader.
-- **Ring** (`RING-REVIEWS/`, 5 reviews) — `inclusionai/ring-2.6-1t` via aider; most lenient.
+- **Big Pickle** (`QUORUM-REVIEWS/01-06`) — self-review, 7.5/10 overall.
+- **Codex** (`QUORUM-REVIEWS/CODEX-01-06`) — harshest grader, line-cited, 7/10 overall. Verified CI behavior directly (ran dev-shell CI).
+- **DeepSeek V4 Flash Free** (`QUORUM-REVIEWS/DEEPSEEK-01-06`) — most thorough code-quality analysis, 7.5/10 overall.
+- **Laguna M.1** (`QUORUM-REVIEWS/LAGUNA-01-06`) — most generous, 8/10 overall. Best coverage assessment.
 
-Ring did not produce a separate "idiomatic Mercury" review; it folded that into its
-code-quality and overall passes. Where the three disagree on a *technical* claim, I have
-re-derived the answer from Mercury semantics and the actual source, and the adjudication is
-in §3. **This synthesis supersedes any single review where they conflict.**
+**This is a NEW synthesis.** The earlier `SYNTHESIS.md` (2026-06-19, by Opus) adjudicated a different review set (Opus/Codex/Ring) and described a pre-fix state. The present document adjudicates the current 4-model quorum, which reviewed the post-fix tree — nearly all bugs from the earlier cycle are resolved.
 
 ---
 
 ## Scorecard
 
-| Dimension | Opus | Codex | Ring | Consensus |
-|---|---|---|---|---|
-| README quality | 6.5 | 6 | 8 | ~6.5 — strong prose, stale navigation |
-| Coverage — breadth | 8 | 8 | 7.5 | **8** |
-| Coverage — depth | 7.5 | 8 | 7.5 | ~7.5 |
-| Correctness | 7 | 6 | 7.5 | ~7 |
-| Code quality | 7 | 7 | 8 | ~7 |
-| Idiomatic Mercury | 7 | 7 | (n/a) | 7 |
-| Overall | 7 | 7 | 8 | **7** |
+| Dimension | Big Pickle | Codex | DeepSeek | Laguna | **Adjudicated** |
+|-----------|-----------|-------|----------|--------|-----------------|
+| README quality | 7.5/10 | 7/10 | 7/10 | 7.5/10 | **~7/10** |
+| Coverage breadth | 8/10 | 8/10 | 8/10 | 8.5/10 | **8/10** |
+| Coverage depth | 7.5/10 | 7.5/10 | 7/10 | 8/10 | **~7.5/10** |
+| Correctness | 7.5/10 | 6.5/10 | 8/10 | 8/10 | **7.5/10** |
+| Code quality | 8/10 | 7.5/10 | 7.5/10 | 8/10 | **~7.5/10** |
+| Idiomatic Mercury | 8/10 | 8/10 | 7.5/10 | 8/10 | **8/10** |
+| **Overall** | **7.5/10** | **7/10** | **7.5/10** | **8/10** | **~7.5/10** |
 
-**Calibration note.** Read the spread, not just the numbers. Ring is consistently the
-most generous and the least likely to catch a defect (it marked the entire bridge-11
-solution and sudoku's `solutions/2` usage as correct — both have real issues). Codex is the
-harshest and the most thorough on navigation/contracts, but it produced the one outright
-*incorrect* technical claim in the whole set (§3.1). Opus sits in the middle and caught the
-contract bugs Ring missed while rejecting the Codex error. **Treat consensus among all
-three as high-confidence; treat a lone Ring "looks correct" as weak evidence.**
+### Score adjudication notes
 
----
+- **Correctness (6.5–8 spread).** Codex's 6.5 is driven by a real CI bug (snapshot mismatch prints "PASS" — see §3.1). DeepSeek and Laguna score 8/10 for post-fix code state, treating CI as infrastructure not content. Ruling: 7.5/10 — CI is part of the deliverable; a gate that doesn't gate should be fixed, but it doesn't make the curriculum itself wrong.
 
-## 1. Consensus findings (all reviewers, or uncontested) — fix first
+- **Coverage depth (7–8).** DeepSeek's 7 is the outlier, driven by "plateau before fluency" in several tracks. Laguna's 8 credits the multi-module capstone, bridge 12, and koans 21–23. Ruling: 7.5/10 — the new additions close real gaps, but IO design patterns and mutable state remain uncovered.
 
-These appear in every relevant review or are uncontested and verified. Highest confidence.
-
-1. **Stale navigation / index drift (release blocker).** Track and category index READMEs
-   under-report the curriculum. Verified still-live: `katas/README.md` ("More tracks will
-   follow", 8 exist); type-system lists 5 of 10; parsing 3 of 9; mode-system omits 06–07;
-   determinism omits 04–06; foundations omits 10–11; `bridge/README.md` lists 4 of 11;
-   `puzzles/README.md` under-lists concurrent and advanced. (Root table, advanced,
-   concurrency, tooling indexes *are* current.) — *Opus, Codex, Ring.*
-
-2. **`COMPILER-LESSONS.md` is the project's signature asset — preserve and feature it.**
-   Singled out by Codex and Ring as the most valuable file; Opus concurs. Keep it linked
-   from the root README (it is). — *all three.*
-
-3. **The four-format arc + Mercury specificity is the core strength.** Kata → koan →
-   bridge → puzzle is pedagogically sound; modes/determinism/insts/committed-choice as
-   first-class topics is what distinguishes this from a generic exercise repo. Do not dilute
-   it during cleanup. — *all three.*
-
-4. **`FIX:` comments in reference solutions narrate edit history, not invariants.**
-   `calculator.m:18,28,40,…` (also `pipeline.m`). Rewrite as durable design reasons. — *Opus,
-   Codex, Ring (Ring called it "the single most problematic element").*
-
-5. **Track-level overviews are too thin.** foundations/determinism/concurrency/advanced
-   index READMEs are bare tables; add 2–3 sentences of arc per track. — *Opus, Codex, Ring.*
-
-6. **Solver types are the largest coverage gap (but honestly documented).** Now a real
-   declaration/mode exercise + koan, but still no runnable constraint store. A small
-   finite-domain engine would convert the one "about a feature" topic into hands-on
-   practice. — *all three; tracked in `CLP-PLAN.md`.*
+- **Code quality (7.5–8).** DeepSeek found more concrete issues in the combinator library (conflated error cases, dead output) than Big Pickle or Laguna accounted for. Ruling: 7.5/10 — DeepSeek's combinator analysis is the most thorough.
 
 ---
 
-## 2. Majority findings (2 of 3) — fix, medium-high confidence
+## 1. Consensus findings (all 4 reviewers, or uncontested)
 
-7. **Bridge 11 silently swallows read errors.** `read_lines` maps `error(_)` → `[]`, then
-   `load_users` returns `ok(...)`, contradicting the solution's own decision table that
-   chose `io.res` to carry the error. — *Opus + Codex caught it; **Ring marked the bridge-11
-   solution entirely correct** (a Ring miss). Verified real.*
+Highest confidence. Fix first.
 
-8. **Bridge 10 fan-in can lose work.** `dispatch` sends `no` to both workers; each forwards
-   `no` to the shared output; the unchanged writer stops at the first sentinel. "Total is
-   still correct" is not guaranteed. Task 4 supervisor is a stub ("would restart here"). —
-   *Opus + Codex; Ring did not review bridge 10 for correctness. Verified real.*
+1. **Mode + determinism tracks are best-in-class.** The inst hierarchy kata, clause selection kata, and determinism lattice kata form a progression no public Mercury resource attempts. This is the curriculum's crown jewel.
 
-9. **Existential-construction contradiction.** `plugins/solution/README.md` claims
-   existential packing "is not available from regular clause heads," but
-   `koans/advanced/02-existential-escape` teaches the `'new tagged'(...)` syntax that does
-   exactly that. The plugins example failed only because it used ordinary `plugin(upper)`.
-   — *Opus + Codex; Ring silent. Verified real.*
+2. **Koan format is innovative.** "One file, one diagnostic, one fix" across 76+ files. The `.err` snapshot verification (when git tracks them) is a genuine CI+pedagogy innovation.
 
-10. **`nondet_koan.m` has two flaws.** `all_factors` passes a `list(int)` where
-    `find_factor` expects an `int` — a type error that fires *before* the intended
-    determinism error, breaking the koan's "one diagnostic" rule. — *Opus + Codex; Ring
-    reviewed `01-det-mismatch` instead. Verified real.*
+3. **Multi-module capstone (puzzle 08) closes the biggest gap.** Five-module config library with opaque types, `use_module` vs `import_module`, and a clean DAG build. All reviewers agree this was the most significant missing piece.
 
-11. **Parsers manufacture `det` by swallowing invalid input.** `calculator.m` (`"1 @ 2"` →
-    `yes(1)`), `csv_reader.m` (failed row = EOF, remainder ignored), `config_parser.m`
-    (malformed lines dropped). Make the failure contract visible in the type/determinism, or
-    name+document the lenient behavior. — *Opus + Codex (this is Codex's and Opus's top
-    code/idiom item); Ring did not flag it.*
+4. **Bridge "Why Mercury" sections are inconsistent.** Bridges 01–03, 07–09, and 12 lack mechanism-specific framing. Bridge 05 is the exemplar — every bridge should name the checked property.
 
-12. **`sudoku.m` collects all solutions to use the first.** `solutions(solve(P), [S|_])` —
-    use committed choice for first-solution search (contrast `nqueens.m`, which legitimately
-    needs the full list). — *Opus + Codex; **Ring marked it "correct."***
+5. **Root README "any order" claim is misleading.** "Tooling, Concurrency, and Advanced can be taken in any order" ignores that solver types need FFI, concurrency needs determinism, and the advanced track has internal ordering. Fix: replace with concrete sub-path recommendations.
 
-13. **`many`/`many_p` lack a progress invariant.** A semidet parser that succeeds without
-    consuming input loops forever. Document/enforce "must consume on success." — *Opus +
-    Codex; Ring marked combinators fine.*
+6. **`combinators.m:28` — `fail` for `failure` is a Prolog-ism.** `empty(_, _, _) :- fail.` should use `is failure` determinism with an empty body. The `fail` goal teaches the wrong lesson in a resource that should demonstrate Mercury's determinism system.
 
-14. **`memoized_search.m` magic `999999` seed + genuinely unused `maybe` import.** Seed from
-    the first solution or fold to `maybe(pair(...))`. — *Opus + Codex + Ring (unused import).*
+7. **Function/predicate balance is skewed.** The curriculum is predicate-heavy. Learners practice the clunky form and may not internalize when functions are better. Bridge 12 (currying) is the exception.
 
-15. **`stats_pipeline.m`: non-minimal `cc_multi` main + "unique state" overstatement.** Use
-    the `det` main + `promise_equivalent_solutions [!:IO]` pattern from `pipeline.m`; the
-    count/sum/max triple is immutable threading, not mode-enforced `di`/`uo` uniqueness. —
-    *Opus + Codex.*
+8. **Bridge 10 acceptance criteria underspecified.** The puzzle README uses both "at-least-once" and "lost-work" semantics without choosing one. The solution admits lost work. State the trade-off explicitly.
 
-16. **Puzzles that hand over the full implementation.** `puzzles/concurrent/02-pipeline`
-    prints all three stages in the prompt → transcription, not design. — *Opus + Codex.*
+9. **Bridge solution convention is the weakest structural decision.** The `ci.sh` snippet extraction (§6) is a clever patch but not a durable solution: it fails on fragment snippets, incomplete import heuristics (Bridge 12 `float`), and missing blocks count verification.
 
-17. **Prerequisite notation is inconsistent and one link is broken.** `Prerequisites:` /
-    `After:` / `Requires:` used interchangeably; `bridge/README.md:25` points to
-    `katas/foundations/07-io-error-handling` which is actually `07-exceptions`. — *Opus
-    (broken link) + Ring (notation). Verified.*
+10. **CI provides index integrity and compilation gates.** `check_index()` catches directory drift. Compilation gates prevent the worst rot. This is a genuine improvement over the pre-CI state.
 
 ---
 
-## 3. Contested / adjudicated — read the ruling, not the loudest reviewer
+## 2. Majority findings (3 of 4, or strong 2)
 
-### 3.1 `solutions/2` "sorts and removes duplicates" — **Codex is WRONG; the doc is correct**
+Medium-high confidence.
 
-`koans/determinism/02-nondet-in-det/solution/README.md` says `solutions/2` returns a sorted
-list with duplicates removed. Codex flagged this as a technical error ("can't sort an
-unorderable type"). **That is the one outright-incorrect claim across all 17 reviews.**
-Mercury has a *universal standard order of terms* (builtin `compare/3`, defined for every
-type via RTTI), and `solutions/2` is documented to return sorted, de-duplicated results —
-which is precisely why `unsorted_solutions/2` exists separately. **Ruling: leave the doc as
-is.** (Optional: add a pointer to `unsorted_solutions/2` as the order-preserving variant.)
-Do **not** apply Codex's recommended fix — it would introduce an error.
+11. **Reactivation sub-katas 02–07 lack individual READMEs.** `01-hello-world` has one; `02-maybe` through `07-*` have at most a line in the parent README. (BP, DS, Laguna flag this; Codex silent.)
 
-### 3.2 Bidirectional-search if-then-else determinism explanation — **misleading; fix**
+12. **`.err` diagnostic snapshots are fragile to compiler version changes.** No compiler-version pinning. A different `mmc` version may change error message text. (DS, Laguna; BP silent, Codex flags CI handling not versioning.)
 
-`puzzles/advanced/03-bidirectional-search/solution/README.md` claims a nondet generator in
-an if-then-else condition makes the predicate `nondet` because nondet "propagates upward
-before committed-choice reduction." Opus says this contradicts Mercury's semantics (the
-condition is a single-solution/soft-cut context, so the construct is *semidet*); Ring
-reached the same suspicion but never committed; Codex flagged it but with a muddled
-`cc_*`-effect rationale. **Ruling: the explanation is misleading and should be reworded** to
-Mercury's commit-on-condition rule — but **confirm against `mmc` first**, since determinism
-edge cases deserve a compiler check before rewording. The recursive-scan source is fine
-either way.
+13. **Generic printer `canonicalize` erasure is undocumented.** `yes(yes(42))` prints as `yes/1`, not `yes(yes(42))/1`. The solution does not explain this. (Laguna, DS; BP silent.)
 
-### 3.3 Bridge 05 `(out,out) is nondet` explanation — **imprecise; tighten**
+14. **Meta-interpreter freshness: depth version as on-ramp still lacks concrete failure demo.** The counter-based fix is implemented and verified, but the puzzle README still presents the depth version as the starting point without a test that demonstrably fails because of it. (Laguna, BP; Codex rates fix sound.)
 
-Opus and Codex find "the set is infinite, so there's no finite way to enumerate it" and "a
-nondet mode is not the same logical object" misleading (infinite nondet generation is
-normal; determinism is a property of a calling mode, not the relation). **Ring explicitly
-marked this explanation correct.** **Ruling: tighten it** — the real points are (a) an
-unbounded generator needs a deliberate enumeration order, and (b) `promise_equivalent_clauses`
-requires proving relation equivalence. Lower priority than §3.2.
+15. **Parser quadratic append.** `parser.m:28-35` uses `Acc ++ [Key - Val]` — should use `[Key - Val | Acc]` with final reverse. (Codex, DS; BP/Laguna silent.)
 
-### 3.4 Unused imports — **Codex/Ring over-flagged; only three are real**
-
-Codex and Ring listed `list`/`string` unused in the concurrent pipelines and `string`
-unused in `crypto.m`. **Those are wrong** — all are used by `io.format` (`[...]` needs
-`list`; `i()`/`s()` need `string`). **Ruling: the only confirmed unused imports are `maybe`
-in `memoized_search.m` and `char` in `anagrams.m` and `csv_reader.m`.** Add a *tool-driven*
-unused-import check rather than working from the review lists.
-
-### 3.5 Overall severity — **Codex over-weights, Ring under-weights**
-
-Codex's 6/10s treat the navigation + contract issues as nearly disqualifying; Ring's 8/10s
-under-weight real bugs it missed. **Ruling: ~7/10 overall** — a strong curriculum with a
-short, concrete blocker list, not a troubled one.
+16. **Kata READMEs lack "Why Mercury" framing.** Determinism katas are the biggest miss: "In most languages determinism is a runtime property; in Mercury it is a compile-time contract" should be the first sentence. (DS, BP; Codex flags it narrower.)
 
 ---
 
-## 4. Already addressed — do NOT re-action
+## 3. Contested findings — adjudicated
 
-Several review items predate recent edits and are already fixed; re-doing them wastes effort:
+### 3.1 CI snapshot mismatch does NOT fail CI — **Codex is CORRECT; fix this**
 
-- `combinators.m` `choice_det` now carries a comment explaining `Q` is unreachable. *(Codex/Ring
-  flagged the missing explanation.)*
-- `sudoku.m` `get_nth` now has a comment documenting the out-of-bounds safety precondition.
-  *(Extend to `set_cell`/`set_nth`/`get_row` — those are still bare.)*
-- `parallel_sort.m`'s "unreachable" merge branch now has an explanatory comment.
-- `puzzles/concurrent/02-pipeline` "Why Mercury" was rewritten to be specific (`!IO`
-  uniqueness, `channel(T)`, `maybe` sentinel) — addresses the earlier "too generic" note.
-- `csv_reader.m` strip-policy now has a good design comment (the *failure* contract still needs one).
-- Root README track table counts are accurate; advanced/concurrency/tooling indexes are current.
-- `katas/advanced/02-solver-types` rewritten from reference-only to a working exercise + koan.
+`ci.sh:66-74` prints `PASS (broke, diagnostic differs ...)` and still increments `pass`. Codex labels this P1; I (Big Pickle) confirm the code. DeepSeek and Laguna did not flag it — a miss. **Ruling: the snapshot mismatch should increment `fail`, not `pass`.** This undermines the claim that CI verifies diagnostic output.
 
----
+### 3.2 `.gitignore` `!**/solution/*.err` is too broad — **Codex is correct; narrow it**
 
-## 5. Single-reviewer findings worth keeping
+The negation rule un-ignores all `solution/*.err` files, exposing transient compiler logs. `compile_fail` only reads `$dir/$module.err` for koan files (never in `solution/`), so the broad exception is unnecessary. **Ruling: narrow to `!**/*_koan.err` only.** Remove the `!**/solution/*.err` line unless a concrete need for solution `.err` snapshots arises.
 
-- **Coverage gaps beyond solver types** (Opus + Ring): no multi-module capstone; partial
-  application/currying and impure-predicate *design* are thin. (Ring's list; Opus seconds the
-  capstone.) Lower priority than the blockers.
-- **"Any order after the core" is too loose** (Opus + Codex): solver kata needs FFI + trailing
-  grade; recommend explicit subpaths.
-- **Reactivation front-loads `06-pure-randomness`** (mutables/impurity/FFI) before Foundations
-  teaches modules/IO — mark "advanced recall; defer" (Opus + Codex).
-- **`meta_interp.m` terse names** (`a`/`n`/`f`/`v`/`c`, `rename_2`, `apply_env_f`) for code
-  learners extend (Opus + Codex).
-- **Wanted: a concurrency bridge and a tooling-track narrative** (Ring).
-- **STM kata lists no prerequisites in its own README** though the track README does (Ring).
+### 3.3 Bridge 12 snippet CI failures — **DeepSeek is correct; fix CI imports**
+
+Bridge 12's `mercury` code blocks fail `ci.sh §6` because the heuristic import set omits `float`. The TODO acknowledges this as "known broken gate." **Ruling: expand the heuristic import set** to cover all library modules used in bridge snippets. The lazy option: `io, int, string, list, maybe, char, bool, exception, require, float, map, set, version_array, channel, thread, thread.semaphore, univ, unit` covers every known bridge. Better option: auto-detect imports from `:- import_module` declarations in the snippet content (the code already tries this — fix the fallback).
+
+### 3.4 Bridge 10 "at-least-once vs lost-work" — **Big Pickle + Laguna are correct; it's still underspecified**
+
+The solution was fixed (real restart loop, sentinel counting), but the README still uses both phrases without choosing. DeepSeek also flags this. **Ruling: the puzzle README should state "lost-work semantics (items in flight when a worker crashes are not retried)."**
+
+### 3.5 Templated error message quoting — **Laguna is correct; verify and fix**
+
+Laguna notes that koan READMEs quote compiler output from memory rather than verbatim transcripts. Small wording differences between Mercury versions could produce false mismatches. **Ruling: re-verify error messages against the actual `mmc` in the nix dev shell** and update any paraphrased quotes to verbatim. This is a `[User]` task (needs `nix develop` access).
 
 ---
 
-## 6. Prioritized action backlog
+## 4. What each reviewer missed
 
-**P0 — release blockers (trust + navigation):**
-1. Complete every stale index; fix the `07-io-error-handling`→`07-exceptions` link and the
-   root bridge-02 mislabel ("Channel-based concurrent pipelines" → sequential grouping); add
-   a CI path/count check. (§1.1, §2.17)
-2. Enable CI authoritatively (the workflow is `if: false`) and retire/mark-historical the
-   stale `REVIEW.md` ("7 of 41 compile"). Add per-koan expected-diagnostic checks.
-3. Fix the four real contract/teaching bugs: bridge 11 read-error propagation (§2.7), bridge
-   10 fan-in (§2.8), existential contradiction (§2.9), `nondet_koan.m` double-flaw (§2.10).
+### Big Pickle missed
+- CI snapshot mismatch not failing CI (Codex caught it; I should have caught my own CI code).
+- Broad `.gitignore` solution exception polluting worktree (Codex).
+- Parser quadratic append (Codex).
+- TEMPLATES.md not linked from READMEs (Laguna).
+- Error-message quoting is paraphrased (Laguna).
 
-**P1 — correctness of reference material:**
-4. Reword the bidirectional (§3.2, after `mmc` check) and bridge-05 (§3.3) determinism notes.
-5. Fix the parser failure contracts (calculator/CSV/config) and sudoku's collect-all (§2.11–12).
-6. Document/enforce `many`/`many_p` progress (§2.13); fix `memoized_search` seed (§2.14);
-   make `stats_pipeline` entry-point determinism consistent (§2.15).
-7. **Do NOT touch the `solutions/2` note (§3.1).**
+### Codex missed
+- Root puzzle index logic row is **already fixed** (claimed P2, but the README now includes it).
+- Bridge 10 acceptance criteria still ambiguous (did not re-check after fix pass).
+- Reactivation sub-katas lack individual READMEs (DeepSeek).
+- Kata "Why Mercury" framing absent (DeepSeek).
+- `.err` fragility to compiler version (DeepSeek, Laguna).
 
-**P2 — polish:**
-8. Rewrite `FIX:` comments as invariants (§1.4); expand track overviews (§1.5); standardize
-   prerequisite notation; add expected-output to more exercises; demote in-prompt full
-   implementations to hints (§2.16).
-9. Tool-driven unused-import pass (real targets: `maybe`/memoized_search, `char`/anagrams,
-   `char`/csv_reader — §3.4); finish documenting sudoku's unsafe index helpers.
-10. Per-format README template; meta-interpreter naming; "any order" subpaths; reactivation
-    ordering.
+### DeepSeek missed
+- CI snapshot mismatch not failing CI (Codex).
+- `.gitignore` solution `.err` broadness (Codex).
+- Generic printer `canonicalize` erasure undocumented (Laguna).
+- TEMPLATES.md not linked (Laguna).
 
-**P3 — scope expansion (post-release):**
-11. Finite-domain solver engine (`CLP-PLAN.md`); multi-module capstone; concurrency bridge.
+### Laguna missed
+- CI snapshot mismatch not failing CI (Codex).
+- `.gitignore` solution `.err` broadness (Codex).
+- Bridge 12 snippet CI failures (DeepSeek — Laguna said "all 12 bridges pass," which is wrong for the snippet check).
+- Parser quadratic append (Codex).
+- Reactivation sub-katas lack individual READMEs (DeepSeek).
+
+---
+
+## 5. Calibration notes
+
+- **Codex** is the most valuable reviewer for CI correctness and git hygiene. Its 6.5/10 correctness score over-weighs infrastructure bugs that do not affect curriculum content, but the individual findings are real.
+- **DeepSeek** is the most valuable for code quality and idiomatic Mercury. Its combinator library analysis is the most thorough. It is less reliable on README polish items (over-weights reactivation sub-katas).
+- **Laguna** is the most generous scorer and the best reviewer of coverage. Its 8/10 reflects genuine improvements but under-weights the CI and code-quality issues that Codex and DeepSeek found.
+- **Big Pickle** (self-review) sits in the middle. Most accurate on the curriculum's pedagogical structure; weakest on CI implementation details (should have caught the snapshot bug).
+
+---
+
+## 6. Priority action backlog
+
+### P0 — trust (CI + navigation)
+1. **Fix CI snapshot mismatch to FAIL.** Change `ci.sh:66-74` so diagnostic difference increments `fail` and appends to `failures`. Either regenerate stale snapshots or remove the check. *(Codex P1 → P0; §3.1)*
+2. **Fix Bridge 12 snippet CI failures.** Expand heuristic import set to cover `float` (and any other missing module). Verify all 12 bridges pass `ci.sh §6` cleanly. *(DeepSeek P0; §3.3)*
+3. **Narrow `.gitignore` `!**/solution/*.err`** to `!**/*_koan.err` only. *(Codex P1; §3.2)*
+4. **Enable CI workflow** (`[User]` — needs SSH/mise wiring). *(Carried from old TODO.)*
+
+### P1 — correctness + documentation
+5. **Bridge "Why Mercury" sections for 01–03, 07–09, 12.** Every bridge should name the checked property. Follow bridge 05's format. *(All 4; §1.4)*
+6. **Root README "any order" → sub-path recommendations.** Replace line 27 with concrete ordering. *(All 4; §1.5)*
+7. **Reactivation sub-katas 02–07: add individual READMEs.** Each needs a 5-minute one-pager. *(DeepSeek P1; §2.11)*
+8. **Bridge 10 README: choose "lost-work" semantics explicitly.** *(BP + Laguna; §3.4)*
+9. **Verify and fix error-message quoting in koan READMEs** against actual `mmc` output. *(Laguna; §3.5)*
+
+### P2 — polish
+10. **Link TEMPLATES.md from track/format READMEs.** *(Laguna; §1.9)*
+11. **Fix parser quadratic append.** `parser.m:28-35`: `[Key - Val | Acc]` + final reverse. *(Codex; §2.15)*
+12. **Document generic printer `canonicalize` erasure** in solution README. *(Laguna; §2.13)*
+13. **Add concrete failure demo for meta-interpreter depth version** (or rename on-ramp to counter version). *(Laguna; §2.14)*
+14. **Add kata "Why Mercury" framing** to determinism katas (at minimum). *(DeepSeek; §2.16)*
+
+### P3 — scope expansion (post-release)
+15. **Function-vs-predicate kata or bridge.** *(DeepSeek, Laguna)*
+16. **IO design patterns kata** (file I/O, `io.res`, reading lines). *(DeepSeek)*
+17. **Mutable state kata** (`store`/`store_mutvar`/`io.mutvar`). *(DeepSeek, Laguna)*
+18. **Solver types / CLP** — tracked in `CLP-PLAN.md`. *(Carried from old TODO.)*
+
+### Advisory (no effort required)
+19. **DO NOT touch `solutions/2` sort/dedup note** — Codex's earlier flagged "fix" is incorrect; Mercury's universal term order guarantees sorted, deduplicated results. *(Old TODO, reaffirmed.)*

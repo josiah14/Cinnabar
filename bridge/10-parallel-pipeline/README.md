@@ -90,6 +90,15 @@ To simulate failure: add a case in the transformer that throws a `software_error
 when it sees an item divisible by 7. The supervisor catches this and restarts,
 skipping the failing item.
 
+**Delivery semantics: this is lost-work, not at-least-once.** The item in flight when
+a worker crashes is *not* retried — it was already taken from the input channel before
+the `throw` fired, so the re-spawned transformer resumes on the *next* item and the bad
+one is dropped. Output produced before the crash stays on the output channel and is
+counted. Do not design for an at-least-once guarantee here; achieving one would mean
+re-enqueuing the in-flight item before throwing, which this exercise deliberately does
+not do. See `solution/README.md` Task 4 for why the skip falls out of the channel
+take/throw ordering.
+
 Use `exception.try` inside the transformer's main loop to catch exceptions and
 report them to the supervisor channel.
 

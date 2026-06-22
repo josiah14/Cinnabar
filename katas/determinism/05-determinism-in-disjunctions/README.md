@@ -3,6 +3,11 @@
 **Concept:** the determinism lattice, how Mercury combines determinisms across disjunction
 branches using least upper bound (lub)
 
+**Why Mercury:** in most languages determinism is a runtime property; in Mercury it is a
+compile-time contract. A disjunction's determinism is computed, not assumed: the compiler
+takes the least upper bound of the branches, so the contract for the whole follows
+mechanically from the contracts of its parts.
+
 **Not in the Mercury tutorial.**
 
 ---

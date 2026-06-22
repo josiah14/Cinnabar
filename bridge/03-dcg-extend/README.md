@@ -2,6 +2,14 @@
 
 **After:** `katas/parsing/01-dcg-basics`
 
+**Why Mercury:** a DCG rule is sugar for a predicate that threads the input as two
+hidden difference-list arguments, and Mercury type- and determinism-checks the result
+like any other predicate. Adding a `caret` or `float_tok` constructor to your `token`
+type forces every rule that pattern-matches tokens to stay exhaustive, and the
+determinism of each rule (does it commit, can it backtrack?) is a checked property —
+so "rule ordering matters, first match wins" is something the compiler's determinism
+analysis makes precise rather than a convention you hope holds.
+
 `tokenizer.m` is a working tokenizer for a simple expression language. It handles integers
 and four operators (`+`, `-`, `*`, `/`). It tokenizes a string into a `list(token)`.
 

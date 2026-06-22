@@ -17,3 +17,7 @@ string parsing.
 | `09-dcg-desugar/` | What `-->` compiles to; implementing a DCG desugarer |
 
 **Not in the Mercury tutorial.**
+
+---
+
+**Adding a kata?** See [`docs/TEMPLATES.md`](../../docs/TEMPLATES.md) for the canonical section order (the *Kata* template).

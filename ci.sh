@@ -65,13 +65,16 @@ compile_fail() {
         done <<< "$expected"
         if $all_found; then
             echo "  PASS (broke as expected, diagnostic confirmed): $label"
+            ((pass++))
         else
-            echo "  PASS (broke, diagnostic differs — update ${err_file#"$CINNABAR/"}): $label"
+            echo "  FAIL (broke, diagnostic differs — update ${err_file#"$CINNABAR/"}): $label"
+            ((fail++))
+            failures+=("diagnostic mismatch: $label")
         fi
     else
         echo "  PASS (broke as expected): $label"
+        ((pass++))
     fi
-    ((pass++))
 }
 
 compile_pass() {
@@ -234,7 +237,7 @@ cleanup_bridge() { rm -rf "$BRIDGE_TMPDIR"; }
 trap cleanup_bridge EXIT
 
 # Common imports for bridge snippet compilation
-BRIDGE_STD_IMPORTS="io, int, string, list, maybe, char, bool, exception, require"
+BRIDGE_STD_IMPORTS="io, int, string, list, maybe, char, bool, exception, require, float"
 BRIDGE_CONCUR_IMPORTS="$BRIDGE_STD_IMPORTS, channel, thread, thread.semaphore, univ, unit"
 
 while IFS= read -r -d '' readme; do
@@ -269,8 +272,12 @@ while IFS= read -r -d '' readme; do
         if [[ "$line_count" -lt 3 ]]; then continue; fi
         if ! echo "$content" | grep -qE '^\s*:- (pred|func|type|import_module)'; then continue; fi
 
-        # Determine imports
-        block_imports="$(echo "$content" | grep '^\s*:- import_module' | sed 's/.*:- import_module *//;s/%%.*//' | tr '\n' ',' | sed 's/,$//')"
+        # Determine imports. Strip the `:- import_module` prefix, any trailing
+        # `% comment`, and — crucially — the statement-terminating `.` (keeping
+        # internal submodule dots like `thread.semaphore`). Without the final-dot
+        # strip, `:- import_module map.` yields `map.` and the wrapper emits
+        # `import_module …, map..`, a double-dot that breaks parsing.
+        block_imports="$(echo "$content" | grep '^\s*:- import_module' | sed 's/.*:- import_module *//;s/%.*//;s/\.[[:space:]]*$//;s/[[:space:]]*$//' | tr '\n' ',' | sed 's/,$//')"
         if [[ -n "$block_imports" ]]; then
             combined_imports="io, int, string, list, maybe, $block_imports"
             content="$(echo "$content" | grep -v '^\s*:- import_module')"
@@ -298,7 +305,16 @@ MODEOF
         (
             cd "$BRIDGE_TMPDIR"
             rm -rf Mercury/
-            mmc --make --errorcheck-only --grade "$GRADE" "$module_name" > "$MMC_OUT" 2>&1
+            # These blocks are *fragments* of each bridge's program: they freely
+            # reference types/predicates defined in the bridge's starter .m
+            # (`config`, `expr`, `user`, …), so they cannot be fully type-checked
+            # in isolation. `--make-short-interface` parses the block and checks
+            # declaration well-formedness (syntax, mode/pred decls) without
+            # resolving external types — the actual "syntax-check" this section
+            # claims. (Note: `--make --errorcheck-only` is rejected by mmc as a
+            # conflicting combination, so neither `--make` nor a full semantic
+            # pass is usable here.)
+            mmc --make-short-interface --grade "$GRADE" "$module_name" > "$MMC_OUT" 2>&1
         )
         code=$?
         if [[ $code -eq 0 ]]; then

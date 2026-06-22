@@ -3,6 +3,11 @@
 **Concept:** `require_complete_switch`, `require_det`, `require_switch_arms_det`,
 using compiler-enforced exhaustiveness as a safety net
 
+**Why Mercury:** in most languages determinism is a runtime property; in Mercury it is a
+compile-time contract. These scope annotations let you tighten that contract locally —
+asking the compiler to *prove* a switch is complete or a goal is `det`, and to fail the
+build the moment it is not.
+
 **Not in the Mercury tutorial.**
 
 ---

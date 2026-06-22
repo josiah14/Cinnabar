@@ -2,6 +2,13 @@
 
 **After:** `katas/foundations/02-maybe`
 
+**Why Mercury:** in most languages an absent value is `null` — indistinguishable
+from a present one until it crashes at the point of use. Mercury's `maybe(T)` is a
+discriminated union (`no ; yes(T)`), and the determinism checker forces every use to
+deconstruct both `yes(X)` and `no` before it can reach the value inside. "Missing"
+and "invalid" become distinct, compiler-tracked states rather than a single `null`
+you hope to remember to check.
+
 `config_reader.m` is a working config reader. It:
 - Defines a `config` record with `host :: maybe(string)` and `port :: maybe(int)`
 - Reads from a hardcoded association list

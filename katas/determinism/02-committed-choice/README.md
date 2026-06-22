@@ -3,6 +3,11 @@
 **Concept:** committed-choice nondeterminism, `cc_multi`/`cc_nondet` determinism categories,
 `promise_equivalent_solutions`, `main/2` as `cc_multi`
 
+**Why Mercury:** in most languages determinism is a runtime property; in Mercury it is a
+compile-time contract. Committed choice is where you tell that contract "one solution is
+enough" — `cc_multi`/`cc_nondet` let the compiler discharge a multi-solution goal in a
+deterministic context without quietly dropping the guarantee.
+
 **Not in the Mercury tutorial.**
 
 ---

@@ -1,6 +1,6 @@
 {
   inputs = {
-    mise.url = "git+ssh://git@github.com/josiah14/mise.git";
+    mise.url = "git+https://github.com/josiah14/mise.git";
   };
 
   outputs = { self, mise }:

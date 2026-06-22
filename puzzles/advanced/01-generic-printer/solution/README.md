@@ -22,3 +22,19 @@ user-facing display.
 it represents `[1,2,3]` as `'[|]'(1, '[|]'(2, '[|]'(3, '[]')))` consistently.
 The alternative `include_details_cc` gives more information for debugging but is
 `cc_multi` rather than `det`.
+
+## Type-name erasure: why `yes(yes(42))` prints as `yes/1`, not `maybe`
+
+`deconstruct` hands back the *constructor's* functor name and arity — and nothing
+about the *type* that constructor belongs to. Deconstructing `yes(yes(42))` yields
+`Functor = "yes"`, `Arity = 1`; the fact that this value has type `maybe(maybe(int))`
+is gone. In functor/arity notation the printer is working from `yes/1`, never from
+`maybe`.
+
+This is why the printer can be type-agnostic in the first place — but it has a real
+consequence: two constructors from *different* types that happen to share a name and
+arity deconstruct identically and print identically. The printed tree shows you the
+constructor skeleton, not the static type. If you need the type name, that is what
+`type_of`/`type_name` are for (`katas/advanced/03-rtti`); `deconstruct` alone will not
+recover it. `canonicalize` is the flag that opts into this normalized, type-name-erased
+view — `include_details_cc` carries more, at the cost of `cc_multi`.

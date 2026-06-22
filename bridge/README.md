@@ -22,7 +22,7 @@ blank-page friction: you already have a structure to work within and extend.
 | 01 | `01-maybe-extend` | `maybe`, chaining, validation | `katas/foundations/02-maybe` |
 | 02 | `02-pipeline-extend` | higher-order, `map`, grouping | `katas/foundations/04-higher-order` |
 | 03 | `03-dcg-extend` | DCGs, tokenizers, grammar extension | `katas/parsing/01-dcg-basics` |
-| 04 | `04-determinism-ratchet` | determinism annotations, committed choice, `cc_multi`/`cc_nondet` | `katas/determinism/02-committed-choice` |
+| 04 | `04-determinism-ratchet` | first solution of a `nondet` goal: `solutions`/`find_first_match`/`cc_multi`, committed choice | `katas/determinism/02-committed-choice` |
 | 05 | `05-mode-reversal` | multi-mode predicates, `promise_equivalent_clauses` | `katas/mode-system/02-multi-mode` |
 | 06 | `06-pipeline-parameterization` | higher-order insts, `pred` type annotations | `katas/foundations/04-higher-order` |
 | 07 | `07-parser-hardening` | error handling, `maybe`, `io.res`, CSV parsing | `katas/parsing/03-parsing-utils`, `puzzles/parsing/02-csv-reader` |
@@ -31,3 +31,7 @@ blank-page friction: you already have a structure to work within and extend.
 | 10 | `10-parallel-pipeline` | `thread.spawn`, channels, fan-out/fan-in, `maybe` sentinel | `katas/concurrency/02-threads`, `puzzles/concurrent/02-pipeline` |
 | 11 | `11-error-handling` | `maybe`, custom error types, `io.res`, exceptions | `katas/foundations/02-maybe`, `katas/foundations/07-exceptions` |
 | 12 | `12-currying-and-impurity` | partial application, currying, `impure`/`semipure`, `promise_pure` | `katas/foundations/04-higher-order`, `katas/foundations/00-reactivation/06-pure-randomness` |
+
+---
+
+**Adding a bridge?** See [`docs/TEMPLATES.md`](../docs/TEMPLATES.md) for the canonical section order (the *Bridge* template).
