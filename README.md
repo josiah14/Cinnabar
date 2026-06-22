@@ -1,6 +1,6 @@
 # Cinnabar
 
-This is a personal fork of the [Cinnabar](https://github.com/josiah14-language-learning/Cinnabar) curriculum, maintained while working through the exercises. It serves three purposes:
+This is a personal fork of the [Cinnabar](https://github.com/josiah14-language-learning/Cinnabar) curriculum (which I created and maintain), kept here while working through the exercises. It serves three purposes:
 
 1. **Learning** — working through each kata, koan, bridge, and puzzle to build Mercury fluency.
 2. **Testing and polishing** — exercising each problem to refine it based on firsthand experience as a learner.
