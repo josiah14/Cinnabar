@@ -1,5 +1,11 @@
 # Cinnabar
 
+This is a personal fork of the [Cinnabar](https://github.com/josiah14-language-learning/Cinnabar) curriculum, maintained while working through the exercises. It serves three purposes:
+
+1. **Learning** — working through each kata, koan, bridge, and puzzle to build Mercury fluency.
+2. **Testing and polishing** — exercising each problem to refine it based on firsthand experience as a learner.
+3. **Reference** — providing a complete, worked-through example of the curriculum for other learners and educators.
+
 > **Pre-alpha work in progress.** This is an AI-assisted ("vibe-coded") curriculum I am building for my own path from the Mercury tutorial toward practical fluency. It is public to document the process and invite corrections, not yet as a polished or authoritative learning resource.
 >
 > You are welcome to use the curriculum as it is, adapt it for your own learning, and contribute corrections or exercises. Expect incomplete material, changing structure, and occasional technical mistakes; verify examples against the nix devShell's installed Mercury version provided by instantiating the flake.nix using `nix develop`.
