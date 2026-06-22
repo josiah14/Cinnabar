@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "=== Compiling..."
-mmc --make --grade asm_fast.par.gc.stseg hello 2>&1 || { echo "COMPILE FAILED"; exit 1; }
-echo "=== Running..."
-output=$(./hello 2>&1)
+
+# exit code meanings:
+# 0 = all tests succeeded
+# 1 = hello_sugar compiled but did not match expected output, hello_desugared succeeded
+# 3 = hello_sugar succeeded, hello_desugared compiled but did not match expected output
+# 4 = hello_sugar and hello_desugared both compiled, but both did not match expected output.
+# -5 = hello_sugar failed to compile, hello_desugared succeeded
+# -9 = hello_sugar compiled but did not match expected output, hello_desugared failed to compile
+# -10 = hello_sugar succeeded, hello_desugared failed to compile
+# -15 = hello_sugar and hello_desugared both failed to compile
+EXIT_CODE=0
+echo "=== Compiling the ! sugar version..."
+mmc --make --grade asm_fast.par.gc.stseg hello_sugar 2>&1 || { echo "COMPILE FAILED"; EXIT_CODE=-5; }
+echo "=== Running the ! sugar version..."
+output=$(./hello_sugar 2>&1)
 echo "$output"
 
 expected="Hello, World!
@@ -13,10 +24,38 @@ IO token threaded: write_string 3"
 
 echo ""
 if [ "$output" = "$expected" ]; then
-    echo "All tests PASSED."
+    echo "Sugar tests PASSED."
 else
     echo "FAIL: output does not match the expected four lines."
+    echo "--- actual ---"
+    echo "$output"
     echo "--- expected ---"
     echo "$expected"
-    exit 1
+    EXIT_CODE=1
 fi
+
+echo "=== Compiling the ! desugared version..."
+mmc --make --grade asm_fast.par.gc.stseg hello_desugared 2>&1 || { echo "COMPILE FAILED"; EXIT_CODE=$((EXIT_CODE - 10)); }
+echo "=== Running the ! desugared version..."
+output=$(./hello_desugared 2>&1)
+echo "$output"
+
+expected="Hello, World!
+Hello, Mercury!!
+IO token threaded: write_string 2
+IO token threaded: write_string 3"
+
+echo ""
+if [ "$output" = "$expected" ]; then
+    echo "Desugared tests PASSED."
+else
+    echo "FAIL: output does not match the expected four lines."
+    echo "--- actual ---"
+    echo "$output"
+    echo "--- expected ---"
+    echo "$expected"
+    EXIT_CODE=$((EXIT_CODE + 3))
+fi
+
+exit $EXIT_CODE
+
