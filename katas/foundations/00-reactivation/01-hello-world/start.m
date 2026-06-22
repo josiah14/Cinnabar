@@ -16,4 +16,4 @@
 % idiomatic ways — explicit (IO0, IO1, IO2, ...) or the !IO sugar. Try both.
 % This starter prints only the first line.
 main(!IO) :-
-    io.write_string("Hello, World!\n", !IO).
+    io.write_string("", !IO).

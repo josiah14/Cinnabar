@@ -32,6 +32,9 @@ fixed.c
 # All module names in this repo are listed below.
 # Kata executables (all named 'start')
 start
+# Custom solution executables
+start_bang
+start_explicit
 # Bridge starters and helpers
 config_reader
 convert

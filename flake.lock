@@ -11,11 +11,11 @@
         "rev": "a94c0af9dba8be9f26915e701313721af4da59bb",
         "revCount": 5,
         "type": "git",
-        "url": "ssh://git@github.com/josiah14/mise.git"
+        "url": "https://github.com/josiah14/mise.git"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/josiah14/mise.git"
+        "url": "https://github.com/josiah14/mise.git"
       }
     },
     "nixpkgs": {

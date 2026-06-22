@@ -1,5 +1,5 @@
 % declare the module name, must match the file name.
-:- module hello_desugared.
+:- module start_bang.
 
 
 % Begin the definition of this module's public-facing interface.
@@ -41,11 +41,9 @@
 % execution order is defined while maintaining functional and logical purity.
 % Because of the di, we know that the consumed IO variable cannot be reused, it's
 % destroyed in the execution of the predicate or function with the di designation.
-
-% Below is the no ! desugared impl.
-main(IO, IO3) :-
-    io.write_string("Hello, World!\n", IO, IO0),
-    io.write_string("Hello, Mercury!!\n", IO0, IO1),
-    io.write_string("IO token threaded: write_string 2\n", IO1, IO2),
-    io.write_string("IO token threaded: write_string 3\n", IO2, IO3).
+main(!IO) :-
+    io.write_string("Hello, World!\n", !IO),
+    io.write_string("Hello, Mercury!!\n", !IO),
+    io.write_string("IO token threaded: write_string 2\n", !IO),
+    io.write_string("IO token threaded: write_string 3\n", !IO).
 
