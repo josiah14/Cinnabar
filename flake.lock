@@ -1,32 +1,15 @@
 {
   "nodes": {
-    "bats-nixpkgs": {
-      "locked": {
-        "lastModified": 1781328464,
-        "narHash": "sha256-j9uBlHI0eJ9zWU9IlF6SlBBPdeJu30hcvar31IRKHpw=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "5a722a7155bfc9fbe657f28d26b71860d95324bc",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "5a722a7155bfc9fbe657f28d26b71860d95324bc",
-        "type": "github"
-      }
-    },
     "mise": {
       "inputs": {
-        "bats-nixpkgs": "bats-nixpkgs",
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1782235871,
-        "narHash": "sha256-w+T2hGxnkyJHoPt+vJHd7APlt5T8fmYiqle3EOUidSI=",
+        "lastModified": 1782238337,
+        "narHash": "sha256-2bez1YBIZU88DTs4DLjqCPCCancvOaw8StzUuR4h6zw=",
         "ref": "refs/heads/master",
-        "rev": "8b513d7d56d9f7151b3c9f88c7da22b6dc201512",
-        "revCount": 7,
+        "rev": "0ea666da5958073db6ab8bf0fcde12f41a16ae62",
+        "revCount": 13,
         "type": "git",
         "url": "https://github.com/josiah14/mise.git"
       },
