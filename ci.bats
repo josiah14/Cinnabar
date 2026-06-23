@@ -23,31 +23,9 @@ setup() {
     [ "$output" = "" ]
 }
 
-#
-# The following 2 tests validate the solutions I created to this kata, they
-# don't exist in the original forked repo.
-# 
-
-@test "01-hello-world: start_bang.m compiles and produces correct output" {
+# Validates my worked solutions for this kata (not in the upstream repo).
+@test "01-hello-world: runtests passes (start_bang + start_explicit)" {
     cd "$KATA"
-    run mmc --make --grade "$GRADE" start_bang
+    run ./runtests.bats
     [ "$status" -eq 0 ]
-    run ./start_bang
-    expected="Hello, World!
-Hello, Mercury!!
-IO token threaded: write_string 2
-IO token threaded: write_string 3"
-    [ "$output" = "$expected" ]
-}
-
-@test "01-hello-world: start_explicit.m compiles and produces correct output" {
-    cd "$KATA"
-    run mmc --make --grade "$GRADE" start_explicit
-    [ "$status" -eq 0 ]
-    run ./start_explicit
-    expected="Hello, World!
-Hello, Mercury!!
-IO token threaded: write_string 2
-IO token threaded: write_string 3"
-    [ "$output" = "$expected" ]
 }

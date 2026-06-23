@@ -38,7 +38,7 @@ Start at the beginning of each track even if it feels easy. The early exercises 
 
 Four exercise formats, each working different muscles:
 
-- **Katas** — focused repetitions on a single concept: modes and determinism, higher-order predicates, `map`/`set`/`assoc_list` idioms, threading state with `!`, generate-and-test. Do them more than once. The second pass is where the wiring forms. Run `runtests` to verify your implementation.
+- **Katas** — focused repetitions on a single concept: modes and determinism, higher-order predicates, `map`/`set`/`assoc_list` idioms, threading state with `!`, generate-and-test. Do them more than once. The second pass is where the wiring forms. Run `runtests.bats` to verify your implementation.
 - **Koans** — broken Mercury programs with one specific flaw. The compiler is the teacher; read its errors before looking at the `solution/` subdirectory.
 - **Bridges** — each gives you a working Mercury file as a starting point and asks you to extend it. Use these when the jump from katas to puzzles feels steep. Key patterns are documented in `solution/README.md`.
 - **Puzzles** — open-ended problems (constraint solving, search, parsing, concurrency, meta-programming) that make Mercury's declarative engine earn its keep. Each has a working solution in `solution/`.
@@ -115,7 +115,7 @@ Individual exercise directories note any grade flags or alternative build steps 
 
 A reintroduction to Mercury basics. If you haven't worked through the official tutorial, start there. This repository picks up where that one ends.
 
-Kata solutions are also not here — by design. The `runtests` script in each kata directory tells you whether your implementation is correct; the derivation is the work. Koans, bridges, and puzzles include solutions because they center on specific patterns worth studying after you've attempted the exercise.
+Kata solutions are also not here — by design. The `runtests.bats` script in each kata directory tells you whether your implementation is correct; the derivation is the work. Koans, bridges, and puzzles include solutions because they center on specific patterns worth studying after you've attempted the exercise.
 
 ## Contributing
 
