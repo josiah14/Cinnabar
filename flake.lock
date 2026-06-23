@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1781749048,
-        "narHash": "sha256-qimcKaTriNQvLIRts62PDOuSTA06XRIZEjt5/Fu1UF8=",
+        "lastModified": 1782227335,
+        "narHash": "sha256-g8Vfe+e3wcDUPuzdo4polg4XyqDSJYf/CHEAuFHnVlA=",
         "ref": "refs/heads/master",
-        "rev": "a94c0af9dba8be9f26915e701313721af4da59bb",
-        "revCount": 5,
+        "rev": "375ac95ad68ef33a23ae1f67af8b9f1c0bc483f1",
+        "revCount": 6,
         "type": "git",
         "url": "https://github.com/josiah14/mise.git"
       },
