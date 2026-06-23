@@ -16,8 +16,13 @@ mmc --make io_uniqueness_koan
 It will fail. Read the error carefully:
 
 ```
-io_uniqueness_koan.m:013: unique-mode error: the called procedure would
-io_uniqueness_koan.m:013:   clobber its argument, but variable `IO0' is still live.
+io_uniqueness_koan.m:013: In clause for `main(di, uo)':
+io_uniqueness_koan.m:013:   in argument 2 of call to predicate
+io_uniqueness_koan.m:013:   `io.write_string'/3:
+io_uniqueness_koan.m:013:   unique-mode error: the called procedure would
+io_uniqueness_koan.m:013:   clobber its argument, but variable `IO0' is still
+io_uniqueness_koan.m:013:   live.
+** Error making `Mercury/cs/io_uniqueness_koan.c'.
 ```
 
 ---

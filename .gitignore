@@ -89,6 +89,7 @@ string_koan
 typeclass_koan
 types_koan
 uniqueness_koan
+io_uniqueness_koan
 # Kata / tooling executables
 buggy_index
 prop_test
