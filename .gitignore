@@ -189,3 +189,4 @@ auto-save-list
 node_modules/
 package.json
 package-lock.json
+.aider*
