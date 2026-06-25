@@ -14,6 +14,12 @@
         packages =
           mise.lib.${system}.mercury-22-01-8
           ++ mise.lib.${system}.bats-1-12-0;
+
+        shellHook = ''
+          export CINNABAR_DEV_PATH="$PATH"
+          export CINNABAR_USER_ZDOTDIR="$HOME"
+          export ZDOTDIR="${./dev-shell/zsh}"
+        '';
       };
     };
 }
