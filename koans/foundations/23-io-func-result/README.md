@@ -13,9 +13,23 @@
 mmc --make func_result_koan
 ```
 
-It will fail. The key error:
+It will fail.
 
+### The full error:
+
+```errors
+func_result_koan.m:014: Error: no clauses for function `hello'/1.
+func_result_koan.m:015: Error: clause for function `hello'/2
+func_result_koan.m:015:   without corresponding `:- func' declaration.
+func_result_koan.m:015: Error: !IO cannot be a function result.
+func_result_koan.m:015:   You probably meant !:IO.
+func_result_koan.m:015: Error: no clauses for function `hello'/2.
+** Error making `Mercury/cs/func_result_koan.c'.
 ```
+
+### The key error:
+
+```errors
 func_result_koan.m:015: Error: !IO cannot be a function result.
 func_result_koan.m:015:   You probably meant !:IO.
 ```
