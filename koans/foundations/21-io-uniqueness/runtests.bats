@@ -6,9 +6,13 @@ GRADE="asm_fast.par.gc.stseg"
 setup() {
     rm -rf "$KOAN/io_uniqueness_koan" "$KOAN/io_uniqueness_koan.mh" "$KOAN/Mercury"
 }
-@test "21-io-uniqueness: io_uniqueness_koan.m compiles" {
+@test "21-io-uniqueness: io_uniqueness_koan.m compiles and produces correct output" {
     cd "$KOAN"
     run mmc --make --grade "$GRADE" io_uniqueness_koan
     [ "$status" -eq 0 ]
+    run ./io_uniqueness_koan
+    [ "$output" = "Hello, world!
+Hello, Mercury!
+The world of Mercury says hello!" ]
 }
 

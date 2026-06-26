@@ -17,10 +17,10 @@ setup() {
     [ "$status" -eq 0 ]
 }
 
-@test "01-hello-world: start.m (noop) produces no output" {
-    cd "$KATA"
-    run ./start
-    [ "$output" = "" ]
+@test "01-hello-world: start.m declares io::di / io::uo / !IO skeleton" {
+    grep -qE 'io::di' "$KATA/start.m"
+    grep -qE 'io::uo' "$KATA/start.m"
+    grep -qF '!IO' "$KATA/start.m"
 }
 
 # Validates my worked solutions for this kata (not in the upstream repo).
@@ -33,10 +33,10 @@ setup() {
 # ---------------------------------------------------------------------
 # 21-io-uniqueness KOAN
 # ---------------------------------------------------------------------
-KOAN="$CINNABAR/koans/foundations/21-io-uniqueness"
+KOAN_21="$CINNABAR/koans/foundations/21-io-uniqueness"
 
 @test "21-io-uniqueness: koan compiles and produces correct output" {
-   cd "$KOAN"
+   cd "$KOAN_21"
    run ./runtests.bats
    [ "$status" -eq 0 ]
 }
@@ -44,10 +44,10 @@ KOAN="$CINNABAR/koans/foundations/21-io-uniqueness"
 # ---------------------------------------------------------------------
 # 23-io-func-result KOAN
 # ---------------------------------------------------------------------
-KOAN="$CINNABAR/koans/foundations/23-io-func-result"
+KOAN_23="$CINNABAR/koans/foundations/23-io-func-result"
 
 @test "23-io-func-result: koan compiles and produces correct output" {
-   cd "$KOAN"
+   cd "$KOAN_23"
    run ./runtests.bats
    [ "$status" -eq 0 ]
 }
