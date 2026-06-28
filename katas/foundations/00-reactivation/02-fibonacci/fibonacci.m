@@ -50,6 +50,14 @@ fib0(N) = (
 %   ; error("fib cannot take negative numbers")
 % ).
 
+% semidet is wrong here because negative integers are an invalid input,
+% so it should process as an error, not as if negative integers are
+% valid and therefore affect the determinism of the predicate. For
+% all valid inputs, the fibonacci predicate in guaranteed to produce
+% exactly one result, so it's det. semidit is a weaker contract and reduces
+% what the compiler is able to verify through the type system for this
+% particular predicate, so it should not be used.
+
 :- pred check(string::in, bool::in, io::di, io::uo) is det.
 check(Name, yes, !IO) :- io.format("PASS: %s\n", [s(Name)], !IO).
 check(Name, no,  !IO) :- io.format("FAIL: %s\n", [s(Name)], !IO).
