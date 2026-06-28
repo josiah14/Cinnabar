@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-GRADE="asm_fast.par.gc.stseg"
+GRADE="asm_fast.gc.stseg"
 
 setup() {
     cd "$(dirname "${BATS_TEST_FILENAME}")"

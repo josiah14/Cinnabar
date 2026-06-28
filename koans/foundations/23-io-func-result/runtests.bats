@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 KOAN="$(cd "$(dirname "${BATS_TEST_FILENAME:-$0}")" && pwd)"
-GRADE="asm_fast.par.gc.stseg"
+GRADE="asm_fast.gc.stseg"
 
 setup() {
     rm -rf "$KOAN/func_result_koan" "$KOAN/func_result_koan.mh" "$KOAN/Mercury"
