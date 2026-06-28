@@ -18,6 +18,8 @@
 
 % fib: the classic recursive definition.
 % It is det — every non-negative integer has exactly one Fibonacci value.
+% NOTE: the compiler cannot tell that this should be det if you declare
+% it semidet - it just silently accepts and compiles the code.
 :- pred fib(int::in, int::out) is det.
 fib(N, O) :- (
     (N = 0 ; N = 1) -> O = N
