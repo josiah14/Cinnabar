@@ -4,6 +4,10 @@
 
 **Before you open `daytype.m`:** write down what you remember about how Mercury handles multiple clauses for the same predicate or function — specifically, whether it is like Prolog (try each clause in order, backtrack) or something different.
 
+### Answer
+
+I had to look this up because I'd never actually formally learned it, or else forgotten it from my studies 7 years ago. But Prolog needs to backtrack because it's dynamically typed. Dynamically types means there's nothing constraining which values could be sent to the predicate which gives the compiler no way to enumerate over the types, so it has to try each clause in order and backtrack to find a solution. However, since Mercury has static typing, the types themselves are bounded sets, and thus these multiple clauses can essentially become a switch-case statement, so no backtracking is needed; it's essentially done similarly to the way Haskell handles pattern-matching over multiple clauses.
+
 ---
 
 ## What to look for
